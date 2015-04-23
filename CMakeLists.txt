@@ -1,0 +1,79 @@
+PROJECT(qc++)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+ENABLE_TESTING()
+
+IF (NOT CMAKE_BUILD_TYPE)
+	SET(CMAKE_BUILD_TYPE Debug)
+ENDIF()
+
+IF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/version")
+        FILE(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/version" VERSION)
+ELSE()
+        # git describe as versioning
+        EXECUTE_PROCESS(COMMAND git describe --always
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        OUTPUT_VARIABLE VERSION
+                        OUTPUT_STRIP_TRAILING_WHITESPACE)
+ENDIF()
+
+MESSAGE(STATUS "${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${VERSION}")
+
+###############################
+## Find Packages and Headers ##
+###############################
+
+#FIND_PACKAGE(SeqAn 2.0 REQUIRED)
+
+# Add include directories, defines, and flags for SeqAn (and its dependencies).
+INCLUDE_DIRECTORIES (${SEQAN_INCLUDE_DIRS})
+ADD_DEFINITIONS (${SEQAN_DEFINITIONS})
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS}")
+
+
+SET(DEPENDS_LIBS ${DEPENDS_LIBS} ${SEQAN_LIBRARIES})
+
+##########################
+## Set Compiler Options ##
+##########################
+
+OPTION(ENABLE_ASAN "Build with AddressSanitizer" OFF)
+OPTION(ENABLE_TSAN "Build with ThreadSanitizer" OFF)
+
+# Set CFLAGS
+SET(WRN "${WRN} -Wall")
+
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WRN}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WRN}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp -msse4 -ffast-math")
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3")
+
+IF(ENABLE_ASAN AND ENABLE_TSAN)
+	MESSAGE(FATAL_ERROR "Cannot enable both ThreadSanitizer and AddressSanitizer")
+ENDIF()
+
+IF(ENABLE_ASAN)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+ENDIF()
+
+IF(ENABLE_TSAN)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fPIC -pie")
+ENDIF()
+
+INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}
+                    ${CMAKE_SOURCE_DIR}/src
+		    )
+LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/lib)
+
+INCLUDE_DIRECTORIES()
+
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/qc-config.hh.in
+               ${CMAKE_BINARY_DIR}/qc-config.hh)
+
+#ADD_SUBDIRECTORY(tests)
+ADD_SUBDIRECTORY(src)
