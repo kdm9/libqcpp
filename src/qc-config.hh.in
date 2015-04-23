@@ -1,0 +1,17 @@
+/*
+ * ============================================================================
+ *
+ *       Filename:  qc-io.hh
+ *    Description:  Read I/O Operations. Adapted from Khmer
+ *        License:  GPLv3+
+ *         Author:  Kevin Murray, spam@kdmurray.id.au
+ *
+ * ============================================================================
+ */
+
+#ifndef QC_CONFIG_HH_IN
+#define QC_CONFIG_HH_IN
+
+#define QCPP_VERSION "${VERSION}"
+
+#endif /* QC_CONFIG_HH_IN */
