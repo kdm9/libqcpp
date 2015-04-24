@@ -119,7 +119,7 @@ ReadIO<SeqAnWrapper>::open(const char *filename)
 
 bool ReadParser::parse_read(Read &the_read)
 {
-    the_read.reset();
+    the_read.clear();
     const char *exception = NULL;
     while (!__sync_bool_compare_and_swap(&_private->seqan_spin_lock, 0, 1));
     bool atEnd = seqan::atEnd(_private->stream);
@@ -151,8 +151,8 @@ bool ReadParser::parse_read_pair(ReadPair &the_read_pair)
     bool first = parse_read(the_read_pair.first);
     bool second = parse_read(the_read_pair.second);
     if (!first || !second) {
-        the_read_pair.first.reset();
-        the_read_pair.second.reset();
+        the_read_pair.first.clear();
+        the_read_pair.second.clear();
         return false;
     }
     return true;
@@ -178,8 +178,8 @@ bool ReadInterleaver::parse_read_pair(ReadPair &the_read_pair)
     bool first = r1_parser.parse_read(the_read_pair.first);
     bool second = r2_parser.parse_read(the_read_pair.second);
     if (!first || !second) {
-        the_read_pair.first.reset();
-        the_read_pair.second.reset();
+        the_read_pair.first.clear();
+        the_read_pair.second.clear();
         return false;
     }
     return true;
@@ -192,7 +192,7 @@ bool ReadInterleaver::parse_read_pair(ReadPair &the_read_pair)
 
 void ReadWriter::write_read(Read &the_read)
 {
-    the_read.reset();
+    the_read.clear();
     const char *exception = NULL;
     while (!__sync_bool_compare_and_swap(&_private->seqan_spin_lock, 0, 1));
     try {

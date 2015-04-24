@@ -37,7 +37,7 @@ struct Read
     std:: string    sequence;
     std:: string    quality;
 
-    inline void reset ( )
+    inline void clear()
     {
         name.clear( );
         sequence.clear( );
