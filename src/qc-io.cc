@@ -239,4 +239,7 @@ void ReadDeInterleaver::write_read_pair(ReadPair &the_read_pair)
     r2_writer.write_read(the_read_pair.second);
 }
 
+template class ReadIO<SeqAnReadWrapper>;
+template class ReadIO<SeqAnWriteWrapper>;
+
 } // namespace qcpp
