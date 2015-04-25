@@ -16,6 +16,7 @@
 
 #include <exception>
 #include <stdexcept>
+#include <sstream>
 #include <string>
 
 namespace qcpp
@@ -24,10 +25,10 @@ namespace qcpp
 class IOError : public std::runtime_error
 {
 public:
-    explicit IOError(const std::string &msg) :
+    explicit IOError           (const std::string &msg) :
         std::runtime_error(msg) {}
 
-    explicit IOError(const char *msg) :
+    explicit IOError           (const char *msg) :
         std::runtime_error(msg) {}
 };
 
@@ -42,6 +43,28 @@ struct Read
         name.clear( );
         sequence.clear( );
         quality.clear( );
+    }
+
+    inline std::string str()
+    {
+        std::ostringstream oss;
+
+        if (name.size() == 0 || sequence.size() == 0) {
+            return "";
+        }
+        if (quality.size() > 0) {
+            oss << "@";
+        } else {
+            oss << ">";
+        }
+        oss << name << "\n";
+        oss << sequence << "\n";
+        if (quality.size() > 0) {
+            oss << "+\n";
+            oss << quality << "\n";
+        }
+
+        return oss.str();
     }
 };
 
