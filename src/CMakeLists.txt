@@ -1,16 +1,9 @@
 # Library
-
-FILE(GLOB QCPP_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.hh)
+FILE(GLOB QCPP_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/qc-*.hh)
 
 ADD_LIBRARY(libqc++
             qc-io.cc
             )
-
-ADD_EXECUTABLE(qcparse
-	    qcparse.cc
-            qc-io.cc
-            )
-
 SET_TARGET_PROPERTIES(libqc++ PROPERTIES OUTPUT_NAME qc++)
 TARGET_LINK_LIBRARIES(libqc++ ${DEPENDS_LIBS})
 
