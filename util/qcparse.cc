@@ -31,6 +31,7 @@ main (int argc, char *argv[])
 
     if (argc != 2) {
         std::cerr << "USAGE: " << argv[0] << " <read_file>" << std::endl;
+        return EXIT_FAILURE;
     }
     rp.open(argv[1]);
     while (rp.parse_read(r)) {
