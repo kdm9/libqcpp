@@ -112,6 +112,14 @@ ReadIO<SeqAnWrapper>::open(const char *filename)
     _private->open(filename);
 }
 
+template<typename SeqAnWrapper>
+size_t
+ReadIO<SeqAnWrapper>::
+get_num_reads()
+{
+    return _num_reads;
+}
+
 
 /*****************************************************************************
  *                                 READERS

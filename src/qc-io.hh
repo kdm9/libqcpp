@@ -96,18 +96,34 @@ protected:
     size_t          _num_reads;
 };
 
+class ReadInputStream
+{
+public:
+    virtual bool
+    parse_read                 (Read               &the_read) = 0;
 
-class ReadParser: public ReadIO<SeqAnReadWrapper>
+    virtual bool
+    parse_read_pair            (ReadPair           &the_read_pair) = 0;
+
+    bool
+    at_end                     ();
+
+protected:
+    bool _at_end;
+};
+
+class ReadParser: public ReadInputStream, public ReadIO<SeqAnReadWrapper>
 {
 public:
     bool
-    parse_read                (Read               &the_read);
+    parse_read                 (Read               &the_read);
 
     bool
-    parse_read_pair           (ReadPair           &the_read_pair);
+    parse_read_pair            (ReadPair           &the_read_pair);
+
 };
 
-class ReadWriter: public ReadIO<SeqAnWriteWrapper>
+class ReadOutputStream
 {
 public:
     void
@@ -118,7 +134,18 @@ public:
 
 };
 
-class ReadInterleaver
+class ReadWriter: public ReadOutputStream, public ReadIO<SeqAnWriteWrapper>
+{
+public:
+    void
+    write_read                 (Read               &the_read);
+
+    void
+    write_read_pair            (ReadPair           &the_read_pair);
+
+};
+
+class ReadInterleaver : public ReadInputStream
 {
 
 public:
@@ -133,15 +160,15 @@ public:
     open                       (const std::string  &r1_filename,
                                 const std::string  &r2_filename);
     bool
-    parse_read_pair           (ReadPair           &the_read_pair);
+    parse_read_pair            (ReadPair           &the_read_pair);
 
 private:
-    ReadParser r1_parser;
-    ReadParser r2_parser;
+    ReadParser      r1_parser;
+    ReadParser      r2_parser;
 
 };
 
-class ReadDeInterleaver
+class ReadDeInterleaver : public ReadOutputStream
 {
 
 public:
@@ -159,8 +186,8 @@ public:
     write_read_pair            (ReadPair           &the_read_pair);
 
 private:
-    ReadWriter r1_writer;
-    ReadWriter r2_writer;
+    ReadWriter      r1_writer;
+    ReadWriter      r2_writer;
 
 };
 
