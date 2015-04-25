@@ -76,4 +76,5 @@ CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/qc-config.hh.in
                ${CMAKE_BINARY_DIR}/qc-config.hh)
 
 ADD_SUBDIRECTORY(tests)
+ADD_SUBDIRECTORY(util)
 ADD_SUBDIRECTORY(src)
