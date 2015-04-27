@@ -15,8 +15,8 @@ tmpdir=biojenkins-out/$RANDOM
 mkdir -p $tmpdir
 
 # test parsing of valid file using qcparse
-./bin/qcparse ./data/valid.fastq >$tmpdir/valid.fastq
-cmp --silent ./data/valid.fastq $tmpdir/valid.fastq
+./bin/qcparse ./data/valid_il.fastq >$tmpdir/valid.fastq
+cmp --silent ./data/valid_il.fastq $tmpdir/valid.fastq
 
 # clean up from above tests
 rm -rf $tmpdir
