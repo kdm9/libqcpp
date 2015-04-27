@@ -20,6 +20,57 @@ namespace qcpp
 {
 
 /*****************************************************************************
+ *                                    Read
+ *****************************************************************************/
+
+void
+Read::
+clear()
+{
+    name.clear( );
+    sequence.clear( );
+    quality.clear( );
+}
+
+std::string
+Read::
+str()
+{
+    std::ostringstream oss;
+
+    if (name.size() == 0 || sequence.size() == 0) {
+        return "";
+    }
+    if (quality.size() > 0) {
+        oss << "@";
+    } else {
+        oss << ">";
+    }
+    oss << name << "\n";
+    oss << sequence << "\n";
+    if (quality.size() > 0) {
+        oss << "+\n";
+        oss << quality << "\n";
+    }
+
+    return oss.str();
+}
+
+bool
+operator==(const Read &r1, const Read &r2)
+{
+    return r1.name == r2.name && \
+           r1.sequence == r2.sequence && \
+           r1.quality == r2.quality;
+}
+
+bool
+operator==(const ReadPair &r1, const ReadPair &r2)
+{
+    return r1.first == r2.first && r1.second == r2.second;
+}
+
+/*****************************************************************************
  *                               SeqAn Wrapper
  *****************************************************************************/
 
@@ -92,6 +143,7 @@ ReadIO()
 {
     _private = new SeqAnWrapper();
     _num_reads = 0;
+    _has_qual = false;
 }
 
 template<typename SeqAnWrapper>
@@ -149,11 +201,18 @@ parse_read(Read &the_read)
         try {
             seqan::readRecord(the_read.name, the_read.sequence,
                               the_read.quality, _private->stream);
+            if (_num_reads == 0 && the_read.quality.size() != 0) {
+                _has_qual = true;
+            }
             _num_reads++;
         } catch (seqan::IOError &err) {
             exception = err.what();
         } catch (seqan::ParseError &err) {
             exception = err.what();
+        }
+        if (_has_qual && the_read.sequence.size() != the_read.quality.size()) {
+            // For some reason this error isn't caught by SeqAn
+            exception = "Sequence and Quality lengths differ";
         }
     }
     __asm__ __volatile__ ("" ::: "memory");
@@ -182,6 +241,12 @@ parse_read_pair(ReadPair &the_read_pair)
     return true;
 }
 
+ReadInterleaver::
+ReadInterleaver()
+{
+    _num_pairs = 0;
+}
+
 void
 ReadInterleaver::
 open(const char *r1_filename, const char *r2_filename)
@@ -204,18 +269,33 @@ parse_read_pair(ReadPair &the_read_pair)
 {
     bool first = r1_parser.parse_read(the_read_pair.first);
     bool second = r2_parser.parse_read(the_read_pair.second);
-    if (!first || !second) {
-        the_read_pair.first.clear();
-        the_read_pair.second.clear();
-        return false;
+    if (first && second) {
+        _num_pairs++;
+        return true;
     }
-    return true;
+    the_read_pair.first.clear();
+    the_read_pair.second.clear();
+    return false;
 }
+
+size_t
+ReadInterleaver::
+get_num_reads()
+{
+    return _num_pairs * 2;
+}
+
+size_t
+ReadInterleaver::
+get_num_pairs()
+{
+    return _num_pairs;
+}
+
 
 /*****************************************************************************
  *                                 WRITERS
  *****************************************************************************/
-
 
 void
 ReadWriter::
@@ -249,6 +329,13 @@ write_read_pair(ReadPair &the_read_pair)
     write_read(the_read_pair.second);
 }
 
+ReadDeInterleaver::
+ReadDeInterleaver()
+{
+    _num_pairs = 0;
+}
+
+
 void
 ReadDeInterleaver::
 open(const char *r1_filename, const char *r2_filename)
@@ -271,6 +358,21 @@ write_read_pair(ReadPair &the_read_pair)
 {
     r1_writer.write_read(the_read_pair.first);
     r2_writer.write_read(the_read_pair.second);
+    _num_pairs++;
+}
+
+size_t
+ReadDeInterleaver::
+get_num_reads()
+{
+    return _num_pairs * 2;
+}
+
+size_t
+ReadDeInterleaver::
+get_num_pairs()
+{
+    return _num_pairs;
 }
 
 template class ReadIO<SeqAnReadWrapper>;

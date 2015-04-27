@@ -32,41 +32,19 @@ public:
         std::runtime_error(msg) {}
 };
 
-struct Read
+class Read
 {
+public:
     std:: string    name;
     std:: string    sequence;
     std:: string    quality;
 
-    inline void clear()
-    {
-        name.clear( );
-        sequence.clear( );
-        quality.clear( );
-    }
+    void clear();
 
-    inline std::string str()
-    {
-        std::ostringstream oss;
-
-        if (name.size() == 0 || sequence.size() == 0) {
-            return "";
-        }
-        if (quality.size() > 0) {
-            oss << "@";
-        } else {
-            oss << ">";
-        }
-        oss << name << "\n";
-        oss << sequence << "\n";
-        if (quality.size() > 0) {
-            oss << "+\n";
-            oss << quality << "\n";
-        }
-
-        return oss.str();
-    }
+    std::string str();
 };
+bool operator==(const Read &r1, const Read &r2);
+
 
 typedef std::pair<Read, Read>   ReadPair;
 
@@ -94,6 +72,7 @@ protected:
 
     SeqAnWrapper *_private;
     size_t          _num_reads;
+    bool            _has_qual;
 };
 
 class ReadInputStream
@@ -150,7 +129,6 @@ class ReadInterleaver : public ReadInputStream
 
 public:
     ReadInterleaver            ();
-    ~ReadInterleaver           ();
 
     void
     open                       (const char         *r1_filename,
@@ -160,11 +138,21 @@ public:
     open                       (const std::string  &r1_filename,
                                 const std::string  &r2_filename);
     bool
+    parse_read                 (Read           &the_read) {return false;}
+
+    bool
     parse_read_pair            (ReadPair           &the_read_pair);
+
+    size_t
+    get_num_reads              ();
+
+    size_t
+    get_num_pairs              ();
 
 private:
     ReadParser      r1_parser;
     ReadParser      r2_parser;
+    size_t _num_pairs;
 
 };
 
@@ -173,7 +161,6 @@ class ReadDeInterleaver : public ReadOutputStream
 
 public:
     ReadDeInterleaver          ();
-    ~ReadDeInterleaver         ();
 
     void
     open                       (const char         *r1_filename,
@@ -183,12 +170,21 @@ public:
     open                       (const std::string  &r1_filename,
                                 const std::string  &r2_filename);
     void
+    write_read                 (Read               &the_read) {}
+
+    void
     write_read_pair            (ReadPair           &the_read_pair);
+
+    size_t
+    get_num_reads              ();
+
+    size_t
+    get_num_pairs              ();
 
 private:
     ReadWriter      r1_writer;
     ReadWriter      r2_writer;
-
+    size_t          _num_pairs;
 };
 
 
