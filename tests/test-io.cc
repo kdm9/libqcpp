@@ -77,6 +77,6 @@ TEST_CASE("Valid Fastq Reading", "[ReadParser]") {
         }
 
         REQUIRE(n_reads == 10);
-//        REQUIRE(parser.get_num_reads() == n_reads);
+        REQUIRE(parser.get_num_reads() == n_reads);
     }
 }

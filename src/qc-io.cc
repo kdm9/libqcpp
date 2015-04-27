@@ -87,27 +87,32 @@ struct SeqAnWriteWrapper
  *****************************************************************************/
 
 template<typename SeqAnWrapper>
-ReadIO<SeqAnWrapper>::ReadIO()
+ReadIO<SeqAnWrapper>::
+ReadIO()
 {
     _private = new SeqAnWrapper();
+    _num_reads = 0;
 }
 
 template<typename SeqAnWrapper>
-ReadIO<SeqAnWrapper>::~ReadIO()
+ReadIO<SeqAnWrapper>::
+~ReadIO()
 {
     delete _private;
 }
 
 template<typename SeqAnWrapper>
 void
-ReadIO<SeqAnWrapper>::open(const std::string &filename)
+ReadIO<SeqAnWrapper>::
+open(const std::string &filename)
 {
     _private->open(filename.c_str());
 }
 
 template<typename SeqAnWrapper>
 void
-ReadIO<SeqAnWrapper>::open(const char *filename)
+ReadIO<SeqAnWrapper>::
+open(const char *filename)
 {
     _private->open(filename);
 }
@@ -125,7 +130,16 @@ get_num_reads()
  *                                 READERS
  *****************************************************************************/
 
-bool ReadParser::parse_read(Read &the_read)
+bool
+ReadInputStream::
+at_end()
+{
+    return _at_end;
+}
+
+bool
+ReadParser::
+parse_read(Read &the_read)
 {
     the_read.clear();
     const char *exception = NULL;
@@ -154,7 +168,9 @@ bool ReadParser::parse_read(Read &the_read)
     return true;
 }
 
-bool ReadParser::parse_read_pair(ReadPair &the_read_pair)
+bool
+ReadParser::
+parse_read_pair(ReadPair &the_read_pair)
 {
     bool first = parse_read(the_read_pair.first);
     bool second = parse_read(the_read_pair.second);
@@ -167,21 +183,24 @@ bool ReadParser::parse_read_pair(ReadPair &the_read_pair)
 }
 
 void
-ReadInterleaver::open(const char *r1_filename, const char *r2_filename)
+ReadInterleaver::
+open(const char *r1_filename, const char *r2_filename)
 {
     r1_parser.open(r1_filename);
     r2_parser.open(r2_filename);
 }
 
 void
-ReadInterleaver::open(const std::string &r1_filename,
-                      const std::string &r2_filename)
+ReadInterleaver::
+open(const std::string &r1_filename, const std::string &r2_filename)
 {
     r1_parser.open(r1_filename);
     r2_parser.open(r2_filename);
 }
 
-bool ReadInterleaver::parse_read_pair(ReadPair &the_read_pair)
+bool
+ReadInterleaver::
+parse_read_pair(ReadPair &the_read_pair)
 {
     bool first = r1_parser.parse_read(the_read_pair.first);
     bool second = r2_parser.parse_read(the_read_pair.second);
@@ -198,7 +217,9 @@ bool ReadInterleaver::parse_read_pair(ReadPair &the_read_pair)
  *****************************************************************************/
 
 
-void ReadWriter::write_read(Read &the_read)
+void
+ReadWriter::
+write_read(Read &the_read)
 {
     the_read.clear();
     const char *exception = NULL;
@@ -220,28 +241,33 @@ void ReadWriter::write_read(Read &the_read)
     }
 }
 
-void ReadWriter::write_read_pair(ReadPair &the_read_pair)
+void
+ReadWriter::
+write_read_pair(ReadPair &the_read_pair)
 {
     write_read(the_read_pair.first);
     write_read(the_read_pair.second);
 }
 
 void
-ReadDeInterleaver::open(const char *r1_filename, const char *r2_filename)
+ReadDeInterleaver::
+open(const char *r1_filename, const char *r2_filename)
 {
     r1_writer.open(r1_filename);
     r2_writer.open(r2_filename);
 }
 
 void
-ReadDeInterleaver::open(const std::string &r1_filename,
-                      const std::string &r2_filename)
+ReadDeInterleaver::
+open(const std::string &r1_filename, const std::string &r2_filename)
 {
     r1_writer.open(r1_filename);
     r2_writer.open(r2_filename);
 }
 
-void ReadDeInterleaver::write_read_pair(ReadPair &the_read_pair)
+void
+ReadDeInterleaver::
+write_read_pair(ReadPair &the_read_pair)
 {
     r1_writer.write_read(the_read_pair.first);
     r2_writer.write_read(the_read_pair.second);
