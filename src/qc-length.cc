@@ -11,11 +11,14 @@
 
 #include "qc-length.hh"
 
+#include <yaml-cpp/yaml.h>
+
 namespace qcpp
 {
 
 ReadLenCounter::
-ReadLenCounter()
+ReadLenCounter(const std::string  &name):
+    ReadProcessor(name)
 {
     _max_len = 0;
     _have_r2 = false;
@@ -58,45 +61,42 @@ ReadLenCounter::
 report()
 {
     std::ostringstream ss;
+    YAML::Emitter yml;
 
-    ss << "ReadLenCounter\n";
-    ss << "Num reads processed " << _num_reads << "\n";
-    for (size_t i = 1; i <= _max_len; i++) {
-        size_t r1 = _len_map_r1[i];
-        if (r1 > 0) {
-            ss << i << '\t' << r1;
-            if (_have_r2) {
-                ss << '\t' << _len_map_r2[i];
-            }
-            ss << '\n';
-        }
-    }
-
+    yml << YAML::BeginSeq;
+    yml << YAML::BeginMap;
+    yml << YAML::Key << "ReadLenCounter"
+        << YAML::Value
+        << YAML::BeginMap
+        << YAML::Key   << "name"
+        << YAML::Value << _name
+        << YAML::Key   << "parameters"
+        << YAML::Value << YAML::BeginMap
+                       << YAML::EndMap
+        << YAML::Key   << "output"
+        << YAML::Value << YAML::BeginMap
+                       << YAML::Key << "num_reads"
+                       << YAML::Value << _num_reads
+                       << YAML::Key << "r1_lengths"
+                       << YAML::Value << _len_map_r1
+                       << YAML::Key << "r2_lengths"
+                       << YAML::Value << _len_map_r2
+                       << YAML::EndMap
+        << YAML::EndMap;
+    yml << YAML::EndMap;
+    yml << YAML::EndSeq;
+    ss << yml.c_str() << "\n";
     return ss.str();
 }
 
 ReadLenFilter::
-ReadLenFilter()
+ReadLenFilter(const std::string  &name,
+              size_t threshold):
+    ReadProcessor(name)
 {
     _num_r1_trimmed = 0;
     _num_r2_trimmed = 0;
     _num_pairs_trimmed = 0;
-    _threshold = 0;
-}
-
-ReadLenFilter::
-ReadLenFilter(size_t threshold)
-{
-    _num_r1_trimmed = 0;
-    _num_r2_trimmed = 0;
-    _num_pairs_trimmed = 0;
-    _threshold = threshold;
-}
-
-void
-ReadLenFilter::
-set_threshold(size_t threshold)
-{
     _threshold = threshold;
 }
 
@@ -139,16 +139,38 @@ ReadLenFilter::
 report()
 {
     std::ostringstream ss;
+    YAML::Emitter yml;
     float percent_trimmed = _num_reads - (_num_r1_trimmed + _num_r2_trimmed);
     percent_trimmed /= (float) _num_reads;
+    percent_trimmed *= 100;
 
-    ss << "ReadLenFilter\n";
-    ss << "Num reads processed " << _num_reads << "\n";
-    ss << "Threshold " << _threshold << "\n";
-    ss << "Num reads trimmed:\n";
-    ss << _num_r1_trimmed << "\t" << _num_r2_trimmed << "\n";
-    ss << "Percent passed: " << percent_trimmed  * 100 << "%\n";
-
+    yml << YAML::BeginSeq;
+    yml << YAML::BeginMap;
+    yml << YAML::Key   << "ReadLenFilter"
+        << YAML::Value
+        << YAML::BeginMap
+        << YAML::Key   << "name"
+        << YAML::Value << _name
+        << YAML::Key   << "parameters"
+        << YAML::Value << YAML::BeginMap
+                       << YAML::Key << "threshold"
+                       << YAML::Value << _threshold
+                       << YAML::EndMap
+        << YAML::Key   << "output"
+        << YAML::Value << YAML::BeginMap
+                       << YAML::Key << "num_reads"
+                       << YAML::Value << _num_reads
+                       << YAML::Key << "num_r1_trimmed"
+                       << YAML::Value << _num_r1_trimmed
+                       << YAML::Key << "num_r2_trimmed"
+                       << YAML::Value << _num_r2_trimmed
+                       << YAML::Key << "percent_trimmed"
+                       << YAML::Value << percent_trimmed
+                       << YAML::EndMap
+        << YAML::EndMap;
+    yml << YAML::EndMap;
+    yml << YAML::EndSeq;
+    ss << yml.c_str() << "\n";
     return ss.str();
 }
 

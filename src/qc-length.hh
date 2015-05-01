@@ -22,7 +22,7 @@ namespace qcpp
 class ReadLenCounter: public ReadProcessor
 {
 public:
-    ReadLenCounter                 ();
+    ReadLenCounter                 (const std::string  &name);
 
     void
     process_read                   (Read               &the_read);
@@ -31,7 +31,7 @@ public:
     process_read_pair              (ReadPair           &the_read_pair);
 
     std::string
-    report                         ();
+    report                          ();
 
 private:
     bool                    _have_r2;
@@ -45,26 +45,23 @@ private:
 class ReadLenFilter: public ReadProcessor
 {
 public:
-    ReadLenFilter                  ();
-    ReadLenFilter                  (size_t              threshold);
+    ReadLenFilter                   (const std::string  &name,
+                                     size_t              threshold=0);
 
     void
-    set_threshold                  (size_t              threshold);
+    process_read                    (Read               &the_read);
 
     void
-    process_read                   (Read               &the_read);
-
-    void
-    process_read_pair              (ReadPair           &the_read_pair);
+    process_read_pair               (ReadPair           &the_read_pair);
 
     std::string
-    report                         ();
+    report                          ();
 
 private:
     std::atomic_ullong      _num_r1_trimmed;
     std::atomic_ullong      _num_r2_trimmed;
     std::atomic_ullong      _num_pairs_trimmed;
-    std::atomic_ullong  _threshold;
+    size_t                  _threshold;
 };
 
 

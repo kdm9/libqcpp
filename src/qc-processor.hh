@@ -28,7 +28,7 @@ typedef std::unique_ptr<ReadProcessor> ReadProcessorPtr;
 class ReadProcessor
 {
 public:
-    ReadProcessor                  ();
+    ReadProcessor                  (const std::string  &name);
 
     virtual void
     process_read                   (Read               &the_read) = 0;
@@ -41,6 +41,7 @@ public:
 
 protected:
     std::atomic_ullong  _num_reads;
+    const std::string   _name;
 };
 
 

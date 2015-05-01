@@ -15,7 +15,8 @@ namespace qcpp
 {
 
 ReadProcessor::
-ReadProcessor()
+ReadProcessor                  (const std::string  &name):
+    _name(name)
 {
     _num_reads = 0;
 }
@@ -30,7 +31,6 @@ ReadProcessorPipeline::
 ReadProcessorPipeline(ReadProcessorPipeline &&other)
 {
     _pipeline = std::move(other._pipeline);
-
 }
 
 void
