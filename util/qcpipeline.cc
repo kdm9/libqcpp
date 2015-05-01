@@ -27,9 +27,9 @@ main (int argc, char *argv[])
     }
 
     stream.open(argv[1]);
-    stream.append_processor<qcpp::ReadLenCounter>();
-    stream.append_processor<qcpp::ReadLenFilter>(50);
-    stream.append_processor<qcpp::ReadLenCounter>();
+    stream.append_processor<qcpp::ReadLenCounter>("before qc");
+    stream.append_processor<qcpp::ReadLenFilter>("trim at 50", 50);
+    stream.append_processor<qcpp::ReadLenCounter>("after qc");
 
     while (stream.parse_read(r)) {
         // std::cout << r.str();

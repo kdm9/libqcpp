@@ -35,8 +35,7 @@ main (int argc, char *argv[])
         return EXIT_FAILURE;
     }
     rp.open(argv[1]);
-    pipe.append_processor<qcpp::ReadLenCounter>();
-    pipe.append_processor<qcpp::ReadLenFilter>(97);
+    pipe.append_processor<qcpp::ReadLenCounter>("Count length");
     while (rp.parse_read(r)) {
         pipe.process_read(r);
     }
