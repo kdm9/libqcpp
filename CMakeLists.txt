@@ -28,15 +28,20 @@ MESSAGE(STATUS "${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${VERSION}
 ## Find Packages and Headers ##
 ###############################
 
+### SeqAn
 #FIND_PACKAGE(SeqAn 2.0 REQUIRED)
-
-# Add include directories, defines, and flags for SeqAn (and its dependencies).
 INCLUDE_DIRECTORIES (${SEQAN_INCLUDE_DIRS})
 ADD_DEFINITIONS (${SEQAN_DEFINITIONS})
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS}")
-
-
 SET(DEPENDS_LIBS ${DEPENDS_LIBS} ${SEQAN_LIBRARIES})
+
+
+### yaml-cpp
+FIND_PACKAGE(YamlCpp REQUIRED)
+INCLUDE_DIRECTORIES(${YAMLCPP_INCLUDE_DIR})
+LINK_DIRECTORIES(${YAMLCPP_LIBRARY_DIR})
+SET(DEPENDS_LIBS ${DEPENDS_LIBS} ${YAMLCPP_LIBRARY})
+
 
 ##########################
 ## Set Compiler Options ##
