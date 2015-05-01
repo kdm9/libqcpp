@@ -15,7 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This file is a demonstration of how to run a processor pipline with libqc++
+// This file is a demonstration of how to parse reads with libqc++
+// It's also used to test the parsing code.
 
 #include <iostream>
 #include <string>
@@ -27,14 +28,18 @@ main (int argc, char *argv[])
 {
     qcpp::Read r;
     qcpp::ReadParser rp;
+    qcpp::ReadProcessorPipeline pipe;
 
     if (argc != 2) {
         std::cerr << "USAGE: " << argv[0] << " <read_file>" << std::endl;
         return EXIT_FAILURE;
     }
     rp.open(argv[1]);
+    pipe.append_processor<qcpp::ReadLenCounter>();
+    pipe.append_processor<qcpp::ReadLenFilter>(97);
     while (rp.parse_read(r)) {
-        std::cout << r.str();
+        pipe.process_read(r);
     }
+    std::cout << pipe.report();
     return EXIT_SUCCESS;
 }
