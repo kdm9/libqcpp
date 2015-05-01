@@ -32,6 +32,13 @@ clear()
     quality.clear( );
 }
 
+size_t
+Read::
+size()
+{
+    return sequence.size();
+}
+
 std::string
 Read::
 str()
@@ -77,12 +84,7 @@ operator==(const ReadPair &r1, const ReadPair &r2)
 struct SeqAnReadWrapper
 {
     seqan::SeqFileIn stream;
-    uint32_t seqan_spin_lock;
-
-    SeqAnReadWrapper()
-    {
-        seqan_spin_lock = 0;
-    }
+    std::mutex _mutex;
 
     ~SeqAnReadWrapper()
     {
@@ -100,20 +102,13 @@ struct SeqAnReadWrapper
             message = message + filename + "' does not contain any sequences!";
             throw IOError(message);
         }
-        __asm__ __volatile__ ("" ::: "memory");
-        seqan_spin_lock = 0;
     }
 };
 
 struct SeqAnWriteWrapper
 {
     seqan::SeqFileOut stream;
-    uint32_t seqan_spin_lock;
-
-    SeqAnWriteWrapper()
-    {
-        seqan_spin_lock = 0;
-    }
+    std::mutex _mutex;
 
     ~SeqAnWriteWrapper()
     {
@@ -127,8 +122,6 @@ struct SeqAnWriteWrapper
             message = message + filename + "' for writing.";
             throw IOError(message);
         }
-        __asm__ __volatile__ ("" ::: "memory");
-        seqan_spin_lock = 0;
     }
 };
 
@@ -189,34 +182,49 @@ at_end()
     return _at_end;
 }
 
+ReadInputStream::
+ReadInputStream()
+{
+    _at_end = false;
+}
+
+ReadInputStream::
+ReadInputStream(const ReadInputStream &other)
+{
+    _at_end = other._at_end;
+}
+
 bool
 ReadParser::
 parse_read(Read &the_read)
 {
     the_read.clear();
     const char *exception = NULL;
-    while (!__sync_bool_compare_and_swap(&_private->seqan_spin_lock, 0, 1));
-    bool atEnd = seqan::atEnd(_private->stream);
-    if (!atEnd) {
-        try {
-            seqan::readRecord(the_read.name, the_read.sequence,
-                              the_read.quality, _private->stream);
-            if (_num_reads == 0 && the_read.quality.size() != 0) {
-                _has_qual = true;
+    bool atEnd;
+
+    // Non-threadsafe block
+    {
+        std::lock_guard<std::mutex> lock(_private->_mutex);
+        atEnd = seqan::atEnd(_private->stream);
+        if (!atEnd) {
+            try {
+                seqan::readRecord(the_read.name, the_read.sequence,
+                                  the_read.quality, _private->stream);
+                if (_num_reads == 0 && the_read.quality.size() != 0) {
+                    _has_qual = true;
+                }
+            } catch (seqan::IOError &err) {
+                exception = err.what();
+            } catch (seqan::ParseError &err) {
+                exception = err.what();
             }
-            _num_reads++;
-        } catch (seqan::IOError &err) {
-            exception = err.what();
-        } catch (seqan::ParseError &err) {
-            exception = err.what();
-        }
-        if (_has_qual && the_read.sequence.size() != the_read.quality.size()) {
-            // For some reason this error isn't caught by SeqAn
-            exception = "Sequence and Quality lengths differ";
         }
     }
-    __asm__ __volatile__ ("" ::: "memory");
-    _private->seqan_spin_lock = 0;
+    // Check that the lengths are the same
+    if (_has_qual && the_read.sequence.size() != the_read.quality.size()) {
+        // For some reason this error isn't caught by SeqAn
+        exception = "Sequence and Quality lengths differ";
+    }
     // Throw any error in the read, even if we're at the end
     if (exception != NULL) {
         throw IOError(exception);
@@ -224,6 +232,7 @@ parse_read(Read &the_read)
     if (atEnd) {
         return false;
     }
+    _num_reads++;
     return true;
 }
 
@@ -231,8 +240,12 @@ bool
 ReadParser::
 parse_read_pair(ReadPair &the_read_pair)
 {
-    bool first = parse_read(the_read_pair.first);
-    bool second = parse_read(the_read_pair.second);
+    bool first, second;
+    {
+        std::lock_guard<std::mutex> lock(_pair_mutex);
+        first = parse_read(the_read_pair.first);
+        second = parse_read(the_read_pair.second);
+    }
     if (!first || !second) {
         the_read_pair.first.clear();
         the_read_pair.second.clear();
@@ -297,24 +310,34 @@ get_num_pairs()
  *                                 WRITERS
  *****************************************************************************/
 
+ReadOutputStream::
+ReadOutputStream()
+{
+}
+
+ReadOutputStream::
+ReadOutputStream(const ReadOutputStream &other)
+{
+}
+
 void
 ReadWriter::
 write_read(Read &the_read)
 {
     the_read.clear();
     const char *exception = NULL;
-    while (!__sync_bool_compare_and_swap(&_private->seqan_spin_lock, 0, 1));
-    try {
-        seqan::writeRecord(_private->stream, the_read.name,
-                           the_read.sequence, the_read.quality);
-        _num_reads++;
-    } catch (seqan::IOError &err) {
-        exception = err.what();
-    } catch (seqan::ParseError &err) {
-        exception = err.what();
+    {
+        std::lock_guard<std::mutex> lg(_private->_mutex);
+        try {
+            seqan::writeRecord(_private->stream, the_read.name,
+                               the_read.sequence, the_read.quality);
+            _num_reads++;
+        } catch (seqan::IOError &err) {
+            exception = err.what();
+        } catch (seqan::ParseError &err) {
+            exception = err.what();
+        }
     }
-    __asm__ __volatile__ ("" ::: "memory");
-    _private->seqan_spin_lock = 0;
     // Throw any error in the read, even if we're at the end
     if (exception != NULL) {
         throw IOError(exception);
@@ -325,6 +348,7 @@ void
 ReadWriter::
 write_read_pair(ReadPair &the_read_pair)
 {
+    std::lock_guard<std::mutex> lg(_pair_mutex);
     write_read(the_read_pair.first);
     write_read(the_read_pair.second);
 }
