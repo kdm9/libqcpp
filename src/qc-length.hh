@@ -36,8 +36,8 @@ public:
 private:
     bool                    _have_r2;
     size_t                  _max_len;
-    std::map<size_t, size_t> _len_map_r1;
-    std::map<size_t, size_t> _len_map_r2;
+    std::map<size_t, std::atomic_ullong> _len_map_r1;
+    std::map<size_t, std::atomic_ullong> _len_map_r2;
     std::mutex              _map_mutex;
 };
 
