@@ -28,26 +28,30 @@ namespace qcpp
 class IOError : public std::runtime_error
 {
 public:
-    explicit IOError           (const std::string &msg) :
+    explicit IOError            (const std::string &msg) :
         std::runtime_error(msg) {}
 
-    explicit IOError           (const char *msg) :
+    explicit IOError            (const char        *msg) :
         std::runtime_error(msg) {}
 };
 
 class Read
 {
 public:
-    std:: string    name;
-    std:: string    sequence;
-    std:: string    quality;
+    std:: string        name;
+    std:: string        sequence;
+    std:: string        quality;
 
-    void clear();
+    void
+    clear                       ();
 
-    size_t size();
+    size_t
+    size                        ();
 
-    std::string str();
+    std::string
+    str                         ();
 };
+
 bool operator==(const Read &r1, const Read &r2);
 
 
@@ -66,17 +70,17 @@ template<typename SeqAnWrapper>
 class ReadIO
 {
 public:
-    ReadIO                     ();
-    ~ReadIO                    ();
+    ReadIO                      ();
+    ~ReadIO                     ();
 
     void
-    open                       (const char         *filename);
+    open                        (const char        *filename);
 
     void
-    open                       (const std::string  &filename);
+    open                        (const std::string &filename);
 
     size_t
-    get_num_reads              ();
+    get_num_reads               ();
 
 protected:
 
@@ -88,17 +92,17 @@ protected:
 class ReadInputStream
 {
 public:
-    ReadInputStream            ();
-    ReadInputStream            (const ReadInputStream &other);
+    ReadInputStream             ();
+    ReadInputStream             (const ReadInputStream &other);
 
     virtual bool
-    parse_read                 (Read               &the_read) = 0;
+    parse_read                  (Read              &the_read) = 0;
 
     virtual bool
-    parse_read_pair            (ReadPair           &the_read_pair) = 0;
+    parse_read_pair             (ReadPair          &the_read_pair) = 0;
 
     bool
-    at_end                     ();
+    at_end                      ();
 
 protected:
     bool                    _at_end;
@@ -110,10 +114,10 @@ class ReadParser: public ReadInputStream, public ReadIO<SeqAnReadWrapper>
 {
 public:
     bool
-    parse_read                 (Read               &the_read);
+    parse_read                  (Read              &the_read);
 
     bool
-    parse_read_pair            (ReadPair           &the_read_pair);
+    parse_read_pair             (ReadPair          &the_read_pair);
 
 };
 
@@ -123,10 +127,10 @@ public:
     ReadOutputStream            ();
     ReadOutputStream            (const ReadOutputStream &other);
     void
-    write_read                  (Read               &the_read);
+    write_read                  (Read              &the_read);
 
     void
-    write_read_pair             (ReadPair           &the_read_pair);
+    write_read_pair             (ReadPair          &the_read_pair);
 
 protected:
     // Locks paired IO to ensure proper pairing
@@ -137,10 +141,10 @@ class ReadWriter: public ReadOutputStream, public ReadIO<SeqAnWriteWrapper>
 {
 public:
     void
-    write_read                 (Read               &the_read);
+    write_read                  (Read              &the_read);
 
     void
-    write_read_pair            (ReadPair           &the_read_pair);
+    write_read_pair             (ReadPair          &the_read_pair);
 
 };
 
@@ -148,32 +152,33 @@ class ReadInterleaver : public ReadInputStream
 {
 
 public:
-    ReadInterleaver            ();
+    ReadInterleaver             ();
 
     void
-    open                       (const char         *r1_filename,
-                                const char         *r2_filename);
+    open                        (const char        *r1_filename,
+                                 const char        *r2_filename);
 
     void
-    open                       (const std::string  &r1_filename,
-                                const std::string  &r2_filename);
+    open                        (const std::string &r1_filename,
+                                 const std::string &r2_filename);
     bool
-    parse_read_pair            (ReadPair           &the_read_pair);
+    parse_read_pair             (ReadPair          &the_read_pair);
 
     size_t
-    get_num_reads              ();
+    get_num_reads               ();
 
     size_t
-    get_num_pairs              ();
+    get_num_pairs               ();
 
 private:
-    ReadParser      r1_parser;
-    ReadParser      r2_parser;
-    size_t          _num_pairs;
-    std::mutex      _mutex;
+    ReadParser          r1_parser;
+    ReadParser          r2_parser;
+    size_t              _num_pairs;
+    std::mutex          _mutex;
 
     bool
-    parse_read                 (Read           &the_read) {return false;}
+    parse_read                  (Read              &the_read)
+    {return false;}
 
 };
 
@@ -181,32 +186,32 @@ class ReadDeInterleaver : public ReadOutputStream
 {
 
 public:
-    ReadDeInterleaver          ();
+    ReadDeInterleaver           ();
 
     void
-    open                       (const char         *r1_filename,
-                                const char         *r2_filename);
+    open                        (const char        *r1_filename,
+                                 const char        *r2_filename);
 
     void
-    open                       (const std::string  &r1_filename,
-                                const std::string  &r2_filename);
+    open                        (const std::string &r1_filename,
+                                 const std::string &r2_filename);
     void
-    write_read_pair            (ReadPair           &the_read_pair);
+    write_read_pair             (ReadPair          &the_read_pair);
 
     size_t
-    get_num_reads              ();
+    get_num_reads               ();
 
     size_t
-    get_num_pairs              ();
+    get_num_pairs               ();
 
 private:
-    ReadWriter      r1_writer;
-    ReadWriter      r2_writer;
-    size_t          _num_pairs;
-    std::mutex      _mutex;
+    ReadWriter          r1_writer;
+    ReadWriter          r2_writer;
+    size_t              _num_pairs;
+    std::mutex          _mutex;
 
     void
-    write_read                 (Read               &the_read) {}
+    write_read                  (Read              &the_read) {}
 
 };
 

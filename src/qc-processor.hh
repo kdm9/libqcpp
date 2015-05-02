@@ -22,50 +22,49 @@
 namespace qcpp
 {
 
-class ReadProcessor;
-typedef std::unique_ptr<ReadProcessor> ReadProcessorPtr;
-
 class ReadProcessor
 {
 public:
-    ReadProcessor                  (const std::string  &name);
+    ReadProcessor                   (const std::string &name);
 
     virtual void
-    process_read                   (Read               &the_read) = 0;
+    process_read                    (Read              &the_read) = 0;
 
     virtual void
-    process_read_pair              (ReadPair           &the_read_pair) = 0;
+    process_read_pair               (ReadPair          &the_read_pair) = 0;
 
     virtual std::string
-    report                         () = 0;
+    report                          () = 0;
 
 protected:
-    std::atomic_ullong  _num_reads;
-    const std::string   _name;
+    std::atomic_ullong      _num_reads;
+    const std::string       _name;
 };
 
 
 class ReadProcessorPipeline
 {
 public:
-    ReadProcessorPipeline          ();
-    ReadProcessorPipeline          (ReadProcessorPipeline &&other);
+    ReadProcessorPipeline           ();
+    ReadProcessorPipeline           (ReadProcessorPipeline &&other);
 
     template<typename ReadProcType, class ...  Args>
     void
-    append_processor               (Args&&...           args)
+    append_processor                (Args&&...          args)
     {
-        _pipeline.push_back(std::make_unique<ReadProcType>(args...));
+        //_pipeline.push_back(std::make_unique<ReadProcType>(args...));
+        _pipeline.push_back(
+                std::unique_ptr<ReadProcType>(new ReadProcType(args...)));
     }
 
     void
-    process_read                   (Read               &the_read);
+    process_read                    (Read              &the_read);
 
     void
-    process_read_pair              (ReadPair           &the_read_pair);
+    process_read_pair               (ReadPair          &the_read_pair);
 
     std::string
-    report                         ();
+    report                          ();
 
 protected:
     std::vector<std::unique_ptr<ReadProcessor>> _pipeline;
@@ -78,7 +77,7 @@ public:
     ProcessedReadStream             ();
 
     void
-    open                            (const char         *filename);
+    open                            (const char        *filename);
 
     void
     open                            (const std::string  &filename);
@@ -97,7 +96,7 @@ public:
     }
 
     std::string
-    report                         ();
+    report                          ();
 
 protected:
     ReadParser              _parser;

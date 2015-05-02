@@ -22,13 +22,13 @@ namespace qcpp
 class ReadLenCounter: public ReadProcessor
 {
 public:
-    ReadLenCounter                 (const std::string  &name);
+    ReadLenCounter                  (const std::string &name);
 
     void
-    process_read                   (Read               &the_read);
+    process_read                    (Read              &the_read);
 
     void
-    process_read_pair              (ReadPair           &the_read_pair);
+    process_read_pair               (ReadPair          &the_read_pair);
 
     std::string
     report                          ();
@@ -45,14 +45,14 @@ private:
 class ReadLenFilter: public ReadProcessor
 {
 public:
-    ReadLenFilter                   (const std::string  &name,
-                                     size_t              threshold=0);
+    ReadLenFilter                   (const std::string &name,
+                                     size_t             threshold = 1);
 
     void
-    process_read                    (Read               &the_read);
+    process_read                    (Read              &the_read);
 
     void
-    process_read_pair               (ReadPair           &the_read_pair);
+    process_read_pair               (ReadPair          &the_read_pair);
 
     std::string
     report                          ();

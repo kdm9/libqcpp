@@ -15,7 +15,7 @@ namespace qcpp
 {
 
 ReadProcessor::
-ReadProcessor                  (const std::string  &name):
+ReadProcessor(const std::string &name):
     _name(name)
 {
     _num_reads = 0;
