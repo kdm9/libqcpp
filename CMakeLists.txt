@@ -73,10 +73,10 @@ ENDIF()
 
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}
                     ${CMAKE_SOURCE_DIR}/src
+                    ${CMAKE_SOURCE_DIR}/src/ext
 		    )
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/lib)
 
-INCLUDE_DIRECTORIES()
 
 CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/qc-config.hh.in
                ${CMAKE_BINARY_DIR}/qc-config.hh)

@@ -10,6 +10,8 @@ ADD_LIBRARY(libqc++
         qc-io.cc
         qc-processor.cc
         qc-length.cc
+        ext/ssw.c
+        ext/ssw_cpp.cpp
         )
 
 SET_TARGET_PROPERTIES(libqc++ PROPERTIES OUTPUT_NAME qc++)
