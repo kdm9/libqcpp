@@ -4,12 +4,14 @@ SET(QCPP_HEADERS
         qc-io.hh
         qc-processor.hh
         qc-length.hh
+        qc-gbs.hh
         )
 
 ADD_LIBRARY(libqc++
         qc-io.cc
         qc-processor.cc
         qc-length.cc
+        qc-gbs.cc
         ext/ssw.c
         ext/ssw_cpp.cpp
         )
