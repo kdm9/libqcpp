@@ -14,6 +14,7 @@
 
 #include "qc-config.hh"
 #include "qc-io.hh"
+#include "qc-gbs.hh"
 #include "qc-processor.hh"
 #include "qc-length.hh"
 
