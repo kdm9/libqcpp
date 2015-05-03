@@ -50,12 +50,21 @@ public:
 
     std::string
     str                         ();
+
+    void
+    erase                       (size_t             pos=0);
 };
 
 bool operator==(const Read &r1, const Read &r2);
 
 
-typedef std::pair<Read, Read> ReadPair;
+class ReadPair: public std::pair<Read, Read>
+{
+public:
+    std::string
+    str                         ();
+
+};
 
 
 // Declare wrappers from the source. We keep these in obfuscated structs to

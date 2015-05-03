@@ -63,12 +63,74 @@ str()
     return oss.str();
 }
 
+void
+Read::
+erase(size_t pos)
+{
+    sequence.erase(pos);
+    quality.erase(pos);
+}
+
 bool
 operator==(const Read &r1, const Read &r2)
 {
     return r1.name == r2.name && \
            r1.sequence == r2.sequence && \
            r1.quality == r2.quality;
+}
+
+std::string
+ReadPair::
+str()
+{
+    std::ostringstream oss;
+    bool fastq = first.quality.size() > 0 || second.quality.size() > 0;
+
+    if (first.name.size() == 0 || second.name.size() == 0 ||
+            (first.sequence.size() == 0 && second.quality.size() == 0)) {
+        return "";
+    }
+
+    if (first.sequence.size() == 0) {
+        // Make a fake record of a single N, to avoid breaking pairing.
+        if (fastq) {
+            oss << "@";
+        } else {
+            oss << ">";
+        }
+        oss << first.name << "\n";
+        oss << "N\n";
+        if (fastq) {
+            oss << "+\n";
+            // 'B' is the lowest quality score that is valid in all encodings.
+            // See https://en.wikipedia.org/wiki/FASTQ_format#Encoding
+            oss << "B\n";
+        }
+    } else {
+        oss << first.str();
+    }
+
+    if (second.sequence.size() == 0) {
+        // Make a fake record of a single N, to avoid breaking pairing.
+        if (fastq) {
+            oss << "@";
+        } else {
+            oss << ">";
+        }
+        oss << second.name << "\n";
+        oss << "N\n";
+        if (fastq) {
+            oss << "+\n";
+            // 'B' is the lowest quality score that is valid in all encodings.
+            // See https://en.wikipedia.org/wiki/FASTQ_format#Encoding
+            oss << "B\n";
+        }
+    } else {
+        oss << second.str();
+    }
+
+    return oss.str();
+
 }
 
 bool
