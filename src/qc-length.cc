@@ -36,6 +36,7 @@ process_read(Read &the_read)
         _max_len = read_len;
     }
     _len_map_r1[read_len]++;
+    _num_reads++;
 }
 
 void
@@ -54,6 +55,7 @@ process_read_pair(ReadPair &the_read_pair)
     }
     _len_map_r1[read_len1]++;
     _len_map_r2[read_len2]++;
+    _num_reads += 2;
 }
 
 std::string
@@ -140,9 +142,8 @@ report()
 {
     std::ostringstream ss;
     YAML::Emitter yml;
-    float percent_trimmed = _num_reads - (_num_r1_trimmed + _num_r2_trimmed);
+    float percent_trimmed = (_num_r1_trimmed + _num_r2_trimmed) * 100;
     percent_trimmed /= (float) _num_reads;
-    percent_trimmed *= 100;
 
     yml << YAML::BeginSeq;
     yml << YAML::BeginMap;
