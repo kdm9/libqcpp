@@ -94,6 +94,9 @@ parse_read(Read &the_read)
         if (!_parser.parse_read(our_read))  {
             return false;
         }
+        if (our_read.size() == 0) {
+            continue;
+        }
         _pipeline.process_read(our_read);
         the_read = our_read;
     }
@@ -106,13 +109,13 @@ parse_read_pair(ReadPair &the_read_pair)
 {
     ReadPair our_pair;
 
-    the_read_pair.first.clear();
-    the_read_pair.second.clear();
-
-    while (the_read_pair.first.size() == 0 &&
-           the_read_pair.second.size() == 0) {
-        if (! _parser.parse_read_pair(our_pair)) {
+    while (our_pair.first.size() == 0 &&
+            our_pair.second.size() == 0) {
+        if (!_parser.parse_read_pair(our_pair)) {
             return false;
+        }
+        if (our_pair.first.size() == 0) {
+            continue;
         }
         _pipeline.process_read_pair(our_pair);
         the_read_pair = our_pair;
