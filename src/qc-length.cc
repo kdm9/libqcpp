@@ -81,8 +81,10 @@ report()
                        << YAML::Key << "num_reads"
                        << YAML::Value << _num_reads
                        << YAML::Key << "r1_lengths"
+                       << YAML::Flow
                        << YAML::Value << _len_map_r1
                        << YAML::Key << "r2_lengths"
+                       << YAML::Flow
                        << YAML::Value << _len_map_r2
                        << YAML::EndMap
         << YAML::EndMap;
