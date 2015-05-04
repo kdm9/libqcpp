@@ -52,6 +52,7 @@ process_read_pair(ReadPair &the_read_pair)
             _len_map_r1[i] = 0;
             _len_map_r2[i] = 0;
         }
+        _max_len = larger_len;
     }
     _len_map_r1[read_len1]++;
     _len_map_r2[read_len2]++;
