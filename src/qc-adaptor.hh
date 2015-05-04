@@ -9,9 +9,11 @@
  * ============================================================================
  */
 
+#ifndef QC_ADAPTOR_HH
+#define QC_ADAPTOR_HH
 
 #include "qc-processor.hh"
-#include "ext/ssw_cpp.h"
+#include "ssw_cpp.h"
 
 namespace qcpp
 {
@@ -42,3 +44,5 @@ private:
 };
 
 } // namespace qcpp
+
+#endif /* QC_ADAPTOR_HH */
