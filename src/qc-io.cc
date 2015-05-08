@@ -34,14 +34,14 @@ clear()
 
 size_t
 Read::
-size()
+size() const
 {
     return sequence.size();
 }
 
 std::string
 Read::
-str()
+str() const
 {
     std::ostringstream oss;
 

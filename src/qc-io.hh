@@ -46,10 +46,10 @@ public:
     clear                       ();
 
     size_t
-    size                        ();
+    size                        () const;
 
     std::string
-    str                         ();
+    str                         () const;
 
     void
     erase                       (size_t             pos=0);
