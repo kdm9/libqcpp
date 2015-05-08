@@ -13,6 +13,7 @@
 #define QC_PROCESSOR_HH
 
 #include "qc-config.hh"
+#include "qc-util.hh"
 
 #include <memory>
 #include <vector>
