@@ -4,6 +4,7 @@
 
 #include "qcpp.hh"
 #include "qc-adaptor.hh"
+#include "qc-length.hh"
 
 std::mutex _cout_mutex;
 

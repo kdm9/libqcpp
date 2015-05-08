@@ -22,6 +22,7 @@
 #include <string>
 
 #include "qcpp.hh"
+#include "qc-length.hh"
 
 int
 main (int argc, char *argv[])

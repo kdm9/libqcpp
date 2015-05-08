@@ -12,11 +12,13 @@
 #include <iostream>
 #include <string>
 
-#include <thread>
 
 #include "qcpp.hh"
 
+#include "qc-gbs.hh"
+
 #if 0
+#include <thread>
 std::mutex _cout_mutex;
 
 void parse_and_print(qcpp::ProcessedReadStream *stream)
@@ -24,9 +26,10 @@ void parse_and_print(qcpp::ProcessedReadStream *stream)
     qcpp::ReadPair rp;
     bool not_at_end = stream->parse_read_pair(rp);
     while (not_at_end) {
+        std::string rp_str = rp.str();
         {
             std::lock_guard<std::mutex> lg(_cout_mutex);
-            std::cout << rp.str();
+            std::cout << rp_str;
         }
         not_at_end = stream->parse_read_pair(rp);
     }
@@ -46,10 +49,10 @@ main (int argc, char *argv[])
     stream.append_processor<qcpp::GBSTrimPE>("trim Pst1 reads", "CTGCAG", 1);
 
     std::thread threads[4];
-    for (size_t i = 0; i < 1; i++) {
+    for (size_t i = 0; i < 4; i++) {
         threads[i] = std::thread(parse_and_print, &stream);
     }
-    for (size_t i = 0; i < 1; i++) {
+    for (size_t i = 0; i < 4; i++) {
         threads[i].join();
     }
     std::cerr << stream.report();
