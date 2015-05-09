@@ -3,7 +3,7 @@
  *
  *       Filename:  tests.cc
  *    Description:  libqc++ test main source. Includes all tests
- *        License:  GPLv3+
+ *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================

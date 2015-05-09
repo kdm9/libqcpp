@@ -1,3 +1,14 @@
+/*
+ * ============================================================================
+ *
+ *       Filename:  trim.cc
+ *    Description:  Trim reads using the Needleman-Wunsch trimer/merger
+ *        License:  LGPL-3+
+ *         Author:  Kevin Murray, spam@kdmurray.id.au
+ *
+ * ============================================================================
+ */
+
 #include <iostream>
 #include <string>
 #include <thread>
@@ -35,7 +46,6 @@ main (int argc, char *argv[])
     }
 
     stream.open(argv[1]);
-    stream.append_processor<qcpp::ReadLenCounter>("before qc");
     stream.append_processor<qcpp::AdaptorTrimPE>("trim/merge reads", 5);
     stream.append_processor<qcpp::ReadLenCounter>("after Adaptor removal");
     stream.append_processor<qcpp::ReadLenFilter>("trim at 50", 50);

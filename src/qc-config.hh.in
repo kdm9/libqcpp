@@ -1,9 +1,9 @@
 /*
  * ============================================================================
  *
- *       Filename:  qc-io.hh
- *    Description:  Read I/O Operations. Adapted from Khmer
- *        License:  GPLv3+
+ *       Filename:  qc-config.hh.in
+ *    Description:  Configuration of libqcpp
+ *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================

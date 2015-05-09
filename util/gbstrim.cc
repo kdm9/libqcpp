@@ -1,9 +1,9 @@
 /*
  * ============================================================================
  *
- *       Filename:  qc-processor.hh
+ *       Filename:  gbstrim.cc
  *    Description:  Trim GBS reads using the GBSTrimPE processor.
- *        License:  GPLv3+
+ *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================

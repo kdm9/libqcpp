@@ -3,7 +3,7 @@
  *
  *       Filename:  qc-adaptor.hh
  *    Description:  Trim adaptor read-through from reads
- *        License:  GPLv3+
+ *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================

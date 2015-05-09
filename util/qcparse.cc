@@ -4,7 +4,7 @@
  *       Filename:  qcparse.cc
  *    Description:  A demonstration of how to parse reads with libqc++. It's
  *                  also used to test the parsing code.
- *        License:  GPLv3+
+ *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================

@@ -3,7 +3,7 @@
  *
  *       Filename:  qc-gbs.cc
  *    Description:  Trim reads from Genotyping-by-Sequcing protocols
- *        License:  GPLv3+
+ *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================

@@ -3,7 +3,7 @@
  *
  *       Filename:  qc-measure.cc
  *    Description:  Collect measures of read quality
- *        License:  GPLv3+
+ *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================

@@ -3,7 +3,7 @@
  *
  *       Filename:  qc-length.hh
  *    Description:  Filter on and count read lengths
- *        License:  GPLv3+
+ *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================

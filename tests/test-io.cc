@@ -3,7 +3,7 @@
  *
  *       Filename:  test-io.cc
  *    Description:  Tests of the IO module.
- *        License:  GPLv3+
+ *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================

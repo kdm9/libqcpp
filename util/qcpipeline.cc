@@ -4,7 +4,7 @@
  *       Filename:  qcpipeline.cc
  *    Description:  A demonstration of how to run a processor pipline with
  *                  libqc++
- *        License:  GPLv3+
+ *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================

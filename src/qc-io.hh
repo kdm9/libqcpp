@@ -3,7 +3,7 @@
  *
  *       Filename:  qc-io.hh
  *    Description:  Read I/O Operations. Adapted from Khmer
- *        License:  GPLv3+
+ *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================
