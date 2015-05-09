@@ -1,3 +1,6 @@
+# Standard compilation directory
+build/
+
 # Compiled Object files
 *.slo
 *.lo
@@ -30,4 +33,9 @@
 # Editor temps
 *.swp
 
-build/
+# Python/Ipython
+*.pyc
+.ipynb_checkpoints/
+
+# ctags
+tags
