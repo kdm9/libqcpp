@@ -7,7 +7,7 @@ A C++11 library for sequence quality control.
 Design features:
 
 - Modularity
-- Palletisation
+- Parallelisation
 - Pipelined
 - Simple API
 
