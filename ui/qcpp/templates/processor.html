@@ -1,0 +1,21 @@
+<div class=processor>
+    {% block name %}
+    {% endblock %}
+    <h3>Parameters</h3>
+    {% if parameters %}
+    <table class=parameters>
+        {% for param, val in parameters.items() %}
+        <tr>
+            <td>{{ param }}:</td>
+            <td>{{ val }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>{{ name }} took no parameters</p>
+    {% endif %}
+    {% block output %}
+    <h3>Output</h3>
+    {% endblock %}
+</ul>
+</div>

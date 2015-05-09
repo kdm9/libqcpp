@@ -1,0 +1,44 @@
+{% extends "processor.html" %}
+{% block name %}
+    <h2>Per Base Quality: "{{ name }}"</h2>
+{% endblock %}
+{% block output %}
+  {{ super() }}
+
+  {% if not paired %}
+  <img alt="Quality per base" src="data:image/png;base64,{{ r1_image }}" />
+  {#
+  <div id="r1_pbq_fig"></div>
+  <script type="text/javascript">
+    var r1_pbq_fig_json = {{ r1_dict }};
+    mpld3.draw_figure("r1_pbq_fig", r1_pbq_fig_json);
+  </script>
+  #}
+  {% else %}
+  <table class=plots>
+    <tr>
+      <td>
+        <img alt="Quality per base"
+             src="data:image/png;base64,{{ r1_image }}" />
+      </td>
+      <td>
+        <img alt="Quality per base"
+             src="data:image/png;base64,{{ r2_image }}" />
+      </td>
+    </tr>
+  </table>
+  {#
+  <div id="r2_pbq_fig"></div>
+  <script type="text/javascript">
+    var r2_pbq_fig_json = {{ r2_dict }};
+    mpld3.draw_figure("r2_pbq_fig", r2_pbq_fig_json);
+  </script>
+  #}
+  {% endif %}
+  
+  <p class="explanation">
+  Ranges above indicate the fraction of reads contained within their limits,
+  e.g. the 50 percentile range contains 50% of all reads, i.e. the
+  interquartile range.
+  </p>
+{% endblock %}
