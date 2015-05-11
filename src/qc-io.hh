@@ -42,6 +42,12 @@ public:
     std:: string        sequence;
     std:: string        quality;
 
+    Read                        ();
+
+    Read                        (const std::string &name,
+                                 const std::string &sequence,
+                                 const std::string &quality);
+
     void
     clear                       ();
 
@@ -61,9 +67,18 @@ bool operator==(const Read &r1, const Read &r2);
 class ReadPair: public std::pair<Read, Read>
 {
 public:
+    ReadPair                    ();
+    ReadPair                    (const std::string &name1,
+                                 const std::string &sequence1,
+                                 const std::string &quality1,
+                                 const std::string &name2,
+                                 const std::string &sequence2,
+                                 const std::string &quality2);
     std::string
     str                         ();
 
+    Read                first;
+    Read                second;
 };
 
 

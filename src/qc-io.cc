@@ -23,6 +23,20 @@ namespace qcpp
  *                                    Read
  *****************************************************************************/
 
+Read::
+Read()
+{
+}
+
+Read::
+Read(const std::string &name_, const std::string &sequence_,
+     const std::string &quality_):
+    name(name_),
+    sequence(sequence_),
+    quality(quality_)
+{
+}
+
 void
 Read::
 clear()
@@ -77,6 +91,21 @@ operator==(const Read &r1, const Read &r2)
     return r1.name == r2.name && \
            r1.sequence == r2.sequence && \
            r1.quality == r2.quality;
+}
+
+ReadPair::
+ReadPair():
+    std::pair<Read, Read>()
+{
+}
+
+ReadPair::
+ReadPair(const std::string &name1, const std::string &sequence1,
+         const std::string &quality1, const std::string &name2,
+         const std::string &sequence2, const std::string &quality2):
+    first(name1, sequence1, quality1),
+    second(name2, sequence2, quality2)
+{
 }
 
 std::string
