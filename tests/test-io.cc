@@ -38,10 +38,21 @@ TEST_CASE("Read structure behaves correctly", "[Read]") {
         REQUIRE(read.quality.size() == 0);
     }
 
-    SECTION("str() works with quality") {
+    SECTION("size() gives correct results w/ quality") {
+        REQUIRE(read.sequence.size() == read.size());
+        REQUIRE(read.quality.size() == read.size());
+    }
+
+    SECTION("size() gives correct results w/o quality") {
+        read.quality.clear();
+        REQUIRE(read.sequence.size() == read.size());
+        REQUIRE(read.quality.size() == 0);
+    }
+
+    SECTION("str() works w/ quality") {
         REQUIRE(read.str() == "@Name\nACGT\n+\nIIII\n");
     }
-    SECTION("str() works without quality") {
+    SECTION("str() works w/o quality") {
         read.quality.clear();
         REQUIRE(read.str() == ">Name\nACGT\n");
     }
@@ -181,4 +192,3 @@ TEST_CASE("Fastq writing", "[ReadParser]") {
         REQUIRE(parser.get_num_reads() == n_reads);
     }
 }
-
