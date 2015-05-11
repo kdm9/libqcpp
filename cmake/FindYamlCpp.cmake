@@ -30,6 +30,7 @@ find_path(YAMLCPP_INCLUDE_DIR
   NAMES yaml-cpp/yaml.h
   PATH_SUFFIXES include
   PATHS
+    ${YAMLCPP_ROOT}
     ${PROJECT_SOURCE_DIR}/ext/
     ~/Library/Frameworks/yaml-cpp/include/
     /Library/Frameworks/yaml-cpp/include/
@@ -45,6 +46,7 @@ find_library(YAMLCPP_LIBRARY_RELEASE
   NAMES ${YAMLCPP_STATIC} yaml-cpp libyaml-cppmd.lib
   PATH_SUFFIXES lib64 lib Release RelWithDebInfo
   PATHS
+    ${YAMLCPP_ROOT}
     ${PROJECT_SOURCE_DIR}/ext
     ~/Library/Frameworks
     /Library/Frameworks
@@ -60,6 +62,7 @@ find_library(YAMLCPP_LIBRARY_DEBUG
   NAMES ${YAMLCPP_STATIC_DEBUG} yaml-cpp-dbg libyaml-cppmdd.lib
   PATH_SUFFIXES lib64 lib Debug
   PATHS
+    ${YAMLCPP_ROOT}
     ${PROJECT_SOURCE_DIR}/ext
     ~/Library/Frameworks
     /Library/Frameworks
