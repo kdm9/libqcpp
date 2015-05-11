@@ -165,6 +165,9 @@ class ReadWriter: public ReadOutputStream, public ReadIO<SeqAnWriteWrapper>
 {
 public:
     void
+    close                       ();
+
+    void
     write_read                  (Read              &the_read);
 
     void

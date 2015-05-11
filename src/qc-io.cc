@@ -208,7 +208,8 @@ struct SeqAnWriteWrapper
 
     void open(const char *filename)
     {
-        if (!seqan::open(stream, filename)) {
+        int flags = seqan::OPEN_CREATE | seqan::OPEN_WRONLY;
+        if (!seqan::open(stream, filename, flags)) {
             std::string message = "Could not open '";
             message = message + filename + "' for writing.";
             throw IOError(message);
@@ -413,22 +414,31 @@ ReadOutputStream(const ReadOutputStream &other)
 
 void
 ReadWriter::
+close()
+{
+    assert(_private != NULL);
+    _private->_mutex.lock();
+    delete _private;
+    _private = new SeqAnWriteWrapper;
+}
+
+void
+ReadWriter::
 write_read(Read &the_read)
 {
-    the_read.clear();
+    assert(_private != NULL);
     const char *exception = NULL;
-    {
-        std::lock_guard<std::mutex> lg(_private->_mutex);
-        try {
-            seqan::writeRecord(_private->stream, the_read.name,
-                               the_read.sequence, the_read.quality);
-            _num_reads++;
-        } catch (seqan::IOError &err) {
-            exception = err.what();
-        } catch (seqan::ParseError &err) {
-            exception = err.what();
-        }
+    _private->_mutex.lock();
+    try {
+        seqan::writeRecord(_private->stream, the_read.name,
+                           the_read.sequence, the_read.quality);
+        _num_reads++;
+    } catch (seqan::IOError &err) {
+        exception = err.what();
+    } catch (seqan::ParseError &err) {
+        exception = err.what();
     }
+    _private->_mutex.unlock();
     // Throw any error in the read, even if we're at the end
     if (exception != NULL) {
         throw IOError(exception);
