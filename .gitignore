@@ -39,3 +39,7 @@ build/
 
 # ctags
 tags
+
+# data
+*.yml
+*.fq
