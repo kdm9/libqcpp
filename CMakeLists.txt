@@ -74,6 +74,7 @@ ENDIF()
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}
                     ${CMAKE_SOURCE_DIR}/src
                     ${CMAKE_SOURCE_DIR}/src/ext
+                    ${CMAKE_SOURCE_DIR}/tests/ext
 		    )
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/lib)
 
