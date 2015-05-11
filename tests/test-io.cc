@@ -19,10 +19,7 @@
 #include <iostream>
 
 TEST_CASE("Read structure behaves correctly", "[Read]") {
-    qcpp::Read read;
-    read.name = "Name";
-    read.sequence = "ACGT";
-    read.quality = "IIII";
+    qcpp::Read read("Name", "ACGT", "IIII");
 
     SECTION("Filling read members works") {
         REQUIRE(read.name.size() == 4);
@@ -174,21 +171,82 @@ TEST_CASE("Read Interleaving", "[ReadInterleaver]") {
 }
 
 TEST_CASE("Fastq writing", "[ReadParser]") {
-    qcpp::Read read;
-    qcpp::ReadParser parser;
+    qcpp::ReadWriter writer;
     TestConfig *config = TestConfig::get_config();
-    std::string infile = config->get_data_file("valid_il.fastq");
+    std::string outfile = config->get_writable_file("fastq");
+
+    CAPTURE(outfile);
+    REQUIRE_NOTHROW(writer.open(outfile));
+
+    SECTION("Writing a single read works") {
+        qcpp::Read read("Name", "ACGT", "IIII");
+
+        REQUIRE(writer.get_num_reads() == 0);
+
+        REQUIRE_NOTHROW(writer.write_read(read));
+
+        REQUIRE(writer.get_num_reads() == 1);
+
+        REQUIRE_NOTHROW(writer.close());
+        REQUIRE(filecmp(outfile, "data/truths/se.fastq"));
+    }
+    SECTION("Writing a single read works") {
+        qcpp::ReadPair rp("seq1", "ACGT", "IIII",
+                          "seq2", "ACGT", "IIII");
+
+        REQUIRE(writer.get_num_reads() == 0);
+
+        REQUIRE_NOTHROW(writer.write_read_pair(rp));
+
+        REQUIRE(writer.get_num_reads() == 2);
+
+        REQUIRE_NOTHROW(writer.close());
+        REQUIRE(filecmp(outfile, "data/truths/pe.fastq"));
+    }
+}
+
+TEST_CASE("Round-trip parse-write", "[ReadParser]") {
+    qcpp::ReadParser    parser;
+    qcpp::ReadWriter    writer;
+    TestConfig         *config = TestConfig::get_config();
+    std::string         infile = config->get_data_file("valid_il.fastq");
+    std::string         outfile = config->get_writable_file("fastq", true);
+    size_t              n_reads = 0;
+
+    CAPTURE(infile);
+    CAPTURE(outfile);
     REQUIRE_NOTHROW(parser.open(infile));
+    REQUIRE_NOTHROW(writer.open(outfile));
 
-    SECTION("Parsing a valid fastq works, including get_num_reads") {
-        size_t n_reads = 0;
+    SECTION("Single-ended round trip") {
+        qcpp::Read read;
 
-        // Count all reads, parse_read returns false on EOF
         while (parser.parse_read(read)) {
+            REQUIRE_NOTHROW(writer.write_read(read));
             n_reads++;
         }
 
         REQUIRE(n_reads == 10);
         REQUIRE(parser.get_num_reads() == n_reads);
+        REQUIRE(writer.get_num_reads() == n_reads);
+
+        REQUIRE_NOTHROW(writer.close());
+        REQUIRE(filecmp(infile, outfile));
+    }
+
+    SECTION("Paired-ended round trip") {
+        qcpp::ReadPair pair;
+
+        while (parser.parse_read_pair(pair)) {
+            REQUIRE_NOTHROW(writer.write_read_pair(pair));
+            n_reads++;
+        }
+
+        REQUIRE(n_reads == 5); // Pairs, not reads
+        REQUIRE(parser.get_num_reads() == 10);
+        REQUIRE(writer.get_num_reads() == 10);
+
+        REQUIRE_NOTHROW(writer.close());
+        REQUIRE(filecmp(infile, outfile));
     }
 }
