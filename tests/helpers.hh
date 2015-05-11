@@ -51,7 +51,7 @@ public:
     }
 
     std::string
-    get_writable_file(bool keep=false)
+    get_writable_file(std::string ext, bool keep=true)
     {
         std::ostringstream fs;
 
@@ -59,8 +59,8 @@ public:
             _get_root();
         }
 
-        fs << root << "/data/" << ++n_writable_files;
-        if (keep) {
+        fs << root << "/data/" << ++n_writable_files << "." << ext;
+        if (!keep) {
             files_to_delete.push_back(fs.str());
         }
         return fs.str();
@@ -108,41 +108,30 @@ static inline bool
 filecmp(const std::string &filename1,
         const std::string &filename2)
 {
-    std::ifstream fp1(filename1), fp2(filename2);
-
-    if (!fp1 || !fp2) {
-        return false;
-    }
-
-    if (std::equal(std::istreambuf_iterator<char>(fp1),
-                   std::istreambuf_iterator<char>(),
-                   std::istreambuf_iterator<char>(fp2))) {
-        return true;
-    }
-    return false;
-}
-// returns true on identity, false otherwise
-static inline bool
-filecmp2(const std::string &filename1,
-         const std::string &filename2)
-{
     char chr1, chr2;
+    size_t idx = 0;
     std::ifstream fp1(filename1), fp2(filename2);
 
     if (!fp1 || !fp2) {
+        std::cerr << "Couldn't open files\n";
         return false;
     }
 
     while (fp1.good() && fp2.good()) {
-        fp1.get(&chr1, 1);
-        fp2.get(&chr2, 1);
+        chr1 = fp1.get();
+        chr2 = fp2.get();
         if (chr1 != chr2) {
+            std::cerr << "Chars differ at byte " << idx << " '" << (int)chr1 << "' '" << (int)chr2 << "'\n";
             return false;
         }
+        idx++;
     }
+    fp1.get();
+    fp2.get();
     if (fp1.eof() && fp2.eof()) {
         return true;
     }
+    std::cerr << "Not at eof " << fp1.eof() << " " << fp2.eof() << "\n";
     return false;
 }
 
