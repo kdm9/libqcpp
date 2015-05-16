@@ -1,0 +1,67 @@
+/* Stylesheet for QCPP. Copyright 2015 Kevin Murray */
+/* Licensed under the GNU LGPL version 3 or greater */
+#wrapper {
+    padding-left: 150px;
+}
+
+#sidebar-wrapper {
+    position: fixed;
+    left: 150px;
+    width: 0;
+    height: 100%;
+    margin-left: -150px;
+    overflow-y: auto;
+    background: #000;
+}
+
+#page-content-wrapper {
+    top: 0;
+    width: 100%;
+    position: absolute;
+    padding: 10px;
+}
+
+.sidebar-nav {
+    position: absolute;
+    top: 0;
+    width: 150px;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar-nav li {
+    text-indent: 10px;
+    line-height: 30px;
+}
+
+.sidebar-nav li a {
+    color: #aaaaaa; /* don't highlight like a link */
+    text-decoration: none; /* no underlines */
+
+}
+
+.sidebar-nav > .sidebar-brand {
+    height: 50px;
+    font-size: 18px;
+    line-height: 60px;
+}
+
+@media(min-width:768px) {
+    #wrapper {
+        padding-left: 150px;
+    }
+
+    #sidebar-wrapper {
+        width: 150px;
+    }
+
+    #page-content-wrapper {
+        padding: 20px;
+        position: relative;
+    }
+
+    #wrapper.toggled #page-content-wrapper {
+        position: relative;
+        margin-right: 0;
+    }
+}
