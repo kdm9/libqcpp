@@ -2,8 +2,17 @@
 {% block output %}
  {{ super() }}
 
- {% if not paired %}
- <img alt="Quality per base" src="data:image/png;base64,{{ r1_image }}" />
+ <div class="row">
+  <div class="col-sm-6 plot">
+   <img alt="Quality per base" src="data:image/png;base64,{{ r1_image }}" />
+  </div>
+  {% if paired %}
+  <div class="col-sm-6 plot">
+   <img alt="Quality per base" src="data:image/png;base64,{{ r2_image }}" />
+  </div>
+  {% endif %}
+ </div>
+
  {#
  <div id="r1_pbq_fig">
   <script type="text/javascript">
@@ -11,21 +20,6 @@
    mpld3.draw_figure("r1_pbq_fig", r1_pbq_fig_json);
   </script>
  </div>
- #}
- {% else %}
- <table class=plots>
-  <tbody>
-   <tr>
-    <td>
-     <img alt="Quality per base" src="data:image/png;base64,{{ r1_image }}" />
-    </td>
-    <td>
-     <img alt="Quality per base" src="data:image/png;base64,{{ r2_image }}" />
-    </td>
-   </tr>
-  </tbody>
- </table>
- {#
  <div id="r2_pbq_fig">
   <script type="text/javascript">
    var r2_pbq_fig_json = {{ r2_dict }};
@@ -33,14 +27,19 @@
   </script>
  </div>
  #}
- {% endif %}
- <div class="col-sm-12">
-  <div class="well">
-   <p class="explanation">
-   Ranges above indicate the fraction of reads contained within their limits,
-   e.g. the 50 percentile range contains 50% of all reads, i.e. the
-   interquartile range.
-   </p>
+
+ <div class="row">
+  <div class="col-sm-12">
+   <div class="well">
+    <p class="explanation">
+     Ranges above indicate the fraction of reads contained within their limits,
+     e.g. the 50 percentile range contains 50% of all reads, i.e. the
+     interquartile range.
+    </p>
+    <p class="explanation">
+     
+    </p>
+   </div>
   </div>
  </div>
 {% endblock %}

@@ -5,70 +5,33 @@
  <meta http-equiv="X-UA-Compatible" content="IE=edge">
  <meta name="viewport" content="width=device-width, initial-scale=1">
  <title>QCPP Quality Report</title>
-
- {#
- <script type="text/javascript">{{ d3 }}</script>
- <script type="text/javascript">{{ mpld3 }}</script>
- #}
- <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
- <style>
-body {
-  padding-top: 70px;
-  padding-bottom: 30px;
-}
-
-.theme-dropdown .dropdown-menu {
-  position: static;
-  display: block;
-  margin-bottom: 20px;
-}
-
-.theme-showcase > p > .btn {
-  margin: 5px 0;
-}
-
-.well {
-  margin: 5px 0;
-}
-
-.theme-showcase .navbar .container {
-  width: auto;
-}
- </style>
+ <script type="text/javascript">{{ include_file('resources/jquery.min.js') }}</script>
+ <script type="text/javascript">{{ include_file('resources/bootstrap.min.js') }}</script>
+ <style>{{ include_file('resources/bootstrap.min.css') }}</style>
+ <style>{{ include_file('resources/qcpp.css') }}</style>
 </head>
-
-<body  role="document">
- <!-- Fixed navbar -->
- <nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container">
-   <div class="navbar-header pull-left">
-    <a class="navbar-brand" href="#">QCPP Report</a>
-   </div>
-   <div id="navbar" class="navbar">
-    <ul class="nav navbar-nav">
-     <li class="dropdown">
-      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Components<span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu" role="menu">
-       {% for name in report_names %}
-        <li><a href="#comp_{{ loop.index }}">{{ name }}</a></li>
-       {% endfor %}
-      </ul>
-    </li>
-    </ul>
+<body role="document">
+ <div id="wrapper">
+  <div id="sidebar-wrapper">
+   <ul class="sidebar-nav">
+    <li class="sidebar-brand"><a href="#">QCPP Report</a></li>
+    {% for name in report_names %}
+     <li><a href="#comp_{{ loop.index }}">{{ name }}</a></li>
+    {% endfor %}
+   </ul>
+  </div>
+  <div id="page-content-wrapper">
+   <div class="container-fluid">
+    {% for r_type, r_name, r_div in reports %}
+     <div class="row" id="comp_{{ loop.index }}">
+      <div class="page-header">
+       <h3>{{r_type}}: {{r_name}}</h3>
+      </div>
+      {{ r_div }}
+     </div>
+    {% endfor %}
    </div>
   </div>
- </nav>
-
- <div class="container" role="main">
-  {% for r_type, r_name, r_div in reports %}
-  <div class="row" id="comp_{{ loop.index }}">
-   <div class="page-header"><h3>{{r_type}}: {{r_name}}</h3></div>
-   {{ r_div }}
-  </div>
-  {% endfor %}
  </div>
 </body>
 </html>
