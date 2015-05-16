@@ -34,11 +34,11 @@ from qcpp.util import (
 )
 
 class PlotResult(object):
-
     def render(self, report):
         return ""
 
 class PlotPerBaseQuality(PlotResult):
+    """Render PerBaseQuality results"""
 
     percentiles = [0.05, 0.25, 0.5, 0.75, 0.95]
     ranges = [90, 50]
@@ -46,7 +46,6 @@ class PlotPerBaseQuality(PlotResult):
     def _plot(self, qual_array, name):
         # array of read numbers per base
         n_reads = qual_array.sum(axis=1)
-
         percentile_vals = {p: [] for p in self.percentiles}
         # for each base
         for i in range(len(n_reads)):
