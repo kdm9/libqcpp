@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import jinja2
 from jinja2 import Environment, PackageLoader
 import mpld3.urls
 
@@ -26,10 +27,16 @@ def nice_params(param_dict):
         nice[pothole2title(k)] =  v
     return nice
 
-QCPP_ENV = Environment(loader=PackageLoader('qcpp', 'templates'))
+QCPP_LOADER = PackageLoader('qcpp', 'templates')
+QCPP_ENV = Environment(loader=QCPP_LOADER)
 
 with open(mpld3.urls.D3_LOCAL) as fh:
     D3 = fh.read()
 
 with open(mpld3.urls.MPLD3_LOCAL) as fh:
     MPLD3 = fh.read()
+
+def include_file(name):
+    return QCPP_LOADER.get_source(QCPP_ENV, name)[0]
+
+QCPP_ENV.globals['include_file'] = include_file
