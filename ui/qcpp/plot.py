@@ -49,7 +49,7 @@ class PlotPerBaseQuality(PlotResult):
         n_reads = qual_array.sum(axis=1)
 
         percentile_vals = {p: [] for p in self.percentiles}
-        # for each read
+        # for each base
         for i in range(len(n_reads)):
             for percentile in self.percentiles:
                 # the idx'th read is this percentile's value
@@ -70,7 +70,7 @@ class PlotPerBaseQuality(PlotResult):
         read_pos = np.arange(len(med)) + 1
 
         # Make figure
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(6,5))
 
         # Plot median, save line for the legend
         line, = ax.plot(read_pos,
@@ -100,7 +100,7 @@ class PlotPerBaseQuality(PlotResult):
         ax.set_title("Per-base PHRED Qualities: " + name)
         ax.set_ylabel("PHRED score", size='large', labelpad=10)
         ax.set_xlabel("Read Position", size='large', labelpad=10)
-        ax.set_xticks(np.arange(0, max(read_pos), 5))
+        ax.set_xticks(np.arange(0, max(read_pos), 10))
 
         # ax.grid(axis='x')
 
@@ -117,7 +117,7 @@ class PlotPerBaseQuality(PlotResult):
 
         # Save and base64 the image
         sio = StringIO()
-        fig.savefig(sio, format='png')
+        fig.savefig(sio, format='png', dpi=60)
         return (base64.b64encode(sio.getvalue()),
                 json.dumps(mpld3.fig_to_dict(fig)))
 
@@ -161,16 +161,20 @@ def render_all(yml_file):
     with open(yml_file) as fh:
         reports = yaml.load(fh)
 
-    report_divs = []
+    report_names = []
+    out_reports = []
 
     for report in reports:
         processor, proc_report = report.items()[0]
         renderer = RENDERERS[processor]()
+        name = proc_report['name']
         div = renderer.render(proc_report)
-        report_divs.append(div)
+        report_names.append(name)
+        out_reports.append((processor, name, div))
 
     template = QCPP_ENV.get_template('root.html')
-    html = template.render(reports=report_divs,
+    html = template.render(reports=out_reports,
+                           report_names=report_names,
                            mpld3=MPLD3,
                            d3=D3)
     print html
