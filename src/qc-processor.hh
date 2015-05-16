@@ -81,17 +81,17 @@ public:
     open                            (const char        *filename);
 
     void
-    open                            (const std::string  &filename);
+    open                            (const std::string &filename);
 
     bool
-    parse_read                      (Read               &the_read);
+    parse_read                      (Read              &the_read);
 
     bool
-    parse_read_pair                 (ReadPair           &the_read_pair);
+    parse_read_pair                 (ReadPair          &the_read_pair);
 
     template<typename ReadProcType, class ...  Args>
     void
-    append_processor                (Args&&...           args)
+    append_processor                (Args&&...          args)
     {
         _pipeline.append_processor<ReadProcType>(args...);
     }
