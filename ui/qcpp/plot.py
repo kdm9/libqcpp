@@ -33,7 +33,6 @@ from qcpp.util import (
     D3,
 )
 
-
 class PlotResult(object):
 
     def render(self, report):
