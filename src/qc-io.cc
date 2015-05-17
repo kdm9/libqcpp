@@ -85,6 +85,14 @@ erase(size_t pos)
     quality.erase(pos);
 }
 
+void
+Read::
+erase(size_t pos, size_t count)
+{
+    sequence.erase(pos, count);
+    quality.erase(pos, count);
+}
+
 bool
 operator==(const Read &r1, const Read &r2)
 {

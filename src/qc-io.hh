@@ -59,6 +59,9 @@ public:
 
     void
     erase                       (size_t             pos=0);
+    void
+    erase                       (size_t             pos,
+                                 size_t             count);
 };
 
 bool operator==(const Read &r1, const Read &r2);
