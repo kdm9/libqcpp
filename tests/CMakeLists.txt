@@ -1,7 +1,9 @@
 ADD_EXECUTABLE(test_qcpp
                tests.cc
                test-length.cc
-               test-io.cc)
+               test-io.cc
+               test-qualtrim.cc
+               )
 
 TARGET_LINK_LIBRARIES(test_qcpp ${QCPP_DEPENDS_LIBRARIES} libqc++)
 

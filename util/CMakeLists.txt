@@ -9,3 +9,6 @@ TARGET_LINK_LIBRARIES(gbstrim libqc++ ${DEPENDS_LIBS})
 
 ADD_EXECUTABLE(trim trim.cc)
 TARGET_LINK_LIBRARIES(trim libqc++ ${DEPENDS_LIBS})
+
+ADD_EXECUTABLE(qualtrim qualtrim.cc)
+TARGET_LINK_LIBRARIES(qualtrim libqc++ ${DEPENDS_LIBS})
