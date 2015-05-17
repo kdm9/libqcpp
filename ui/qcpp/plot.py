@@ -41,7 +41,7 @@ class PlotPerBaseQuality(PlotResult):
     """Render PerBaseQuality results"""
 
     percentiles = [0.05, 0.25, 0.5, 0.75, 0.95]
-    ranges = [90, 50]
+    ranges = [50, 90]
 
     def _plot(self, qual_array, name):
         # array of read numbers per base
@@ -88,7 +88,7 @@ class PlotPerBaseQuality(PlotResult):
                         alpha=0.7,
                         edgecolor='black',
                         facecolor='lightgreen',
-                        label="{}%-ile range".format(self.ranges[1]))
+                        label="{}%-ile range".format(self.ranges[0]))
 
         # Set plot limits
         ax.set_xlim((1,101))
