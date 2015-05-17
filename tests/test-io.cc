@@ -49,9 +49,37 @@ TEST_CASE("Read structure behaves correctly", "[Read]") {
     SECTION("str() works w/ quality") {
         REQUIRE(read.str() == "@Name\nACGT\n+\nIIII\n");
     }
+
     SECTION("str() works w/o quality") {
         read.quality.clear();
         REQUIRE(read.str() == ">Name\nACGT\n");
+    }
+
+    SECTION("Erase with just start") {
+        read.erase(1);
+        REQUIRE(read.sequence == "A");
+        REQUIRE(read.quality == "I");
+        REQUIRE(read.size() == 1);
+    }
+
+    SECTION("Erase in middle with start and end") {
+        read.erase(1, 2);
+        REQUIRE(read.sequence == "AT");
+        REQUIRE(read.quality == "II");
+        REQUIRE(read.size() == 2);
+    }
+
+    SECTION("Erase from start with start and end") {
+        read.erase(0, 1);
+        REQUIRE(read.sequence == "CGT");
+        REQUIRE(read.quality == "III");
+        REQUIRE(read.size() == 3);
+    }
+    SECTION("Erase count=0") {
+        read.erase(0, 0);
+        REQUIRE(read.sequence == "ACGT");
+        REQUIRE(read.quality == "IIII");
+        REQUIRE(read.size() == 4);
     }
 }
 
