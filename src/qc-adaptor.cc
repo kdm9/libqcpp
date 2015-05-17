@@ -25,7 +25,6 @@ AdaptorTrimPE(const std::string &name, int min_overlap):
     ReadProcessor(name),
     _num_pairs_trimmed(0),
     _num_pairs_joined(0),
-    _filter(true, true, 8, 4),
     _min_overlap(min_overlap)
 {
 }

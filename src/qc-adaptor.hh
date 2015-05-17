@@ -13,7 +13,6 @@
 #define QC_ADAPTOR_HH
 
 #include "qc-processor.hh"
-#include "ssw_cpp.h"
 
 namespace qcpp
 {
@@ -33,8 +32,6 @@ public:
 private:
     std::atomic_ullong      _num_pairs_trimmed;
     std::atomic_ullong      _num_pairs_joined;
-    StripedSmithWaterman::Aligner _aligner;
-    StripedSmithWaterman::Filter _filter;
     int                     _min_overlap;
 
     void
