@@ -15,14 +15,6 @@
 namespace qcpp
 {
 
-static const int quality_constants[4][3] = {
-  /* offset, min, max */
-  {0, 4, 60}, /* PHRED */
-  {33, 33, 126}, /* SANGER */
-  {64, 58, 112}, /* SOLEXA; this is an approx; the transform is non-linear */
-  {64, 64, 110} /* ILLUMINA */
-};
-
 WindowedQualTrim::
 WindowedQualTrim(const std::string &name, int8_t phred_cutoff,
                  int8_t phred_offset, size_t len_cutoff, size_t window_size):
@@ -48,17 +40,17 @@ WindowedQualTrim::
 process_read(Read &the_read)
 {
     int64_t         win_sum     = 0;
-    size_t          win_start    = 0;
+    size_t          win_start   = 0;
     size_t          win_size    = 0;
     float           win_avg     = 0.0;
     size_t          read_len    = the_read.size();
     size_t          first_to_keep = 0;
     size_t          last_to_keep  = read_len - 1;
+    bool            need_trimming = false;
 
     _num_reads++;
     // Throw out reads which are already too short
     if (read_len < _len_cutoff) {
-        std::cerr << "read too short " << read_len << std::endl;
         _num_reads_dropped++;
         return;
     }
@@ -77,6 +69,7 @@ process_read(Read &the_read)
 
     // Trim until the first base which is of acceptable quality
     while (_qual_of_base(the_read, win_start) < _phred_cutoff) {
+        need_trimming = true;
         win_start++;
     }
     first_to_keep = win_start;
@@ -86,12 +79,14 @@ process_read(Read &the_read)
         win_sum += _qual_of_base(the_read, i);
     }
     // Trim with windows
-    for (; win_start < read_len - win_size; win_start++) {
+    for (; win_start < read_len - win_size + 1; win_start++) {
         win_avg = win_sum / (float)win_size;
-        if (win_avg < _phred_cutoff) {
-            last_to_keep = win_start;
-            while (_qual_of_base(the_read, last_to_keep) < _phred_cutoff) {
-                last_to_keep++;
+        if (win_avg < _phred_cutoff || win_start == read_len - win_size) {
+            last_to_keep = win_start - 1;
+            while (_qual_of_base(the_read, ++last_to_keep) >= _phred_cutoff) {
+            }
+            if (last_to_keep < read_len - 1) {
+                need_trimming = true;
             }
             break;
         }
@@ -100,13 +95,15 @@ process_read(Read &the_read)
     }
     if ((last_to_keep - first_to_keep) + 1 < _len_cutoff) {
         the_read.erase();
-        std::cerr << "trimmed too short " << first_to_keep << ":" << last_to_keep << std::endl;
         _num_reads_dropped++;
-    } else {
-        the_read.erase(last_to_keep + 1);
+    } else if (need_trimming) {
+        if (last_to_keep < read_len - 1) {
+            the_read.erase(last_to_keep);
+        }
         if (first_to_keep > 0) {
             the_read.erase(0, first_to_keep);
         }
+        _num_reads_trimmed++;
     }
 }
 
