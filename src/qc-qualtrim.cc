@@ -39,14 +39,14 @@ void
 WindowedQualTrim::
 process_read(Read &the_read)
 {
-    int64_t         win_sum     = 0;
-    size_t          win_start   = 0;
-    size_t          win_size    = 0;
-    float           win_avg     = 0.0;
-    size_t          read_len    = the_read.size();
-    size_t          first_to_keep = 0;
-    size_t          last_to_keep  = read_len - 1;
-    bool            need_trimming = false;
+    int64_t         win_sum         = 0;
+    size_t          win_start       = 0;
+    size_t          win_size        = 0;
+    float           win_avg         = 0.0;
+    size_t          read_len        = the_read.size();
+    size_t          first_to_keep   = 0;
+    size_t          last_to_keep    = read_len - 1;
+    bool            need_trimming   = false;
 
     _num_reads++;
     // Throw out reads which are already too short
@@ -81,19 +81,19 @@ process_read(Read &the_read)
     // Trim with windows
     for (; win_start < read_len - win_size + 1; win_start++) {
         win_avg = win_sum / (float)win_size;
-        if (win_avg < _phred_cutoff || win_start == read_len - win_size) {
+        // IF the window is below threshold
+        if (win_avg < _phred_cutoff || win_start >= read_len - win_size) {
             last_to_keep = win_start - 1;
-            while (_qual_of_base(the_read, ++last_to_keep) >= _phred_cutoff) {
-            }
+            while (_qual_of_base(the_read, ++last_to_keep) >= _phred_cutoff);
             if (last_to_keep < read_len - 1) {
                 need_trimming = true;
             }
             break;
         }
-        win_sum -= _qual_of_base(the_read, win_start++);
+        win_sum -= _qual_of_base(the_read, win_start);
         win_sum += _qual_of_base(the_read, win_start + win_size);
     }
-    if ((last_to_keep - first_to_keep) + 1 < _len_cutoff) {
+    if ((last_to_keep - first_to_keep) < _len_cutoff) {
         the_read.erase();
         _num_reads_dropped++;
     } else if (need_trimming) {

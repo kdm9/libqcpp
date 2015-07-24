@@ -39,6 +39,7 @@ main (int argc, char *argv[])
     qcpp::ProcessedReadStream stream;
     std::vector<std::thread> threads;
     unsigned int n_threads = std::thread::hardware_concurrency();
+    n_threads = 1;
 
     if (argc != 2) {
         std::cerr << "USAGE: " << argv[0] << " <read_file>" << std::endl;
@@ -47,7 +48,7 @@ main (int argc, char *argv[])
 
     stream.open(argv[1]);
     stream.append_processor<qcpp::PerBaseQuality>("Before QC");
-    stream.append_processor<qcpp::WindowedQualTrim>("Qual Trim", 20, 33, 64);
+    stream.append_processor<qcpp::WindowedQualTrim>("Qual Trim", 20, 33, 4);
     stream.append_processor<qcpp::PerBaseQuality>("after qc");
 
 
