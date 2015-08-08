@@ -12,15 +12,15 @@ IF (NOT CMAKE_BUILD_TYPE)
 	SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 
-IF (NOT ${VERSION})
+IF (NOT QCPP_VERSION)
         # git describe as versioning
         EXECUTE_PROCESS(COMMAND git describe --always
                         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                        OUTPUT_VARIABLE VERSION
+                        OUTPUT_VARIABLE QCPP_VERSION
                         OUTPUT_STRIP_TRAILING_WHITESPACE)
 ENDIF()
 
-MESSAGE(STATUS "${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${VERSION}")
+MESSAGE(STATUS "${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${QCPP_VERSION}")
 
 ###############################
 ## Find Packages and Headers ##
@@ -29,7 +29,15 @@ MESSAGE(STATUS "${CMAKE_BUILD_TYPE} build of ${PROJECT_NAME} version: ${VERSION}
 
 ### SeqAn
 # Included in tree for simplicity, but we need to tell seqan we have zlib
-SET(DEPENDS_CFLAGS "${DEPENDS_CFLAGS} -DSEQAN_HAZ_ZLIB=1")
+SET(DEPENDS_CFLAGS "${DEPENDS_CFLAGS} -DSEQAN_HAS_ZLIB=1 -DSEQAN_HAS_OPENMP=1")
+
+### BZ2
+FIND_PACKAGE(BZip2)
+IF(BZIP2_FOUND)
+    SET(DEPENDS_LIBS ${DEPENDS_LIBS} ${BZIP2_LIBRARIES})
+    SET(DEPENDS_INLCUDE_DIRS ${DEPENDS_INLCUDE_DIRS} ${BZIP2_INCLUDE_DIR})
+    SET(DEPENDS_CFLAGS "${DEPENDS_CFLAGS} -DSEQAN_HAS_BZIP2=1")
+ENDIF()
 
 ### Zlib
 FIND_PACKAGE(ZLIB 1.2.5 REQUIRED)

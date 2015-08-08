@@ -12,6 +12,6 @@
 #ifndef QC_CONFIG_HH_IN
 #define QC_CONFIG_HH_IN
 
-#define QCPP_VERSION "${VERSION}"
+#define QCPP_VERSION "${QCPP_VERSION}"
 
 #endif /* QC_CONFIG_HH_IN */
