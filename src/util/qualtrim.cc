@@ -2,7 +2,7 @@
  * ============================================================================
  *
  *       Filename:  trim.cc
- *    Description:  Trim reads using the Needleman-Wunsch trimer/merger
+ *    Description:  Trim reads using the windowed quality trimming algorithm
  *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
@@ -11,12 +11,13 @@
 
 #include <iostream>
 #include <string>
-#include <thread>
 
 #include "qcpp.hh"
 #include "qc-qualtrim.hh"
 #include "qc-measure.hh"
 
+#if 0
+#include <thread>
 std::mutex _cout_mutex;
 
 void parse_and_print(qcpp::ProcessedReadStream *stream)
@@ -38,8 +39,7 @@ main (int argc, char *argv[])
 {
     qcpp::ProcessedReadStream stream;
     std::vector<std::thread> threads;
-    unsigned int n_threads = std::thread::hardware_concurrency();
-    n_threads = 1;
+    unsigned int n_threads = std::thread::hardware_concurrency() - 1;
 
     if (argc != 2) {
         std::cerr << "USAGE: " << argv[0] << " <read_file>" << std::endl;
@@ -47,9 +47,9 @@ main (int argc, char *argv[])
     }
 
     stream.open(argv[1]);
-    stream.append_processor<qcpp::PerBaseQuality>("Before QC");
-    stream.append_processor<qcpp::WindowedQualTrim>("Qual Trim", 20, 33, 4);
-    stream.append_processor<qcpp::PerBaseQuality>("after qc");
+    //stream.append_processor<qcpp::PerBaseQuality>("Before QC");
+    stream.append_processor<qcpp::WindowedQualTrim>("Qual Trim", 33, 20, 4);
+    //stream.append_processor<qcpp::PerBaseQuality>("after qc");
 
 
     for (size_t i = 0; i < n_threads; i++) {
@@ -61,3 +61,29 @@ main (int argc, char *argv[])
     std::cerr << stream.report();
     return EXIT_SUCCESS;
 }
+
+#else
+int
+main (int argc, char *argv[])
+{
+    qcpp::ProcessedReadStream stream;
+    qcpp::ReadPair rp;
+
+    if (argc != 2) {
+        std::cerr << "USAGE: " << argv[0] << " <read_file>" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    stream.open(argv[1]);
+    //stream.append_processor<qcpp::PerBaseQuality>("Before QC");
+    stream.append_processor<qcpp::WindowedQualTrim>("Qual Trim", 33, 20, 4);
+    //stream.append_processor<qcpp::PerBaseQuality>("after qc");
+
+    while (stream.parse_read_pair(rp)) {
+        std::cout << rp.str();
+    }
+
+    std::cerr << stream.report();
+    return EXIT_SUCCESS;
+}
+#endif
