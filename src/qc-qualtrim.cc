@@ -2,7 +2,7 @@
  * ============================================================================
  *
  *       Filename:  qc-qualtrim.cc
- *    Description:  Trim low qualtiy sequences via various methods
+ *    Description:  Trim low quality sequences via various methods
  *        License:  GPLv3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
