@@ -28,12 +28,14 @@ WindowedQualTrim(const std::string &name, int8_t phred_cutoff,
 {
 }
 
+
 WindowedQualTrim::
 WindowedQualTrim(const std::string &name, int8_t phred_cutoff,
                  int8_t phred_offset, size_t len_cutoff):
     WindowedQualTrim(name, phred_offset, phred_cutoff, len_cutoff, 0)
 {
 }
+
 
 void
 WindowedQualTrim::
@@ -44,9 +46,8 @@ process_read(Read &the_read)
     size_t          win_size        = 0;
     float           win_avg         = 0.0;
     size_t          read_len        = the_read.size();
-    size_t          first_to_keep   = 0;
-    size_t          last_to_keep    = read_len - 1;
-    bool            need_trimming   = false;
+    size_t          keep_from       = 0;
+    size_t          keep_until      = 0;
 
     _num_reads++;
     // Throw out reads which are already too short
@@ -69,43 +70,55 @@ process_read(Read &the_read)
 
     // Trim until the first base which is of acceptable quality
     while (_qual_of_base(the_read, win_start) < _phred_cutoff) {
-        need_trimming = true;
         win_start++;
     }
-    first_to_keep = win_start;
+    keep_from = win_start;
 
     // pre-sum the first window
     for (size_t i = win_start; i < win_size; i++) {
         win_sum += _qual_of_base(the_read, i);
     }
     // Trim with windows
-    for (; win_start < read_len - win_size + 1; win_start++) {
+    for (; win_start < read_len - win_size + 1; win_start += 1) {
+        keep_until = win_start;
         win_avg = win_sum / (float)win_size;
-        // IF the window is below threshold
-        if (win_avg < _phred_cutoff || win_start >= read_len - win_size) {
-            last_to_keep = win_start - 1;
-            while (_qual_of_base(the_read, ++last_to_keep) >= _phred_cutoff);
-            if (last_to_keep < read_len - 1) {
-                need_trimming = true;
-            }
+        if (win_avg < _phred_cutoff) {
+            // If the window is below threshold, stop and trim below
             break;
         }
         win_sum -= _qual_of_base(the_read, win_start);
         win_sum += _qual_of_base(the_read, win_start + win_size);
     }
-    if ((last_to_keep - first_to_keep) < _len_cutoff) {
+
+    // Find the last position above the threshold, trim there
+    while (keep_until < read_len) {
+        if (_qual_of_base(the_read, keep_until) < _phred_cutoff) {
+            // Don't increment keep_until, as we should cut at this position
+            break;
+        }
+        keep_until++;
+    }
+
+    size_t new_len = keep_until - keep_from;
+    if (new_len < _len_cutoff) {
         the_read.erase();
         _num_reads_dropped++;
-    } else if (need_trimming) {
-        if (last_to_keep < read_len - 1) {
-            the_read.erase(last_to_keep);
-        }
-        if (first_to_keep > 0) {
-            the_read.erase(0, first_to_keep);
-        }
+        return;
+    }
+    bool trimmed = false;
+    if (keep_until < read_len) {
+        the_read.erase(keep_until);
+        trimmed = true;
+    }
+    if (keep_from > 0) {
+        the_read.erase(0, keep_from);
+        trimmed = true;
+    }
+    if (trimmed) {
         _num_reads_trimmed++;
     }
 }
+
 
 void
 WindowedQualTrim::
@@ -114,6 +127,7 @@ process_read_pair(ReadPair &the_read_pair)
     process_read(the_read_pair.first);
     process_read(the_read_pair.second);
 }
+
 
 std::string
 WindowedQualTrim::
