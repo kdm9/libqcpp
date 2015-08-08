@@ -1,3 +1,9 @@
+ADD_SUBDIRECTORY(tests)
+ADD_SUBDIRECTORY(util)
+
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/src/qc-config.hh.in
+               ${CMAKE_BINARY_DIR}/qc-config.hh)
+
 # Library
 SET(QCPP_HEADERS
         qcpp.hh
