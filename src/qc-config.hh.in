@@ -12,6 +12,13 @@
 #ifndef QC_CONFIG_HH_IN
 #define QC_CONFIG_HH_IN
 
+// Basic includes needed everywhere
+#include <exception>
+#include <stdexcept>
+#include <sstream>
+#include <string>
+#include <cassert>
+
 #define QCPP_VERSION "${QCPP_VERSION}"
 
 #endif /* QC_CONFIG_HH_IN */

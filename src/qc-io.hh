@@ -14,12 +14,7 @@
 
 #include "qc-config.hh"
 
-#include <exception>
-#include <stdexcept>
-#include <sstream>
-#include <string>
 #include <atomic>
-
 #include <mutex>
 
 namespace qcpp
