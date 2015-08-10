@@ -1,9 +1,8 @@
 /*
  * ============================================================================
  *
- *       Filename:  qcpipeline.cc
- *    Description:  A demonstration of how to run a processor pipline with
- *                  libqc++
+ *       Filename:  gbsqc.cc
+ *    Description:  A GBS quality control pipeline
  *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
@@ -40,6 +39,7 @@ progress(size_t n, system_clock::time_point start)
 int
 main (int argc, char *argv[])
 {
+    std::cerr << "GBS-QC" << std::endl << std::endl;
 
     if (argc != 3) {
         std::cerr << "USAGE: " << argv[0] << " <read_file> <yml_file>"
@@ -57,25 +57,13 @@ main (int argc, char *argv[])
     //stream.append_processor<qcpp::PerBaseQuality>("after qc");
 
     system_clock::time_point start = system_clock::now();
-    // to enable paralleism uncomment these
-    //#pragma omp parallel
-    {
-        //std::ostringstream oss;
-        qcpp::ReadPair rp;
-        while (stream.parse_read_pair(rp)) {
-            if (n_pairs % 100000 == 0) {
-                //#pragma omp critical
-                {
-                    progress(n_pairs, start);
-                    //std::cout << oss.str();
-                }
-                //oss.str("");
-                //oss.clear();
-            }
-            //oss << rp.str();
-            //__sync_fetch_and_add(&n_pairs, 1);
-            n_pairs++;
+    qcpp::ReadPair rp;
+    while (stream.parse_read_pair(rp)) {
+        if (n_pairs % 100000 == 0) {
+            progress(n_pairs, start);
         }
+        n_pairs++;
+    }
     }
     progress(n_pairs, start);
     std::cerr << std::endl;

@@ -1,2 +1,2 @@
 ADD_EXECUTABLE(gbsqc gbsqc.cc)
-TARGET_LINK_LIBRARIES(gbstrim libqc++ ${DEPENDS_LIBS})
+TARGET_LINK_LIBRARIES(gbsqc libqc++ ${DEPENDS_LIBS})
