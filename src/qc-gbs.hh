@@ -32,7 +32,9 @@ public:
 private:
     std::atomic_ullong      _num_pairs_trimmed;
     const std::string       _re_site;
+    std::string       _re_key;
     const size_t            _overhang_pos;
+    size_t                  _key_length;
     StripedSmithWaterman::Aligner _aligner;
     StripedSmithWaterman::Filter _filter;
 
