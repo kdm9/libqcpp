@@ -78,11 +78,13 @@ IF(ENABLE_ASAN AND ENABLE_TSAN)
 ENDIF()
 
 IF(ENABLE_ASAN)
+	MESSAGE(STATUS "ASan Enabled")
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 ENDIF()
 
 IF(ENABLE_TSAN)
+	MESSAGE(STATUS "TSan Enabled")
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=thread -fPIC -pie")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fPIC -pie")
 ENDIF()
