@@ -3,7 +3,7 @@
  *
  *       Filename:  qc-qualtrim.hh
  *    Description:  Trim low quality sequences via various methods
- *        License:  GPLv3+
+ *        License:  LGPLv3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================
@@ -12,6 +12,7 @@
 #ifndef QC_QUALTRIM_HH
 #define QC_QUALTRIM_HH
 
+#include "qc-config.hh"
 #include "qc-processor.hh"
 
 namespace qcpp

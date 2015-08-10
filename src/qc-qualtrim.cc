@@ -3,7 +3,7 @@
  *
  *       Filename:  qc-qualtrim.cc
  *    Description:  Trim low quality sequences via various methods
- *        License:  GPLv3+
+ *        License:  LGPLv3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================
@@ -69,10 +69,14 @@ process_read(Read &the_read)
     }
 
     // Trim until the first base which is of acceptable quality
-    while (_qual_of_base(the_read, win_start) < _phred_cutoff) {
+    for (; win_start < read_len;) {
+        if (_qual_of_base(the_read, win_start) >= _phred_cutoff) {
+            break;
+        }
         win_start++;
     }
     keep_from = win_start;
+    keep_until = win_start;
 
     // pre-sum the first window
     for (size_t i = win_start; i < win_size; i++) {
@@ -87,7 +91,9 @@ process_read(Read &the_read)
             break;
         }
         win_sum -= _qual_of_base(the_read, win_start);
-        win_sum += _qual_of_base(the_read, win_start + win_size);
+        if (win_start + win_size < read_len) {
+            win_sum += _qual_of_base(the_read, win_start + win_size);
+        }
     }
 
     // Find the last position above the threshold, trim there
@@ -98,6 +104,7 @@ process_read(Read &the_read)
         }
         keep_until++;
     }
+
 
     size_t new_len = keep_until - keep_from;
     if (new_len < _len_cutoff) {
