@@ -13,11 +13,14 @@
 #define QC_CONFIG_HH_IN
 
 // Basic includes needed everywhere
+#include <iostream>
 #include <exception>
 #include <stdexcept>
 #include <sstream>
 #include <string>
 #include <cassert>
+#include <memory>
+#include <vector>
 
 #define QCPP_VERSION "${QCPP_VERSION}"
 

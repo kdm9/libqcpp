@@ -14,11 +14,8 @@
 
 #include "qc-config.hh"
 #include "qc-util.hh"
-
-#include <memory>
-#include <vector>
-
 #include "qc-io.hh"
+
 
 namespace qcpp
 {
