@@ -63,6 +63,7 @@ main (int argc, char *argv[])
             progress(n_pairs, start);
         }
         n_pairs++;
+        std::cout << rp.str();
     }
     progress(n_pairs, start);
     std::cerr << std::endl;
