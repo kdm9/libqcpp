@@ -64,7 +64,6 @@ main (int argc, char *argv[])
         }
         n_pairs++;
     }
-    }
     progress(n_pairs, start);
     std::cerr << std::endl;
     yml_output << stream.report();
