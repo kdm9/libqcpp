@@ -9,6 +9,22 @@
  * ============================================================================
  */
 
+/* Copyright (c) 2015 Kevin Murray
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <yaml-cpp/yaml.h>
 
 #include "qc-measure.hh"
@@ -79,11 +95,13 @@ process_read_pair(ReadPair &the_read_pair)
         size_t qual_score = r1.quality[i] - _phred_offset;
         // It's a kludge, but we have to use uint64_t and to sync_add here, as
         // std::atomic doesn't like being in a std::array
-        __sync_add_and_fetch(&_qual_scores_r1[i][qual_score], 1);
+        _qual_scores_r1[i][qual_score]++;
+        //__sync_add_and_fetch(&_qual_scores_r1[i][qual_score], 1);
     }
     for (size_t i = 0; i < read_len2; i++) {
         size_t qual_score = r2.quality[i] - _phred_offset;
-        __sync_add_and_fetch(&_qual_scores_r2[i][qual_score], 1);
+        _qual_scores_r2[i][qual_score]++;
+        //__sync_add_and_fetch(&_qual_scores_r2[i][qual_score], 1);
     }
     _num_reads += 2;
 }
