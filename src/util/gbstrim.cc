@@ -5,8 +5,7 @@
  *    Description:  Trim GBS reads using the GBSTrimPE processor.
  *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
- *
- * ============================================================================
+ * * ============================================================================
  */
 
 #include <iostream>
@@ -16,6 +15,7 @@
 #include "qcpp.hh"
 
 #include "qc-gbs.hh"
+#include "qc-qualtrim.hh"
 
 #if 0
 #include <thread>
@@ -72,7 +72,8 @@ main (int argc, char *argv[])
     }
 
     stream.open(argv[1]);
-    stream.append_processor<qcpp::GBSTrimPE>("trim Pst1 reads", "CTGCAG", 1);
+    stream.append_processor<qcpp::GBSTrimPE>("trim Pst1 read-through", "CTGCAG", 1);
+    stream.append_processor<qcpp::WindowedQualTrim>("Sickle-style QC", 28, 33, 64);
 
     while (stream.parse_read_pair(rp)) {
         std::cout << rp.str();
