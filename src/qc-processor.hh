@@ -76,6 +76,7 @@ class ProcessedReadStream: public ReadInputStream
 {
 public:
     ProcessedReadStream             ();
+    ProcessedReadStream             (const std::string &filename);
 
     void
     open                            (const char        *filename);

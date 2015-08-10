@@ -63,9 +63,17 @@ report()
     return ss.str();
 }
 
+//////////////////////////////  ProcessedReadStream ///////////////////////////
+
 ProcessedReadStream::
 ProcessedReadStream()
 {
+}
+
+ProcessedReadStream::
+ProcessedReadStream(const std::string &filename)
+{
+    _parser.open(filename);
 }
 
 void
