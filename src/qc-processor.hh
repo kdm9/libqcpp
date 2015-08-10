@@ -2,7 +2,7 @@
  * ============================================================================
  *
  *       Filename:  qc-processor.hh
- *    Description:  Base class that handles processing of reads and aggregation
+ *    Description:  Base read processing and aggregation
  *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
