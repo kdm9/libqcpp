@@ -43,3 +43,4 @@ tags
 # data
 *.yml
 *.fq
+*.fq.gz
