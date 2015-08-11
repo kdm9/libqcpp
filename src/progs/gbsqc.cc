@@ -31,6 +31,8 @@
 #include <chrono>
 #include <iomanip>
 
+#include <getopt.h>
+
 #include "qcpp.hh"
 
 #include "qc-measure.hh"
@@ -53,18 +55,45 @@ progress(size_t n, system_clock::time_point start)
 }
 
 int
+usage_err()
+{
+    std::cerr << "USAGE: gbsqc [-y REPORT -o OUTPUT] <read_file>" << std::endl;
+    return EXIT_FAILURE;
+}
+
+const char *cli_opts = "y:o:";
+
+int
 main (int argc, char *argv[])
 {
-    std::cerr << "GBS-QC" << std::endl << std::endl;
+    std::string                 yaml_fname;
+    bool                        use_stdout = true;
+    std::ofstream               read_output;
 
-    if (argc != 3) {
-        std::cerr << "USAGE: " << argv[0] << " <read_file> <yml_file>"
-                  << std::endl;
-        return EXIT_FAILURE;
+    int c = 0;
+    while ((c = getopt(argc, argv, cli_opts)) > 0) {
+        switch (c) {
+            case 'y':
+                yaml_fname = optarg;
+                break;
+            case 'o':
+                read_output.open(optarg);
+                use_stdout = false;
+                break;
+            default:
+                std::cerr << "Bad arg '" << std::string(1, optopt) << "'"
+                          << std::endl << std::endl;
+                return usage_err();
+        }
     }
 
-    qcpp::ProcessedReadStream   stream(argv[1]);
-    std::ofstream               yml_output(argv[2]);
+    if (optind + 1 > argc) {
+        std::cerr << "Must provide filename" << std::endl << std::endl;
+        return usage_err();
+    }
+
+    qcpp::ReadPair              rp;
+    qcpp::ProcessedReadStream   stream(argv[optind]);
     uint64_t                    n_pairs = 0;
 
     //stream.append_processor<qcpp::PerBaseQuality>("before qc");
@@ -73,16 +102,22 @@ main (int argc, char *argv[])
     //stream.append_processor<qcpp::PerBaseQuality>("after qc");
 
     system_clock::time_point start = system_clock::now();
-    qcpp::ReadPair rp;
     while (stream.parse_read_pair(rp)) {
         if (n_pairs % 100000 == 0) {
             progress(n_pairs, start);
         }
         n_pairs++;
-        std::cout << rp.str();
+        if (use_stdout) {
+            std::cout << rp.str();
+        } else {
+            read_output << rp.str();
+        }
     }
     progress(n_pairs, start);
     std::cerr << std::endl;
-    yml_output << stream.report();
+    if (yaml_fname.size() > 0) {
+        std::ofstream yml_output(yaml_fname);
+        yml_output << stream.report();
+    }
     return EXIT_SUCCESS;
 }
