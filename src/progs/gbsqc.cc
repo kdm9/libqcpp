@@ -66,6 +66,8 @@ const char *cli_opts = "y:o:";
 int
 main (int argc, char *argv[])
 {
+    using namespace qcpp;
+
     std::string                 yaml_fname;
     bool                        use_stdout = true;
     std::ofstream               read_output;
@@ -92,14 +94,14 @@ main (int argc, char *argv[])
         return usage_err();
     }
 
-    qcpp::ReadPair              rp;
-    qcpp::ProcessedReadStream   stream(argv[optind]);
+    ReadPair              rp;
+    ProcessedReadStream   stream(argv[optind]);
     uint64_t                    n_pairs = 0;
 
-    //stream.append_processor<qcpp::PerBaseQuality>("before qc");
-    stream.append_processor<qcpp::GBSTrimPE>("trim Pst1 read-through", "CTGCAG", 1);
-    stream.append_processor<qcpp::WindowedQualTrim>("QC", 28, 33, 50);
-    //stream.append_processor<qcpp::PerBaseQuality>("after qc");
+    //stream.append_processor<PerBaseQuality>("before qc");
+    stream.append_processor<GBSTrimPE>("trim Pst1 read-through", "CTGCAG", 1);
+    stream.append_processor<WindowedQualTrim>("QC", SangerEncoding, 28, 50);
+    stream.append_processor<PerBaseQuality>("after qc");
 
     system_clock::time_point start = system_clock::now();
     while (stream.parse_read_pair(rp)) {
