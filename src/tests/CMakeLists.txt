@@ -16,7 +16,7 @@ ADD_CUSTOM_TARGET(setup_tests ALL
                    ${CMAKE_BINARY_DIR}/out)
 ADD_DEPENDENCIES(test_qcpp setup_tests)
 
-ADD_TEST(NAME "UnitTests" COMMAND test_qcpp)
+ADD_TEST(NAME "UnitTests" COMMAND test_qcpp WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 SET(COVERAGE_CMD test_qcpp)
 SET(COVERAGE_OUT "${CMAKE_BINARY_DIR}/coverage_html")
 
