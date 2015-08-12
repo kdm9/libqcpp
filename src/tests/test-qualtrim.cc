@@ -44,17 +44,34 @@ TEST_CASE("WindowedQualTrimmer low_qual.fastq", "[qualtrim]") {
         REQUIRE_NOTHROW(parser.parse_read(r1));
         REQUIRE_NOTHROW(parser.parse_read(r2));
 
-        std::cerr << "Before:\n";
-        std::cerr << r1.str();
-        std::cerr << r2.str();
+        wqt.process_read(r1);
+        wqt.process_read(r2);
+
+        REQUIRE(r1.size() == 96);
+        REQUIRE(r2.size() == 0);
+    }
+
+    SECTION("Cutoff 20, len 1") {
+        qcpp::WindowedQualTrim  wqt("qt", qcpp::SangerEncoding, 20, 1);
+        REQUIRE_NOTHROW(parser.parse_read(r1));
+        REQUIRE_NOTHROW(parser.parse_read(r2));
 
         wqt.process_read(r1);
         wqt.process_read(r2);
-        std::cerr << "After:\n";
-        std::cerr << r1.str();
-        std::cerr << r2.str();
 
-        std::cerr << "YAML:\n";
-        std::cerr << wqt.report();
+        REQUIRE(r1.size() == 96);
+        REQUIRE(r2.size() == 23);
+    }
+
+    SECTION("Cutoff 20, len 1, paired mode") {
+        qcpp::WindowedQualTrim  wqt("qt", qcpp::SangerEncoding, 20, 1);
+        qcpp::ReadPair rp;
+        REQUIRE_NOTHROW(parser.parse_read_pair(rp));
+
+        wqt.process_read_pair(rp);
+
+        REQUIRE(rp.first.size() == 96);
+        REQUIRE(rp.second.size() == 23);
     }
 }
+
