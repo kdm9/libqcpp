@@ -31,14 +31,15 @@
 namespace qcpp
 {
 
+
 WindowedQualTrim::
-WindowedQualTrim(const std::string &name, int8_t phred_cutoff,
-                 int8_t phred_offset, size_t len_cutoff, size_t window_size):
+WindowedQualTrim(const std::string &name, QualityEncoding quality_encoding,
+                 int8_t phred_cutoff, size_t len_cutoff, size_t window_size):
     ReadProcessor(name),
     _num_reads_trimmed(0),
     _num_reads_dropped(0),
+    _encoding(quality_encoding),
     _phred_cutoff(phred_cutoff),
-    _phred_offset(phred_offset),
     _len_cutoff(len_cutoff),
     _window_size(window_size)
 {
@@ -46,9 +47,9 @@ WindowedQualTrim(const std::string &name, int8_t phred_cutoff,
 
 
 WindowedQualTrim::
-WindowedQualTrim(const std::string &name, int8_t phred_cutoff,
-                 int8_t phred_offset, size_t len_cutoff):
-    WindowedQualTrim(name, phred_offset, phred_cutoff, len_cutoff, 0)
+WindowedQualTrim(const std::string &name, QualityEncoding quality_encoding,
+                 int8_t phred_cutoff, size_t len_cutoff):
+    WindowedQualTrim(name, quality_encoding, phred_cutoff, len_cutoff, 0)
 {
 }
 
@@ -172,8 +173,8 @@ report()
         << YAML::Value << YAML::BeginMap
                        << YAML::Key << "phred_cutoff"
                        << YAML::Value << _phred_cutoff
-                       << YAML::Key << "phred_offset"
-                       << YAML::Value << _phred_offset
+                       << YAML::Key << "quality_encoding"
+                       << YAML::Value << _encoding.name
                        << YAML::Key << "len_cutoff"
                        << YAML::Value << _len_cutoff
                        << YAML::Key << "window_size"

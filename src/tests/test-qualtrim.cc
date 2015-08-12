@@ -40,7 +40,7 @@ TEST_CASE("WindowedQualTrimmer low_qual.fastq", "[qualtrim]") {
     parser.open(infile);
 
     SECTION("Cutoff 20, len 30") {
-        qcpp::WindowedQualTrim  wqt("qt", 20, 33, 30);
+        qcpp::WindowedQualTrim  wqt("qt", qcpp::SangerEncoding, 20, 30);
         REQUIRE_NOTHROW(parser.parse_read(r1));
         REQUIRE_NOTHROW(parser.parse_read(r2));
 

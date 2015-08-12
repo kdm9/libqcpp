@@ -14,6 +14,7 @@ SET(QCPP_HEADERS
         qc-adaptor.hh
         qc-measure.hh
         qc-qualtrim.hh
+        qc-quality.hh
         )
 
 ADD_LIBRARY(libqc++
@@ -24,6 +25,7 @@ ADD_LIBRARY(libqc++
         qc-adaptor.cc
         qc-measure.cc
         qc-qualtrim.cc
+        qc-quality.cc
         ext/ssw.c
         ext/ssw_cpp.cpp
         )

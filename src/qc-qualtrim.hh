@@ -30,22 +30,24 @@
 
 #include "qc-config.hh"
 #include "qc-processor.hh"
+#include "qc-quality.hh"
 
 namespace qcpp
 {
+
 
 class WindowedQualTrim: public ReadProcessor
 {
     // This class implements a similar algorithm to Nik Joshi's sickle tool
 public:
     WindowedQualTrim                (const std::string &name,
+                                     QualityEncoding    quality_encoding,
                                      int8_t             phred_cutoff,
-                                     int8_t             phred_offset,
                                      size_t             len_cutoff,
                                      size_t             window_size);
     WindowedQualTrim                (const std::string &name,
+                                     QualityEncoding    quality_encoding,
                                      int8_t             phred_cutoff,
-                                     int8_t             phred_offset,
                                      size_t             len_cutoff);
 
     void
@@ -60,8 +62,8 @@ public:
 private:
     std::atomic_ullong      _num_reads_trimmed;
     std::atomic_ullong      _num_reads_dropped;
+    QualityEncoding         _encoding;
     int8_t                  _phred_cutoff;
-    int8_t                  _phred_offset;
     size_t                  _len_cutoff;
     size_t                  _window_size;
 
@@ -69,7 +71,7 @@ private:
     _qual_of_base                   (const Read &the_read,
                                      const size_t idx)
     {
-        return the_read.quality[idx] - _phred_offset;
+        return qual_of_base(the_read, idx, _encoding);
     }
 };
 
