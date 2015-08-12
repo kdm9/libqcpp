@@ -94,9 +94,9 @@ main (int argc, char *argv[])
         return usage_err();
     }
 
-    ReadPair              rp;
-    ProcessedReadStream   stream(argv[optind]);
-    uint64_t                    n_pairs = 0;
+    ReadPair                rp;
+    ProcessedReadStream     stream(argv[optind]);
+    uint64_t                n_pairs = 0;
 
     //stream.append_processor<PerBaseQuality>("before qc");
     stream.append_processor<GBSTrimPE>("trim Pst1 read-through", "CTGCAG", 1);
