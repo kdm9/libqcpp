@@ -50,11 +50,12 @@ FIND_PACKAGE(OpenMP REQUIRED)
 SET(DEPENDS_CFLAGS "${DEPENDS_CFLAGS} ${OpenMP_C_FLAGS}")
 
 ### Boost
-FIND_PACKAGE(Boost 1.48 REQUIRED)
+FIND_PACKAGE(Boost REQUIRED)
 SET(DEPENDS_INLCUDE_DIRS ${DEPENDS_INLCUDE_DIRS} ${Boost_INCLUDE_DIRS})
-SET(DEPENDS_LIB_DIRS ${DEPENDS_LIB_DIRS} ${Boost_LIBRARY_DIRS})
 # We don't personally link to Boost, so no need to add to libary deps. We only
-# need the inlcude dir for yaml-cpp.
+# need the inlcude dir for yaml-cpp. I'm leaving these here because I'll
+# probably end up using Boost.
+# SET(DEPENDS_LIB_DIRS ${DEPENDS_LIB_DIRS} ${Boost_LIBRARY_DIRS})
 # SET(DEPENDS_LIBS ${DEPENDS_LIBS} ${Boost_LIBRARIES})
 
 ### yaml-cpp
