@@ -99,8 +99,8 @@ process_read_pair(ReadPair &the_read_pair)
             r2_qual.erase();
 
             // Mark read as trimmed
-            the_read_pair.first.name += " AdaptorTrimPE_trimmed";
-            the_read_pair.second.name += " AdaptorTrimPE_trimmed";
+            //the_read_pair.first.name += " AdaptorTrimPE_trimmed";
+            //the_read_pair.second.name += " AdaptorTrimPE_trimmed";
 
             _num_pairs_trimmed++;
         } else {
@@ -137,8 +137,8 @@ process_read_pair(ReadPair &the_read_pair)
             r2_qual.erase();
 
             // Mark the read as having been merged
-            the_read_pair.first.name += " AdaptorTrimPE_merged";
-            the_read_pair.second.name += " AdaptorTrimPE_merged";
+            //the_read_pair.first.name += " AdaptorTrimPE_merged";
+            //the_read_pair.second.name += " AdaptorTrimPE_merged";
 
             _num_pairs_joined++;
         }
