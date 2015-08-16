@@ -39,6 +39,8 @@
 #include "qc-length.hh"
 #include "qc-qualtrim.hh"
 #include "qc-gbs.hh"
+#include "qc-adaptor.hh"
+
 
 using std::chrono::system_clock;
 
@@ -102,7 +104,7 @@ main (int argc, char *argv[])
     if (qc_before) {
         stream.append_processor<PerBaseQuality>("before qc");
     }
-    stream.append_processor<GBSTrimPE>("trim Pst1 read-through", "CTGCAG", 1);
+    stream.append_processor<AdaptorTrimPE>("trim or merge reads", 10);
     stream.append_processor<WindowedQualTrim>("QC", SangerEncoding, 28, 50);
     stream.append_processor<PerBaseQuality>("after qc");
 
