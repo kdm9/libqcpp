@@ -68,9 +68,9 @@ main (int argc, char *argv[])
 {
     using namespace qcpp;
 
-    std::string                 yaml_fname;
-    bool                        use_stdout = true;
-    std::ofstream               read_output;
+    std::string             yaml_fname;
+    bool                    use_stdout = true;
+    std::ofstream           read_output;
 
     int c = 0;
     while ((c = getopt(argc, argv, cli_opts)) > 0) {
@@ -97,8 +97,11 @@ main (int argc, char *argv[])
     ReadPair                rp;
     ProcessedReadStream     stream(argv[optind]);
     uint64_t                n_pairs = 0;
+    bool                    qc_before = false;
 
-    //stream.append_processor<PerBaseQuality>("before qc");
+    if (qc_before) {
+        stream.append_processor<PerBaseQuality>("before qc");
+    }
     stream.append_processor<GBSTrimPE>("trim Pst1 read-through", "CTGCAG", 1);
     stream.append_processor<WindowedQualTrim>("QC", SangerEncoding, 28, 50);
     stream.append_processor<PerBaseQuality>("after qc");
