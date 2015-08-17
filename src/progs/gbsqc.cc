@@ -59,11 +59,18 @@ progress(size_t n, system_clock::time_point start)
 int
 usage_err()
 {
-    std::cerr << "USAGE: gbsqc [-y REPORT -o OUTPUT] <read_file>" << std::endl;
+    using std::cerr;
+    using std::endl;
+    cerr << "USAGE: gbsqc [-b -y REPORT -o OUTPUT] <read_file>" << std::endl
+         << std::endl;
+    cerr << "OPTIONS:" << endl;
+    cerr << " -b         Use broken-paired output (don't keep read pairing) [default: false]" << endl;
+    cerr << " -y YAML    YAML report file. [default: none]" << endl;
+    cerr << " -o OUTPUT  Output file. [default: stdout]" << endl;
     return EXIT_FAILURE;
 }
 
-const char *cli_opts = "y:o:";
+const char *cli_opts = "y:o:b";
 
 int
 main (int argc, char *argv[])
@@ -71,6 +78,7 @@ main (int argc, char *argv[])
     using namespace qcpp;
 
     std::string             yaml_fname;
+    bool                    broken_paired = false;
     bool                    use_stdout = true;
     std::ofstream           read_output;
 
@@ -83,6 +91,9 @@ main (int argc, char *argv[])
             case 'o':
                 read_output.open(optarg);
                 use_stdout = false;
+                break;
+            case 'b':
+                broken_paired = true;
                 break;
             default:
                 std::cerr << "Bad arg '" << std::string(1, optopt) << "'"
@@ -105,7 +116,7 @@ main (int argc, char *argv[])
         stream.append_processor<PerBaseQuality>("before qc");
     }
     stream.append_processor<AdaptorTrimPE>("trim or merge reads", 10);
-    stream.append_processor<WindowedQualTrim>("QC", SangerEncoding, 28, 50);
+    stream.append_processor<WindowedQualTrim>("QC", SangerEncoding, 28, 64);
     stream.append_processor<PerBaseQuality>("after qc");
 
     system_clock::time_point start = system_clock::now();
@@ -114,10 +125,28 @@ main (int argc, char *argv[])
             progress(n_pairs, start);
         }
         n_pairs++;
-        if (use_stdout) {
-            std::cout << rp.str();
+        if (broken_paired) {
+            if (use_stdout) {
+                if (rp.first.size() >= 64) {
+                    std::cout << rp.first.str();
+                }
+                if (rp.second.size() >= 64) {
+                    std::cout << rp.second.str();
+                }
+            } else {
+                if (rp.first.size() >= 64) {
+                    read_output << rp.first.str();
+                }
+                if (rp.second.size() >= 64) {
+                    read_output << rp.second.str();
+                }
+            }
         } else {
-            read_output << rp.str();
+            if (use_stdout) {
+                std::cout << rp.str();
+            } else {
+                read_output << rp.str();
+            }
         }
     }
     progress(n_pairs, start);
