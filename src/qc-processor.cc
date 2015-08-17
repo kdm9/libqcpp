@@ -73,6 +73,7 @@ ReadProcessorPipeline::
 report()
 {
     std::ostringstream ss;
+    ss << global_report_yaml_header();
     for (auto &proc: _pipeline) {
         ss << proc->report();
     }

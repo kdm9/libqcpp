@@ -15,9 +15,11 @@ SET(QCPP_HEADERS
         qc-measure.hh
         qc-qualtrim.hh
         qc-quality.hh
+        qc-util.hh
         )
 
 ADD_LIBRARY(libqc++
+	qc-util.cc
         qc-io.cc
         qc-processor.cc
         qc-length.cc

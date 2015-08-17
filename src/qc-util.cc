@@ -25,18 +25,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QC_UTIL_HH
-#define QC_UTIL_HH
+#include <yaml-cpp/yaml.h>
 
-#include <string>
-#include <sstream>
-#include "qc-config.hh"
+#include "qc-util.hh"
 
 namespace qcpp
 {
 
-std::string global_report_yaml_header();
+std::string
+global_report_yaml_header()
+{
+    std::ostringstream ss;
+    YAML::Emitter yml;
+
+    yml << YAML::BeginSeq;
+    yml << YAML::BeginMap;
+    yml << YAML::Key   << "QCPP"
+        << YAML::Value
+        << YAML::BeginMap
+        << YAML::Key   << "version"
+        << YAML::Value << QCPP_VERSION;
+    yml << YAML::EndMap;
+    yml << YAML::EndSeq;
+    ss << yml.c_str() << "\n";
+    return ss.str();
+}
+
 
 } // end namespace qcpp
-
-#endif /* QC_UTIL_HH */
