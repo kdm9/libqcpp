@@ -121,32 +121,28 @@ main (int argc, char *argv[])
 
     system_clock::time_point start = system_clock::now();
     while (stream.parse_read_pair(rp)) {
+        std::string rp_str = "";
+
+        if (broken_paired) {
+            if (rp.first.size() >= 64) {
+                rp_str = rp.first.str();
+            }
+            if (rp.second.size() >= 64) {
+                rp_str += rp.second.str();
+            }
+        } else {
+            rp_str = rp.str();
+        }
+
         if (n_pairs % 100000 == 0) {
             progress(n_pairs, start);
         }
         n_pairs++;
-        if (broken_paired) {
-            if (use_stdout) {
-                if (rp.first.size() >= 64) {
-                    std::cout << rp.first.str();
-                }
-                if (rp.second.size() >= 64) {
-                    std::cout << rp.second.str();
-                }
-            } else {
-                if (rp.first.size() >= 64) {
-                    read_output << rp.first.str();
-                }
-                if (rp.second.size() >= 64) {
-                    read_output << rp.second.str();
-                }
-            }
+
+        if (use_stdout) {
+            std::cout << rp_str;
         } else {
-            if (use_stdout) {
-                std::cout << rp.str();
-            } else {
-                read_output << rp.str();
-            }
+            read_output << rp_str;
         }
     }
     progress(n_pairs, start);
