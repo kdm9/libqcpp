@@ -74,15 +74,15 @@ process_read_pair(ReadPair &the_read_pair)
         std::string &r2_qual = the_read_pair.second.quality;
 
         // Complement R2, as we use it to correct R1 below or concatenation it
-        // to R1 if it's the read needs merging
+        // to R1 if it's the read needs merging.
         seqan::complement(r2_seq);
 
         if (r1_start > r2_start) {
-            // Adaptor read-through, trim R1, truncate R2.
-            size_t new_seq_len = r1_len - read_len_diff - r1_start + 1;
+            // Adaptor read-through, trim R1, remove R2.
+            size_t new_len = r1_len - read_len_diff - r1_start;
+            new_len = new_len > r1_seq.size() ?  r1_seq.size() : new_len;
 
-            // If R1 base is lower quality than R2, use the base from R2
-            for (size_t i = 0; i < new_seq_len; i++) {
+            for (size_t i = 0; i < new_len; i++) {
                 size_t r2_pos = r2_len + read_len_diff - r1_start - i;
                 if (r1_qual[i] < r2_qual[r2_pos]) {
                     r1_seq[i] = r2_seq[r2_pos];
@@ -91,16 +91,12 @@ process_read_pair(ReadPair &the_read_pair)
             }
 
             // Trim the read to its new length
-            r1_seq.erase(new_seq_len - 1);
-            r1_qual.erase(new_seq_len - 1);
+            r1_seq.erase(new_len);
+            r1_qual.erase(new_len);
 
             // Remove R2, as it's just duplicated
             r2_seq.erase();
             r2_qual.erase();
-
-            // Mark read as trimmed
-            //the_read_pair.first.name += " AdaptorTrimPE_trimmed";
-            //the_read_pair.second.name += " AdaptorTrimPE_trimmed";
 
             _num_pairs_trimmed++;
         } else {
@@ -135,10 +131,6 @@ process_read_pair(ReadPair &the_read_pair)
             // printed.
             r2_seq.erase();
             r2_qual.erase();
-
-            // Mark the read as having been merged
-            //the_read_pair.first.name += " AdaptorTrimPE_merged";
-            //the_read_pair.second.name += " AdaptorTrimPE_merged";
 
             _num_pairs_joined++;
         }
