@@ -77,13 +77,13 @@ process_read_pair(ReadPair &the_read_pair)
         // to R1 if it's the read needs merging.
         seqan::complement(r2_seq);
 
-        if (r1_start > r2_start) {
+        if (r1_start >= r2_start) {
             // Adaptor read-through, trim R1, remove R2.
             size_t new_len = r1_len - read_len_diff - r1_start;
             new_len = new_len > r1_seq.size() ?  r1_seq.size() : new_len;
 
             for (size_t i = 0; i < new_len; i++) {
-                size_t r2_pos = r2_len + read_len_diff - r1_start - i;
+                size_t r2_pos = new_len - i - 1;
                 if (r1_qual[i] < r2_qual[r2_pos]) {
                     r1_seq[i] = r2_seq[r2_pos];
                     r1_qual[i] = r2_qual[r2_pos];
