@@ -62,28 +62,60 @@ process_read_pair(ReadPair &the_read_pair)
                            seqan::Score<int, seqan::Simple>(1, -3, -3, -3),
                            seqan::AlignConfig<true, true, true, true>());
 
+// define this to enable full-on debug output
+#undef I_BROKE_ADAPTOR_TRIMMING_AGAIN
+    std::string &r1_seq = the_read_pair.first.sequence;
+    std::string &r2_seq = the_read_pair.second.sequence;
+    std::string &r1_qual = the_read_pair.first.quality;
+    std::string &r2_qual = the_read_pair.second.quality;
     if (score >= _min_overlap) {
         size_t r1_len = the_read_pair.first.size();
         size_t r2_len = the_read_pair.second.size();
         ssize_t read_len_diff = r1_len - r2_len;
         size_t r1_start = toViewPosition(row(aligner, 0), 0);
         size_t r2_start = toViewPosition(row(aligner, 1), 0);
-        std::string &r1_seq = the_read_pair.first.sequence;
-        std::string &r2_seq = the_read_pair.second.sequence;
-        std::string &r1_qual = the_read_pair.first.quality;
-        std::string &r2_qual = the_read_pair.second.quality;
 
         // Complement R2, as we use it to correct R1 below or concatenation it
         // to R1 if it's the read needs merging.
         seqan::complement(r2_seq);
 
-        if (r1_start + read_len_diff >= r2_start) {
+#if 0 //def I_BROKE_ADAPTOR_TRIMMING_AGAIN
+        std::cerr << the_read_pair.first.name << std::endl;
+        std::cerr << "Score is " << score << std::endl;
+        std::cerr << "R1,2 lens: " << r1_len << " " << r2_len << std::endl;
+        std::cerr << "length difference: " << read_len_diff << std::endl;
+        std::cerr << "starts: " << r1_start << " " << r2_start << std::endl;
+        std::cerr << aligner << std::endl;
+#endif
+        //if (r1_start + read_len_diff >= r2_start) {
+        if (r1_start >= r2_start) {
             // Adaptor read-through, trim R1, remove R2.
             size_t new_len = r1_len - read_len_diff - r1_start;
             new_len = new_len > r1_seq.size() ?  r1_seq.size() : new_len;
 
+#ifdef I_BROKE_ADAPTOR_TRIMMING_AGAIN
+            std::string tmp = r2_seq.substr(0, new_len);
+            std::reverse(tmp.begin(), tmp.end());
+            std::cerr << "READTHRU" << std::endl;
+            std::cerr << r1_seq << std::endl;
+            std::cerr << tmp << std::endl;
+#endif
             for (size_t i = 0; i < new_len; i++) {
                 size_t r2_pos = new_len - i - 1;
+#ifdef I_BROKE_ADAPTOR_TRIMMING_AGAIN
+                if (new_len > 95) {
+                    std::cerr << i  << " " << r1_seq[i] << " " << r2_pos << " "
+                              << r2_seq[r2_pos] << std::endl;
+                }
+#endif
+                if (i >= r1_seq.size()) {
+                    std::cerr << "overread r1 ";
+                    std::cerr << i << " " << r1_seq.size() << std::endl;
+                }
+                if (r2_pos >= r2_seq.size()) {
+                    std::cerr << "overread r2 ";
+                    std::cerr << r2_pos << " " << r2_seq.size() << std::endl;
+                }
                 if (r1_qual[i] < r2_qual[r2_pos]) {
                     r1_seq[i] = r2_seq[r2_pos];
                     r1_qual[i] = r2_qual[r2_pos];
@@ -101,13 +133,31 @@ process_read_pair(ReadPair &the_read_pair)
             _num_pairs_trimmed++;
         } else {
             // Read-through into acutal read, needs merging
-            size_t overlap_starts = r2_start - read_len_diff;
+            size_t overlap_starts = r2_start;
             size_t overlap_size = r1_len - r2_start;
+
+#ifdef I_BROKE_ADAPTOR_TRIMMING_AGAIN
+            std::cerr << "OVERLAP" << std::endl;
+            std::cerr << r1_seq << std::endl;
+            std::cerr << std::string(overlap_starts, ' ') << r2_rc << std::endl;
+#endif
 
             // If R1 base is lower quality than R2, use the base from R2
             for (size_t i = 0; i < overlap_size; i++) {
-                size_t r1_pos = overlap_starts + i + read_len_diff;
-                size_t r2_pos = r2_len + read_len_diff - i;
+                //BUG IN NEXT 2 LINES
+                size_t r1_pos = overlap_starts + i;
+                size_t r2_pos = r2_len - i - 1;
+#ifdef I_BROKE_ADAPTOR_TRIMMING_AGAIN
+                std::cerr << r1_pos  << " " << r1_seq[r1_pos] << " " << r2_pos << " " << r2_seq[r2_pos] << std::endl;
+#endif
+                if (r1_pos >= r1_seq.size()) {
+                    std::cerr << "overread r1 ";
+                    std::cerr << i << " " << r1_pos << " " << r1_seq.size() << std::endl;
+                }
+                if (r2_pos >= r2_seq.size()) {
+                    std::cerr << "overread r2 ";
+                    std::cerr << i << " " << r2_pos << " " << r2_seq.size() << std::endl;
+                }
                 if (r1_qual[r1_pos] < r2_qual[r2_pos]) {
                     r1_seq[r1_pos] = r2_seq[r2_pos];
                     r1_qual[r1_pos] = r2_qual[r2_pos];
@@ -115,8 +165,8 @@ process_read_pair(ReadPair &the_read_pair)
             }
 
             // Remove the overlap from the read
-            r2_seq.erase(overlap_starts);
-            r2_qual.erase(overlap_starts);
+            r2_seq.erase(overlap_starts - read_len_diff);
+            r2_qual.erase(overlap_starts - read_len_diff);
 
             // Reverse the second read, so we can append it directly to the
             // first read
@@ -134,9 +184,14 @@ process_read_pair(ReadPair &the_read_pair)
 
             _num_pairs_joined++;
         }
+#ifdef I_BROKE_ADAPTOR_TRIMMING_AGAIN
+        std::cerr << r1_seq << std::endl << std::endl;
+#endif
     }
 
     _num_reads += 2;
+// Dont remove this undef, it stops the macro leaking from this function.
+#undef I_BROKE_ADAPTOR_TRIMMING_AGAIN
 }
 
 std::string
