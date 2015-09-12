@@ -108,9 +108,17 @@ main (int argc, char *argv[])
     }
 
     ReadPair                rp;
-    ProcessedReadStream     stream(argv[optind]);
+    ProcessedReadStream     stream;
     uint64_t                n_pairs = 0;
     bool                    qc_before = false;
+
+    try {
+        stream.open(argv[optind]);
+    } catch (qcpp::IOError  &e) {
+        std::cerr << "Error opening input file:" << std::endl;
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
     if (qc_before) {
         stream.append_processor<PerBaseQuality>("before qc");
@@ -134,7 +142,7 @@ main (int argc, char *argv[])
             rp_str = rp.str();
         }
 
-        if (n_pairs % 100000 == 0) {
+        if (n_pairs % 10000 == 0) {
             progress(n_pairs, start);
         }
         n_pairs++;
