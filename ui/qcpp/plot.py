@@ -78,7 +78,7 @@ class PlotPerBaseQuality(PlotResult):
         read_pos = np.arange(len(med)) + 1
 
         # Make figure
-        fig, ax = plt.subplots(figsize=(6,5))
+        fig, ax = plt.subplots(figsize=(10,6))
 
         # Plot median, save line for the legend
         line, = ax.plot(read_pos,
@@ -101,8 +101,8 @@ class PlotPerBaseQuality(PlotResult):
                         label="{}%-ile range".format(self.ranges[0]))
 
         # Set plot limits
-        ax.set_xlim((1,101))
-        ax.set_ylim((1, upper_p.max() + 3))
+        ax.set_xlim((1, len(read_pos)))
+        ax.set_ylim((1, upper_p.max() + 2))
 
         # set titles
         ax.set_title("Per-base PHRED Qualities: " + name)
