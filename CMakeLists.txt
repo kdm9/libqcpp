@@ -86,6 +86,12 @@ IF(ENABLE_ASAN AND ENABLE_TSAN)
 	MESSAGE(FATAL_ERROR "Cannot enable both TSan and ASan")
 ENDIF()
 
+IF(ENABLE_UBSAN)
+	MESSAGE(STATUS "UBSan Enabled")
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+ENDIF()
+
 IF(ENABLE_ASAN)
 	MESSAGE(STATUS "ASan Enabled")
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
