@@ -1,0 +1,7 @@
+Jinja2
+PyYAML
+matplotlib
+mpld3
+nose
+numpy
+six
