@@ -1,24 +1,21 @@
 <div class=processor>
  {% if parameters %}
- <div class="row">
-  <div class="col-sm-4 parameters">
-   <h4>Parameters</h4>
-   <table class="parameters table">
-    <tbody>
-     {% for param, val in parameters.items() %}
-     <tr>
-      <td align="right">{{ param }}:</td>
-      <td>{{ val }}</td>
-     </tr>
-     {% endfor %}
-    </tbody>
-   </table>
+  <div class="row">
+   <div class="col-sm-3 parameters">
+    <h4>Parameters</h4>
+    <table class="parameters table">
+     <tbody>
+      {% for param, val in parameters.items() %}
+      <tr>
+       <td align="right">{{ param }}:</td>
+       <td>{{ val }}</td>
+      </tr>
+      {% endfor %}
+     </tbody>
+    </table>
+   </div>
   </div>
- </div>
  {% endif %}
- <div class="col-sm-12 output">
-  {% block output %}
-  <h4>Output</hf>
-  {% endblock %}
- </div>
+ {% block output %}
+ {% endblock %}
 </div>

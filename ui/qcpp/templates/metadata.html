@@ -1,0 +1,16 @@
+<div class=metadata>
+ <div class="row">
+   <h2>QCPP Report</h2>
+   <table class="metadata table">
+    <tbody>
+     {% for param, val in metadata.items() %}
+     <tr>
+      <td align="right">{{ param }}:</td>
+      <td>{{ val }}</td>
+     </tr>
+     {% endfor %}
+    </tbody>
+   </table>
+  </div>
+ </div>
+</div>

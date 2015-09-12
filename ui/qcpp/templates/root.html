@@ -22,6 +22,7 @@
   </div>
   <div id="page-content-wrapper">
    <div class="container-fluid">
+    {{ metadata_div }}
     {% for r_type, r_name, r_div in reports %}
      <div class="row" id="comp_{{ loop.index }}">
       <div class="page-header">

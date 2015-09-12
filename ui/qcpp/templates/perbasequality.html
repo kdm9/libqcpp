@@ -1,8 +1,12 @@
 {% extends "processor.html" %}
 {% block output %}
- {{ super() }}
+<div class="row">
+ <div class="col-sm-3 plot">
+  <h4>Output</h4>
+ </div>
+</div>
 
- <div class="row">
+<div class="row">
   <div class="col-sm-6 plot">
    <img alt="Quality per base" src="data:image/png;base64,{{ r1_image }}" />
   </div>
@@ -12,6 +16,7 @@
   </div>
   {% endif %}
  </div>
+</div>
 
  {#
  <div id="r1_pbq_fig">
@@ -28,18 +33,15 @@
  </div>
  #}
 
- <div class="row">
-  <div class="col-sm-12">
-   <div class="well">
-    <p class="explanation">
-     Ranges above indicate the fraction of reads contained within their limits,
-     e.g. the 50 percentile range contains 50% of all reads, i.e. the
-     interquartile range.
-    </p>
-    <p class="explanation">
-     
-    </p>
-   </div>
+<div class="row">
+ <div class="col-sm-6">
+  <div class="well">
+   <p class="explanation">
+    Ranges above indicate the fraction of reads contained within their limits,
+    e.g. the 50 percentile range contains 50% of all reads, i.e. the
+    interquartile range.
+   </p>
   </div>
  </div>
+</div>
 {% endblock %}

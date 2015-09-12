@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import, division, print_function
 import base64
 from cStringIO import StringIO
 import jinja2
@@ -24,7 +25,6 @@ import numpy as np
 import yaml
 from sys import stderr
 
-
 from qcpp.util import (
     pothole2title,
     nice_params,
@@ -33,9 +33,19 @@ from qcpp.util import (
     D3,
 )
 
+
 class PlotResult(object):
+
     def render(self, report):
-        return ""
+        """Renders a report with simple key:value params and output"""
+        name = report['name']
+        params = nice_params(report['parameters'])
+        output = nice_params(report['output'])
+
+        return self.template.render(name=name,
+                                    parameters=params,
+                                    output=output)
+
 
 class PlotPerBaseQuality(PlotResult):
     """Render PerBaseQuality results"""
@@ -151,8 +161,29 @@ class PlotPerBaseQuality(PlotResult):
                                r2_image=r2_image,
                                r2_dict=r2_dict)
 
+
+class PlotWindowedQualTrim(PlotResult):
+    """Render WindowedQualTrim results.
+    We can use the default render function."""
+    template = QCPP_ENV.get_template('windowedqualtrim.html')
+
+
+class PlotAdaptorTrimPE(PlotResult):
+    """Render AdaptorTrimPE results.
+    We can use the default render function."""
+    template = QCPP_ENV.get_template('adaptortrim.html')
+
+
+def render_metadata(section):
+    metadata = section['QCPP']
+    template = QCPP_ENV.get_template('metadata.html')
+    return template.render(metadata=metadata)
+
+
 RENDERERS = {
     "PerBaseQuality": PlotPerBaseQuality,
+    "AdaptorTrimPE": PlotAdaptorTrimPE,
+    "WindowedQualTrim": PlotWindowedQualTrim,
 }
 
 def render_all(yml_file):
@@ -162,7 +193,11 @@ def render_all(yml_file):
     report_names = []
     out_reports = []
 
-    for report in reports:
+    # Save the root metatdata report (always the first report in the YAML).
+    metadata = render_metadata(reports[0])
+
+
+    for report in reports[1:]:
         processor, proc_report = report.items()[0]
         renderer = RENDERERS[processor]()
         name = proc_report['name']
@@ -171,8 +206,9 @@ def render_all(yml_file):
         out_reports.append((processor, name, div))
 
     template = QCPP_ENV.get_template('root.html')
-    html = template.render(reports=out_reports,
+    html = template.render(metadata_div=metadata,
+                           reports=out_reports,
                            report_names=report_names,
                            mpld3=MPLD3,
                            d3=D3)
-    print html
+    print(html)

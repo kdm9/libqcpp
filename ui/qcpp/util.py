@@ -27,6 +27,9 @@ def nice_params(param_dict):
         nice[pothole2title(k)] =  v
     return nice
 
+def include_file(name):
+    return QCPP_LOADER.get_source(QCPP_ENV, name)[0]
+
 QCPP_LOADER = PackageLoader('qcpp', 'templates')
 QCPP_ENV = Environment(loader=QCPP_LOADER)
 
@@ -35,8 +38,5 @@ with open(mpld3.urls.D3_LOCAL) as fh:
 
 with open(mpld3.urls.MPLD3_LOCAL) as fh:
     MPLD3 = fh.read()
-
-def include_file(name):
-    return QCPP_LOADER.get_source(QCPP_ENV, name)[0]
 
 QCPP_ENV.globals['include_file'] = include_file
