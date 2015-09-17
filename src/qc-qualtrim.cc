@@ -65,6 +65,7 @@ process_read(Read &the_read)
     size_t          read_len        = the_read.size();
     size_t          keep_from       = 0;
     size_t          keep_until      = 0;
+    std::string    &seq             = the_read.sequence;
 
     _num_reads++;
     // Throw out reads which are already too short
@@ -87,7 +88,7 @@ process_read(Read &the_read)
 
     // Trim until the first base which is of acceptable quality
     for (; win_start < read_len;) {
-        if (_qual_of_base(the_read, win_start) >= _phred_cutoff) {
+        if (_encoding.p2q(seq[win_start]) >= _phred_cutoff) {
             break;
         }
         win_start++;
@@ -97,7 +98,7 @@ process_read(Read &the_read)
 
     // pre-sum the first window
     for (size_t i = win_start; i < win_size; i++) {
-        win_sum += _qual_of_base(the_read, i);
+        win_sum += _encoding.p2q(seq[i]);
     }
     // Trim with windows
     for (; win_start < read_len - win_size + 1; win_start += 1) {
@@ -107,15 +108,15 @@ process_read(Read &the_read)
             // If the window is below threshold, stop and trim below
             break;
         }
-        win_sum -= _qual_of_base(the_read, win_start);
+        win_sum -= _encoding.p2q(seq[win_start]);
         if (win_start + win_size < read_len) {
-            win_sum += _qual_of_base(the_read, win_start + win_size);
+            win_sum += _encoding.p2q(seq[win_start + win_size]);
         }
     }
 
     // Find the last position above the threshold, trim there
     while (keep_until < read_len) {
-        if (_qual_of_base(the_read, keep_until) < _phred_cutoff) {
+        if (_encoding.p2q(the_read[keep_until]) < _phred_cutoff) {
             // Don't increment keep_until, as we should cut at this position
             break;
         }

@@ -38,6 +38,12 @@ struct QualityEncoding {
     int8_t offset;
     int8_t start;
     int8_t stop;
+
+    inline int8_t
+    p2q(char phred)
+    {
+        return phred - offset;
+    }
 };
 
 static const QualityEncoding SangerEncoding{"Sanger", 33, 0, 40};

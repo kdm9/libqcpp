@@ -32,23 +32,44 @@
 namespace qcpp
 {
 
-/////////////////////////////////// BASE CLASS ////////////////////////////////
-QCMeasure::
-QCMeasure(const std::string &name, unsigned phred_offset):
-    ReadProcessor(name),
-    _have_r2(false),
-    _phred_offset(phred_offset)
-{
-}
-
-
 /////////////////////////////// PerBaseQuality /////////////////////////
 PerBaseQuality::
-PerBaseQuality(const std::string &name, unsigned phred_offset):
-    QCMeasure(name, phred_offset),
-    _max_len(0)
+PerBaseQuality(const std::string &name, QualityEncoding encoding)
+    : ReadProcessor(name, encoding)
+    , _have_r2(false)
+    , _max_len(0);
 {
 }
+
+
+PerBaseQuality::Report
+PerBaseQuality::
+report()
+{
+    return _report;
+}
+
+PerBaseQuality::Report
+PerBaseQuality::
+consolidate_reports(std::vector<PerBaseQuality::Report> reports)
+{
+    Report new_rep;
+
+    for (const auto &report: reports) {
+        new_rep.name = report.name;
+        while (new_rep.qual_scores_r1.size() < report.qual_scores_r1.size()) {
+            new_rep.emplace_back()
+        }
+        while (new_rep.qual_scores_r2.size() < report.qual_scores_r2.size()) {
+            new_rep.emplace_back()
+        }
+        for (const auto &pair: report.qual_scores_r1) {
+            new_rep.qual_scores_r1[pair.first] += pair.second;
+        }
+    }
+    return _report;
+}
+
 
 void
 PerBaseQuality::
@@ -56,7 +77,6 @@ process_read(Read &the_read)
 {
     size_t read_len = the_read.size();
     if (read_len > _max_len) {
-        std::lock_guard<std::mutex> lg(_expansion_mutex);
         for (size_t i = _max_len; i <= read_len; i++) {
             _qual_scores_r1.emplace_back();
         }
@@ -64,10 +84,8 @@ process_read(Read &the_read)
     }
 
     for (size_t i = 0; i < read_len; i++) {
-        size_t qual_score = the_read.quality[i] - _phred_offset;
-        // It's a kludge, but we have to use uint64_t and to sync_add here, as
-        // std::atomic doesn't like being in a std::array
-        __sync_add_and_fetch(&_qual_scores_r1[i][qual_score], 1);
+        size_t qual_score = _encoding.p2q(the_read.quality[i]);
+        _qual_scores_r1[i][qual_score]++;
     }
     _num_reads++;
 }
@@ -84,24 +102,19 @@ process_read_pair(ReadPair &the_read_pair)
 
     _have_r2 = true;
     if (larger_len > _max_len) {
-        std::lock_guard<std::mutex> lg(_expansion_mutex);
         for (size_t i = _max_len + 1; i <= larger_len; i++) {
-            _qual_scores_r1.emplace_back();
-            _qual_scores_r2.emplace_back();
+            _report.qual_scores_r1.emplace_back();
+            _report.qual_scores_r2.emplace_back();
         }
         _max_len = larger_len;
     }
     for (size_t i = 0; i < read_len1; i++) {
         size_t qual_score = r1.quality[i] - _phred_offset;
-        // It's a kludge, but we have to use uint64_t and to sync_add here, as
-        // std::atomic doesn't like being in a std::array
-        _qual_scores_r1[i][qual_score]++;
-        //__sync_add_and_fetch(&_qual_scores_r1[i][qual_score], 1);
+        _report.qual_scores_r1[i][qual_score]++;
     }
     for (size_t i = 0; i < read_len2; i++) {
         size_t qual_score = r2.quality[i] - _phred_offset;
-        _qual_scores_r2[i][qual_score]++;
-        //__sync_add_and_fetch(&_qual_scores_r2[i][qual_score], 1);
+        _report.qual_scores_r2[i][qual_score]++;
     }
     _num_reads += 2;
 }
@@ -129,15 +142,15 @@ report()
         << Key   << "output"
         << Value << BeginMap
                  << Key << "num_reads"
-                 << Value << _num_reads
+                 << Value << _report.num_reads
                  << Key << "r1_phred_scores"
                  << Value << BeginSeq;
     // Handle R1 phred scores
     for (size_t i = 0; i < _max_len; i++) {
         yml << Flow;
         yml << BeginSeq;
-        for (size_t j = 0; j < _qual_scores_r1[i].size(); j++) {
-            yml << _qual_scores_r1[i][j];
+        for (size_t j = 0; j < _report.qual_scores_r1[i].size(); j++) {
+            yml << _report.qual_scores_r1[i][j];
         }
         yml << EndSeq;
     }
@@ -149,8 +162,8 @@ report()
         for (size_t i = 0; i < _max_len; i++) {
             yml << Flow;
             yml << BeginSeq;
-            for (size_t j = 0; j < _qual_scores_r2[i].size(); j++) {
-                yml << _qual_scores_r2[i][j];
+            for (size_t j = 0; j < _report.qual_scores_r2[i].size(); j++) {
+                yml << _report.qual_scores_r2[i][j];
             }
             yml << EndSeq;
         }

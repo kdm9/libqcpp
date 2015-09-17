@@ -38,7 +38,14 @@ namespace qcpp
 class ReadLenCounter: public ReadProcessor
 {
 public:
-    ReadLenCounter                  (const std::string &name);
+    struct Report: public ReadProcessor::Report
+    {
+        std::map<size_t, size_t> len_map_r1;
+        std::map<size_t, size_t> len_map_r2;
+    };
+
+    ReadLenCounter                  (const std::string &name,
+                                     QualityEncoding encoding);
 
     void
     process_read                    (Read              &the_read);
@@ -46,15 +53,20 @@ public:
     void
     process_read_pair               (ReadPair          &the_read_pair);
 
-    std::string
+    Report
     report                          ();
+
+    static Report
+    consolidate_reports             (std::vector<Report> &reports);
+
+    static std::string
+    yaml_report                     (Report            &report);
 
 private:
     bool                    _have_r2;
     size_t                  _max_len;
-    std::map<size_t, std::atomic_ullong> _len_map_r1;
-    std::map<size_t, std::atomic_ullong> _len_map_r2;
-    std::mutex              _map_mutex;
+    std::map<size_t, size_t> _len_map_r1;
+    std::map<size_t, size_t> _len_map_r2;
 };
 
 
@@ -74,9 +86,9 @@ public:
     report                          ();
 
 private:
-    std::atomic_ullong      _num_r1_trimmed;
-    std::atomic_ullong      _num_r2_trimmed;
-    std::atomic_ullong      _num_pairs_trimmed;
+    size_t                  _num_r1_trimmed;
+    size_t                  _num_r2_trimmed;
+    size_t                  _num_pairs_trimmed;
     size_t                  _threshold;
 };
 

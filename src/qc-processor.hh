@@ -31,6 +31,7 @@
 #include "qc-config.hh"
 #include "qc-util.hh"
 #include "qc-io.hh"
+#include "qc-quality.hh"
 
 
 namespace qcpp
@@ -39,7 +40,15 @@ namespace qcpp
 class ReadProcessor
 {
 public:
-    ReadProcessor                   (const std::string &name);
+    struct Report
+    {
+        std::string             name;
+        size_t                  num_reads;
+        QualityEncoding         encoding;
+    };
+
+    ReadProcessor                   (const std::string &name,
+                                     QualityEncoding    encoding);
 
     virtual void
     process_read                    (Read              &the_read) = 0;
@@ -47,12 +56,19 @@ public:
     virtual void
     process_read_pair               (ReadPair          &the_read_pair) = 0;
 
-    virtual std::string
+    virtual Report
     report                          () = 0;
 
+    virtual Report
+    consolidate_reports             (std::vector<Report> &reports) = 0;
+
+    virtual std::string
+    yaml_report                     (Report) = 0;
+
 protected:
-    std::atomic_ullong      _num_reads;
     const std::string       _name;
+    size_t                  _num_reads;
+    QualityEncoding         _encoding;
 };
 
 
@@ -66,7 +82,6 @@ public:
     void
     append_processor                (Args&&...          args)
     {
-        //_pipeline.push_back(std::make_unique<ReadProcType>(args...));
         _pipeline.push_back(
                 std::unique_ptr<ReadProcType>(new ReadProcType(args...)));
     }

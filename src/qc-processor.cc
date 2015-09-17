@@ -31,10 +31,11 @@ namespace qcpp
 {
 
 ReadProcessor::
-ReadProcessor(const std::string &name):
-    _name(name)
+ReadProcessor(const std::string &name, QualityEncoding encoding)
+    : _name(name)
+    , _num_reads(0)
+    , _encoding(encoding)
 {
-    _num_reads = 0;
 }
 
 ReadProcessorPipeline::
@@ -75,7 +76,7 @@ report()
     std::ostringstream ss;
     ss << global_report_yaml_header();
     for (auto &proc: _pipeline) {
-        ss << proc->report();
+        ss << proc->yaml_report(proc->report());
     }
     return ss.str();
 }

@@ -33,8 +33,8 @@ namespace qcpp
 {
 
 ReadLenCounter::
-ReadLenCounter(const std::string  &name):
-    ReadProcessor(name)
+ReadLenCounter(const std::string &name, QualityEncoding encoding)
+    : ReadProcessor(name, encoding)
 {
     _max_len = 0;
     _have_r2 = false;
@@ -63,7 +63,6 @@ process_read_pair(ReadPair &the_read_pair)
     size_t read_len2 = the_read_pair.second.size();
     size_t larger_len = read_len1 > read_len2 ? read_len1 : read_len2;
     if (larger_len > _max_len) {
-        std::lock_guard<std::mutex> lg(_map_mutex);
         for (size_t i = _max_len + 1; i <= larger_len; i++) {
             _len_map_r1[i] = 0;
             _len_map_r2[i] = 0;
@@ -77,7 +76,7 @@ process_read_pair(ReadPair &the_read_pair)
 
 std::string
 ReadLenCounter::
-report()
+yaml_report(ReadLenCounter::Report &report)
 {
     std::ostringstream ss;
     YAML::Emitter yml;
@@ -88,20 +87,20 @@ report()
         << YAML::Value
         << YAML::BeginMap
         << YAML::Key   << "name"
-        << YAML::Value << _name
+        << YAML::Value << report.name
         << YAML::Key   << "parameters"
         << YAML::Value << YAML::BeginMap
                        << YAML::EndMap
         << YAML::Key   << "output"
         << YAML::Value << YAML::BeginMap
                        << YAML::Key << "num_reads"
-                       << YAML::Value << _num_reads
+                       << YAML::Value << report.num_reads
                        << YAML::Key << "r1_lengths"
                        << YAML::Flow
-                       << YAML::Value << _len_map_r1
+                       << YAML::Value << report.len_map_r1
                        << YAML::Key << "r2_lengths"
                        << YAML::Flow
-                       << YAML::Value << _len_map_r2
+                       << YAML::Value << report.len_map_r2
                        << YAML::EndMap
         << YAML::EndMap;
     yml << YAML::EndMap;

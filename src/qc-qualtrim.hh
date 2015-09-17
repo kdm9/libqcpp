@@ -66,13 +66,6 @@ private:
     int8_t                  _phred_cutoff;
     size_t                  _len_cutoff;
     size_t                  _window_size;
-
-    inline int8_t
-    _qual_of_base                   (const Read &the_read,
-                                     const size_t idx)
-    {
-        return qual_of_base(the_read, idx, _encoding);
-    }
 };
 
 

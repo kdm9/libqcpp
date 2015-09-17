@@ -35,26 +35,20 @@
 namespace qcpp
 {
 
-// It's a kludge, but we have to use uint64_t, as std::atomic doesn't like
-// being in a std::array. ALWAYS use __sync_add_and_fetch and friends.
-typedef std::array<uint64_t, 50> PhredHistogramArray;
-
-class QCMeasure: public ReadProcessor
-{
-public:
-    QCMeasure                       (const std::string &name,
-                                     unsigned           phred_offset=33);
-
-protected:
-    bool                    _have_r2;
-    unsigned                _phred_offset;
-};
+typedef std::map<int8_t, size_t> PhredHistogram;
 
 class PerBaseQuality: public QCMeasure
 {
 public:
     PerBaseQuality                  (const std::string &name,
-                                     unsigned           phred_offset=33);
+                                     QualityEncoding    encoding);
+
+    struct Report: public QCMeasure::Report
+    {
+        // Vector of arrays, one histogram array per base of each read
+        std::vector<PhredHistogramArray> qual_scores_r1;
+        std::vector<PhredHistogramArray> qual_scores_r2;
+    };
 
     void
     process_read                    (Read              &the_read);
@@ -62,16 +56,24 @@ public:
     void
     process_read_pair               (ReadPair          &the_read_pair);
 
-    std::string
-    report                          ();
+    Report
+    get_report                      ();
+
+    static Report
+    consolidate_reports             (std::vector<Report> &reports);
+
+    static std::string
+    yaml_report                     (Report);
 
 private:
+    bool                    _have_r2;
     size_t                  _max_len;
-    std::mutex              _expansion_mutex;
-    // Vector of arrays, one histogram array per base of each read
-    std::vector<PhredHistogramArray> _qual_scores_r1;
-    std::vector<PhredHistogramArray> _qual_scores_r2;
+    std::vector<PhredHistogram> _qual_scores_r1;
+    std::vector<PhredHistogram> _qual_scores_r2;
 };
+
+
+
 
 } // end namespace qcpp
 
