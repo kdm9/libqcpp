@@ -40,15 +40,8 @@ namespace qcpp
 class ReadProcessor
 {
 public:
-    struct Report
-    {
-        std::string             name;
-        size_t                  num_reads;
-        QualityEncoding         encoding;
-    };
-
     ReadProcessor                   (const std::string &name,
-                                     QualityEncoding    encoding);
+                                     const QualityEncoding &encoding);
 
     virtual void
     process_read                    (Read              &the_read) = 0;
@@ -56,19 +49,16 @@ public:
     virtual void
     process_read_pair               (ReadPair          &the_read_pair) = 0;
 
-    virtual Report
-    report                          () = 0;
-
-    virtual Report
-    consolidate_reports             (std::vector<Report> &reports) = 0;
+    virtual void
+    add_stats_from                  (ReadProcessor     &other);
 
     virtual std::string
-    yaml_report                     (Report) = 0;
+    yaml_report                     () = 0;
 
 protected:
     const std::string       _name;
     size_t                  _num_reads;
-    QualityEncoding         _encoding;
+    const QualityEncoding   _encoding;
 };
 
 

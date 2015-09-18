@@ -37,8 +37,9 @@ namespace qcpp
 {
 
 AdaptorTrimPE::
-AdaptorTrimPE(const std::string &name, int min_overlap):
-    ReadProcessor(name),
+AdaptorTrimPE(const std::string &name, int min_overlap,
+              const QualityEncoding &encoding):
+    ReadProcessor(name, encoding),
     _num_pairs_trimmed(0),
     _num_pairs_joined(0),
     _min_overlap(min_overlap)
@@ -139,9 +140,18 @@ process_read_pair(ReadPair &the_read_pair)
     _num_reads += 2;
 }
 
+void
+AdaptorTrimPE::
+add_stats_from(AdaptorTrimPE &other)
+{
+    _num_reads += other._num_reads;
+    _num_pairs_trimmed += other._num_pairs_trimmed;
+    _num_pairs_joined += other._num_pairs_joined;
+}
+
 std::string
 AdaptorTrimPE::
-report()
+yaml_report()
 {
     std::ostringstream ss;
     YAML::Emitter yml;

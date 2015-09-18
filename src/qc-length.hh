@@ -38,14 +38,8 @@ namespace qcpp
 class ReadLenCounter: public ReadProcessor
 {
 public:
-    struct Report: public ReadProcessor::Report
-    {
-        std::map<size_t, size_t> len_map_r1;
-        std::map<size_t, size_t> len_map_r2;
-    };
-
     ReadLenCounter                  (const std::string &name,
-                                     QualityEncoding encoding);
+                                     const QualityEncoding &encoding=SangerEncoding);
 
     void
     process_read                    (Read              &the_read);
@@ -53,14 +47,11 @@ public:
     void
     process_read_pair               (ReadPair          &the_read_pair);
 
-    Report
-    report                          ();
+    virtual void
+    add_stats_from                  (ReadLenCounter     &other);
 
-    static Report
-    consolidate_reports             (std::vector<Report> &reports);
-
-    static std::string
-    yaml_report                     (Report            &report);
+    std::string
+    yaml_report                     ();
 
 private:
     bool                    _have_r2;
@@ -74,7 +65,8 @@ class ReadLenFilter: public ReadProcessor
 {
 public:
     ReadLenFilter                   (const std::string &name,
-                                     size_t             threshold = 1);
+                                     size_t             threshold = 1,
+                                     const QualityEncoding &encoding=SangerEncoding);
 
     void
     process_read                    (Read              &the_read);
@@ -82,13 +74,16 @@ public:
     void
     process_read_pair               (ReadPair          &the_read_pair);
 
+    void
+    add_stats_from                  (ReadLenFilter     &other);
+
     std::string
-    report                          ();
+    yaml_report                     ();
 
 private:
-    size_t                  _num_r1_trimmed;
-    size_t                  _num_r2_trimmed;
-    size_t                  _num_pairs_trimmed;
+    size_t                  _num_r1_dropped;
+    size_t                  _num_r2_dropped;
+    size_t                  _num_pairs_dropped;
     size_t                  _threshold;
 };
 

@@ -36,7 +36,8 @@ class GBSTrimPE: public ReadProcessor
 public:
     GBSTrimPE                       (const std::string &name,
                                      const std::string &re_site,
-                                     int                overhang_pos);
+                                     int                overhang_pos,
+                                     const QualityEncoding &enc=SangerEncoding);
 
     void
     process_read_pair               (ReadPair          &the_read_pair);

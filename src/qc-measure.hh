@@ -37,18 +37,11 @@ namespace qcpp
 
 typedef std::map<int8_t, size_t> PhredHistogram;
 
-class PerBaseQuality: public QCMeasure
+class PerBaseQuality: public ReadProcessor
 {
 public:
     PerBaseQuality                  (const std::string &name,
-                                     QualityEncoding    encoding);
-
-    struct Report: public QCMeasure::Report
-    {
-        // Vector of arrays, one histogram array per base of each read
-        std::vector<PhredHistogramArray> qual_scores_r1;
-        std::vector<PhredHistogramArray> qual_scores_r2;
-    };
+                                     const QualityEncoding &encoding=SangerEncoding);
 
     void
     process_read                    (Read              &the_read);
@@ -56,14 +49,11 @@ public:
     void
     process_read_pair               (ReadPair          &the_read_pair);
 
-    Report
-    get_report                      ();
+    void
+    add_stats_from                  (PerBaseQuality    &other);
 
-    static Report
-    consolidate_reports             (std::vector<Report> &reports);
-
-    static std::string
-    yaml_report                     (Report);
+    std::string
+    yaml_report                     ();
 
 private:
     bool                    _have_r2;
@@ -71,8 +61,6 @@ private:
     std::vector<PhredHistogram> _qual_scores_r1;
     std::vector<PhredHistogram> _qual_scores_r2;
 };
-
-
 
 
 } // end namespace qcpp
