@@ -63,15 +63,16 @@ usage_err()
 {
     using std::cerr;
     using std::endl;
-    cerr << "USAGE: gbsqc [-t THREADS -y REPORT -o OUTPUT] <read_file>"
+    cerr << "USAGE: threaded [-t THREADS -y REPORT -o OUTPUT] <read_file>"
          << std::endl << std::endl;
     cerr << "OPTIONS:" << endl;
-    cerr << " -y YAML    YAML report file. [default: none]" << endl;
-    cerr << " -o OUTPUT  Output file. [default: stdout]" << endl;
+    cerr << " -t THREADS  Worker threads to use [default: num_cpu - 1]" << endl;
+    cerr << " -y YAML     YAML report file. [default: none]" << endl;
+    cerr << " -o OUTPUT   Output file. [default: stdout]" << endl;
     return EXIT_FAILURE;
 }
 
-const char *cli_opts = "y:o:";
+const char *cli_opts = "y:o:t:";
 
 int
 main (int argc, char *argv[])
@@ -123,8 +124,8 @@ main (int argc, char *argv[])
     start = system_clock::now();
     size_t num_reads = proc.run();
     std::cerr << std::endl;
-    std::cerr << "Done! Processed " << (float)num_reads / 1000 << "K reads."
-              << std::endl;
+    std::cerr << "Done! Processed " << (float)num_reads / 1000
+              << "K read pairs." << std::endl;
     if (yaml_fname.size() > 0) {
         std::ofstream yml_output(yaml_fname);
         yml_output << proc.report();
