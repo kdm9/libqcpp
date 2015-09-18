@@ -42,6 +42,9 @@ public:
     void
     process_read_pair               (ReadPair          &the_read_pair);
 
+    void
+    add_stats_from                  (GBSTrimPE         &other);
+
     std::string
     report                          ();
 

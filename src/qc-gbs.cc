@@ -82,6 +82,14 @@ process_read_pair(ReadPair &the_read_pair)
     _num_reads += 2;
 }
 
+void
+GBSTrimPE::
+add_stats_from(GBSTrimPE &other)
+{
+    _num_reads += other._num_reads;
+    _num_pairs_trimmed += other._num_pairs_trimmed;
+}
+
 std::string
 GBSTrimPE::
 report()

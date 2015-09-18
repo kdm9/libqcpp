@@ -42,6 +42,7 @@ void
 ReadProcessor::
 add_stats_from(ReadProcessor &other)
 {
+    _num_reads += other._num_reads;
 }
 
 ReadProcessorPipeline::
@@ -72,6 +73,15 @@ process_read_pair(ReadPair &the_read_pair)
 {
     for (auto &proc: _pipeline) {
         proc->process_read_pair(the_read_pair);
+    }
+}
+
+void
+ReadProcessorPipeline::
+add_stats_from(ReadProcessorPipeline &other)
+{
+    for (size_t i = 0; i < _pipeline.size(); i++) {
+        _pipeline[i]->add_stats_from(*other._pipeline[i]);
     }
 }
 
@@ -162,5 +172,144 @@ report()
 {
     return _pipeline.report();
 }
+
+/////////////////////////////  ThreadedQCProcessor ////////////////////////////
+
+ThreadedQCProcessor::
+ThreadedQCProcessor(std::string &input, std::ostream *output,
+                    size_t worker_threads)
+    : _output(output)
+    , _num_threads(worker_threads)
+    , _input_complete(false)
+    , _output_complete(0)
+    , _chunksize(2048)
+{
+    _input.open(input);
+    for (size_t i = 0; i < _num_threads; i++) {
+        _pipelines.emplace_back();
+    }
+}
+
+void
+ThreadedQCProcessor::
+writer(ThreadedQCProcessor *self)
+{
+    size_t n_reads = 0;
+    while (true) {
+        std::unique_lock<std::mutex> lock(self->_out_mutex);
+        while (self->_out_queue.empty()) {
+            if (self->_output_complete == self->_num_threads) {
+                return;
+            }
+            self->_out_cv.wait_for(lock, std::chrono::microseconds(1));
+        }
+        ReadChunk chunk = self->_out_queue.front();
+        self->_out_queue.pop();
+
+        lock.unlock();
+
+        for (ReadPair &rp: chunk) {
+            (*self->_output) <<  rp.str();
+        }
+        n_reads += chunk.size();
+        if (self->_progress_cb) {
+            self->_progress_cb(n_reads);
+        }
+    }
+}
+
+void
+ThreadedQCProcessor::
+worker(ThreadedQCProcessor *self, size_t thread_id)
+{
+    ReadProcessorPipeline &pipeline = self->_pipelines[thread_id];
+    while (true) {
+        std::unique_lock<std::mutex> lock(self->_in_mutex);
+        while (self->_in_queue.empty()) {
+            if (self->_input_complete) {
+                self->_output_complete++;
+                return;
+            }
+            self->_out_cv.wait_for(lock, std::chrono::microseconds(1));
+        }
+        ReadChunk chunk(self->_in_queue.front());
+        self->_in_queue.pop();
+
+        lock.unlock();
+
+        for (ReadPair &rp: chunk) {
+            pipeline.process_read_pair(rp);
+        }
+
+        {
+            std_mutex_lock lg(self->_out_mutex);
+            self->_out_queue.emplace(chunk);
+        }
+        self->_out_cv.notify_one();
+    }
+}
+
+void
+ThreadedQCProcessor::
+reader(ThreadedQCProcessor *self)
+{
+    while (true) {
+        ReadChunk   chunk;
+        while (chunk.size() < self->_chunksize) {
+            ReadPair    rp;
+            if (!self->_input.parse_read_pair(rp))  {
+                self->_input_complete = true;
+                break;
+            }
+            chunk.emplace_back(rp);
+        }
+        {
+            std_mutex_lock lg(self->_in_mutex);
+            self->_in_queue.emplace(chunk);
+        }
+        self->_in_cv.notify_one();
+        while (self->_in_queue.size() > 2 * self->_num_threads) {
+            std::this_thread::sleep_for(std::chrono::microseconds(1));
+        }
+        if (self->_input_complete) break;
+    }
+}
+
+void
+ThreadedQCProcessor::
+run()
+{
+    std::thread rdr(ThreadedQCProcessor::reader, this);
+    std::thread wtr(ThreadedQCProcessor::writer, this);
+    std::vector<std::thread> workers;
+
+    for (size_t i = 0; i < _num_threads; i++) {
+        workers.emplace_back(ThreadedQCProcessor::worker, this, i);
+    }
+
+    rdr.join();
+    for (auto &thr: workers) {
+        thr.join();
+    }
+    wtr.join();
+
+    for (size_t i = 1; i < _num_threads; i++) {
+        _pipelines[0].add_stats_from(_pipelines[i]);
+    }
+}
+void
+ThreadedQCProcessor::
+set_progress_callback(std::function<void(size_t)> func)
+{
+    _progress_cb = func;
+}
+
+std::string
+ThreadedQCProcessor::
+report()
+{
+    return _pipelines[0].report();
+}
+
 
 } // namespace qcpp

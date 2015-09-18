@@ -43,11 +43,11 @@ public:
     void
     process_read_pair               (ReadPair          &the_read_pair);
 
-    std::string
-    yaml_report                     ();
-
     void
     add_stats_from                  (AdaptorTrimPE     &other);
+
+    std::string
+    yaml_report                     ();
 
 private:
     std::atomic_ullong      _num_pairs_trimmed;

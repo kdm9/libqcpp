@@ -30,12 +30,14 @@
 
 #include <string>
 #include <sstream>
+#include <mutex>
 #include "qc-config.hh"
 
 namespace qcpp
 {
 
 std::string global_report_yaml_header();
+typedef std::lock_guard<std::mutex> std_mutex_lock;
 
 } // end namespace qcpp
 

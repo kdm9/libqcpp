@@ -1,8 +1,7 @@
 /*
  * ============================================================================
  *
- *       Filename:  qc-adaptor.cc
- *    Description:  Trim adaptor read-through from reads
+ *       Filename:  qc-adaptor.cc *    Description:  Trim adaptor read-through from reads
  *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
