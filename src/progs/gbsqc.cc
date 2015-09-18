@@ -51,9 +51,9 @@ progress(size_t n, system_clock::time_point start)
     double secs = tdiff.count();
     double k_reads = n / 1000.0;
     double rate = k_reads / secs;
-    std::cerr << "\x1b[2K" << "Kept " << k_reads << "K read pairs in "
-              << (int)secs << "s (" << std::setprecision(3) << rate
-              << std::setprecision(9) << "K RP/sec)\r";
+    std::cerr << "\33[2K" << "Kept " << std::setprecision(3) << k_reads
+              << "K read pairs in " << (int)secs << "s (" << (int)rate
+              << "K RP/sec)\r";
 }
 
 int

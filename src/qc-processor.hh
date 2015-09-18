@@ -154,7 +154,7 @@ public:
     void
     set_progress_callback           (std::function<void(size_t)> func);
 
-    void
+    size_t
     run                             ();
 
     std::string
@@ -165,6 +165,7 @@ public:
     static void writer(ThreadedQCProcessor *self);
 
 protected:
+    size_t                  _num_reads;
     // One pipeline per thread
     std::vector<ReadProcessorPipeline> _pipelines;
     ReadParser              _input;

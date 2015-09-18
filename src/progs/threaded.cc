@@ -54,8 +54,8 @@ progress(size_t n)
     double k_reads = n / 1000.0;
     double rate = k_reads / secs;
     std::cerr << "\x1b[2K" << "Kept " << k_reads << "K read pairs in "
-              << (int)secs << "s (" << std::setprecision(3) << rate
-              << std::setprecision(9) << "K RP/sec)\r";
+              << (int)secs << "s (" << std::setprecision(1) << (int)rate
+              << std::setprecision(3) << "K RP/sec)\r";
 }
 
 int
@@ -63,8 +63,8 @@ usage_err()
 {
     using std::cerr;
     using std::endl;
-    cerr << "USAGE: gbsqc [-b -y REPORT -o OUTPUT] <read_file>" << std::endl
-         << std::endl;
+    cerr << "USAGE: gbsqc [-t THREADS -y REPORT -o OUTPUT] <read_file>"
+         << std::endl << std::endl;
     cerr << "OPTIONS:" << endl;
     cerr << " -y YAML    YAML report file. [default: none]" << endl;
     cerr << " -o OUTPUT  Output file. [default: stdout]" << endl;
@@ -79,15 +79,22 @@ main (int argc, char *argv[])
     using namespace qcpp;
 
     std::string             yaml_fname;
-    bool                    use_stdout = true;
+    std::ostream           *output = &std::cout;
+    std::ofstream           output_file;
+    size_t                  threads = std::thread::hardware_concurrency() - 1;
 
     int c = 0;
     while ((c = getopt(argc, argv, cli_opts)) > 0) {
         switch (c) {
+            case 't':
+                threads = atoi(optarg);
+                break;
             case 'y':
                 yaml_fname = optarg;
                 break;
             case 'o':
+                output_file.open(optarg);
+                output = &output_file;
                 break;
             default:
                 std::cerr << "Bad arg '" << std::string(1, optopt) << "'"
@@ -102,7 +109,7 @@ main (int argc, char *argv[])
     }
 
     std::string             in_fname(argv[optind]);
-    ThreadedQCProcessor     proc(in_fname, &std::cout, 3);
+    ThreadedQCProcessor     proc(in_fname, output, threads);
     bool                    qc_before = false;
 
     if (qc_before) {
@@ -114,7 +121,10 @@ main (int argc, char *argv[])
 
     proc.set_progress_callback(progress);
     start = system_clock::now();
-    proc.run();
+    size_t num_reads = proc.run();
+    std::cerr << std::endl;
+    std::cerr << "Done! Processed " << (float)num_reads / 1000 << "K reads."
+              << std::endl;
     if (yaml_fname.size() > 0) {
         std::ofstream yml_output(yaml_fname);
         yml_output << proc.report();

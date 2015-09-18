@@ -178,11 +178,12 @@ report()
 ThreadedQCProcessor::
 ThreadedQCProcessor(std::string &input, std::ostream *output,
                     size_t worker_threads)
-    : _output(output)
+    : _num_reads(0)
+    , _output(output)
     , _num_threads(worker_threads)
     , _input_complete(false)
     , _output_complete(0)
-    , _chunksize(2048)
+    , _chunksize(8192)
 {
     _input.open(input);
     for (size_t i = 0; i < _num_threads; i++) {
@@ -194,7 +195,6 @@ void
 ThreadedQCProcessor::
 writer(ThreadedQCProcessor *self)
 {
-    size_t n_reads = 0;
     while (true) {
         std::unique_lock<std::mutex> lock(self->_out_mutex);
         while (self->_out_queue.empty()) {
@@ -211,9 +211,9 @@ writer(ThreadedQCProcessor *self)
         for (ReadPair &rp: chunk) {
             (*self->_output) <<  rp.str();
         }
-        n_reads += chunk.size();
+        self->_num_reads += chunk.size();
         if (self->_progress_cb) {
-            self->_progress_cb(n_reads);
+            self->_progress_cb(self->_num_reads);
         }
     }
 }
@@ -275,7 +275,7 @@ reader(ThreadedQCProcessor *self)
     }
 }
 
-void
+size_t
 ThreadedQCProcessor::
 run()
 {
@@ -296,7 +296,9 @@ run()
     for (size_t i = 1; i < _num_threads; i++) {
         _pipelines[0].add_stats_from(_pipelines[i]);
     }
+    return _num_reads;
 }
+
 void
 ThreadedQCProcessor::
 set_progress_callback(std::function<void(size_t)> func)
