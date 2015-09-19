@@ -107,7 +107,6 @@ process_read_pair(ReadPair &the_read_pair)
 
             // If R1 base is lower quality than R2, use the base from R2
             for (size_t i = 0; i < overlap_size; i++) {
-                //BUG IN NEXT 2 LINES
                 size_t r1_pos = overlap_starts + i;
                 size_t r2_pos = r2_len - i - 1;
                 if (r1_qual[r1_pos] < r2_qual[r2_pos]) {
@@ -168,6 +167,10 @@ yaml_report()
         << YAML::Value << _name
         << YAML::Key   << "parameters"
         << YAML::Value << YAML::BeginMap
+                       << YAML::Key << "quality_encoding"
+                       << YAML::Value << _encoding.name
+                       << YAML::Key << "min_overlap"
+                       << YAML::Value << _min_overlap
                        << YAML::EndMap
         << YAML::Key   << "output"
         << YAML::Value << YAML::BeginMap
