@@ -38,13 +38,6 @@ ReadProcessor(const std::string &name, const QualityEncoding &encoding)
 {
 }
 
-void
-ReadProcessor::
-add_stats_from(ReadProcessor &other)
-{
-    _num_reads += other._num_reads;
-}
-
 ReadProcessorPipeline::
 ReadProcessorPipeline()
 {
@@ -81,7 +74,7 @@ ReadProcessorPipeline::
 add_stats_from(ReadProcessorPipeline &other)
 {
     for (size_t i = 0; i < _pipeline.size(); i++) {
-        _pipeline[i]->add_stats_from(*other._pipeline[i]);
+        _pipeline[i]->add_stats_from(other._pipeline[i].get());
     }
 }
 
@@ -269,6 +262,7 @@ reader(ThreadedQCProcessor *self)
         }
         self->_in_cv.notify_one();
         while (self->_in_queue.size() > 2 * self->_num_threads) {
+            // Avoid reader racing ahead of workers.
             std::this_thread::sleep_for(std::chrono::microseconds(1));
         }
         if (self->_input_complete) break;

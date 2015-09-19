@@ -1,7 +1,8 @@
 /*
  * ============================================================================
  *
- *       Filename:  qc-adaptor.cc *    Description:  Trim adaptor read-through from reads
+ *       Filename:  qc-adaptor.cc
+ *    Description:  Trim adaptor read-through from reads
  *        License:  LGPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
@@ -141,8 +142,9 @@ process_read_pair(ReadPair &the_read_pair)
 
 void
 AdaptorTrimPE::
-add_stats_from(AdaptorTrimPE &other)
+add_stats_from(ReadProcessor *other_ptr)
 {
+    AdaptorTrimPE &other = *reinterpret_cast<AdaptorTrimPE *>(other_ptr);
     _num_reads += other._num_reads;
     _num_pairs_trimmed += other._num_pairs_trimmed;
     _num_pairs_joined += other._num_pairs_joined;

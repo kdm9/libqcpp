@@ -56,7 +56,7 @@ public:
     process_read_pair               (ReadPair          &the_read_pair) = 0;
 
     virtual void
-    add_stats_from                  (ReadProcessor     &other);
+    add_stats_from                  (ReadProcessor     *other) = 0;
 
     virtual std::string
     yaml_report                     () = 0;

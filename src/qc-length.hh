@@ -48,7 +48,7 @@ public:
     process_read_pair               (ReadPair          &the_read_pair);
 
     virtual void
-    add_stats_from                  (ReadLenCounter     &other);
+    add_stats_from                  (ReadProcessor     *other);
 
     std::string
     yaml_report                     ();
@@ -75,7 +75,7 @@ public:
     process_read_pair               (ReadPair          &the_read_pair);
 
     void
-    add_stats_from                  (ReadLenFilter     &other);
+    add_stats_from                  (ReadProcessor     *other_ptr);
 
     std::string
     yaml_report                     ();

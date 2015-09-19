@@ -56,6 +56,9 @@ public:
     void
     process_read_pair               (ReadPair          &the_read_pair);
 
+    void
+    add_stats_from                  (ReadProcessor     *other_ptr);
+
     std::string
     yaml_report                          ();
 

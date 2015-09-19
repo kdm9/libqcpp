@@ -152,6 +152,16 @@ process_read_pair(ReadPair &the_read_pair)
     process_read(the_read_pair.second);
 }
 
+void
+WindowedQualTrim::
+add_stats_from(ReadProcessor *other_ptr)
+{
+    WindowedQualTrim &other = *reinterpret_cast<WindowedQualTrim *>(other_ptr);
+
+    _num_reads += other._num_reads;
+    _num_reads_trimmed += other._num_reads_trimmed;
+    _num_reads_dropped += other._num_reads_dropped;
+}
 
 std::string
 WindowedQualTrim::

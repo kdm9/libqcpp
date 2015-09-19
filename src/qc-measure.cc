@@ -44,8 +44,12 @@ PerBaseQuality(const std::string &name, const QualityEncoding &encoding)
 
 void
 PerBaseQuality::
-add_stats_from(PerBaseQuality &other)
+add_stats_from(ReadProcessor *other_ptr)
 {
+    PerBaseQuality &other = *reinterpret_cast<PerBaseQuality *>(other_ptr);
+
+    _num_reads += other._num_reads;
+
     while (_qual_scores_r1.size() < other._qual_scores_r1.size()) {
         _qual_scores_r1.emplace_back();
     }
@@ -53,12 +57,12 @@ add_stats_from(PerBaseQuality &other)
         _qual_scores_r2.emplace_back();
     }
     for (size_t i = 0, len = _qual_scores_r1.size(); i < len; i++) {
-        for (const auto &pair: _qual_scores_r1[i]) {
+        for (const auto &pair: other._qual_scores_r1[i]) {
             _qual_scores_r1[i][pair.first] += pair.second;
         }
     }
     for (size_t i = 0, len = _qual_scores_r2.size(); i < len; i++) {
-        for (const auto &pair: _qual_scores_r2[i]) {
+        for (const auto &pair: other._qual_scores_r2[i]) {
             _qual_scores_r2[i][pair.first] += pair.second;
         }
     }

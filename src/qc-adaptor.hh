@@ -44,7 +44,7 @@ public:
     process_read_pair               (ReadPair          &the_read_pair);
 
     void
-    add_stats_from                  (AdaptorTrimPE     &other);
+    add_stats_from                  (ReadProcessor     *other);
 
     std::string
     yaml_report                     ();

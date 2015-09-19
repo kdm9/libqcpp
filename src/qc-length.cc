@@ -76,8 +76,9 @@ process_read_pair(ReadPair &the_read_pair)
 
 void
 ReadLenCounter::
-add_stats_from(ReadLenCounter &other)
+add_stats_from(ReadProcessor *other_ptr)
 {
+    ReadLenCounter &other = *reinterpret_cast<ReadLenCounter *>(other_ptr);
     _num_reads += other._num_reads;
 
     for (const auto &pair: other._len_map_r1) {
@@ -170,8 +171,9 @@ process_read_pair(ReadPair &the_read_pair)
 
 void
 ReadLenFilter::
-add_stats_from(ReadLenFilter &other)
+add_stats_from(ReadProcessor *other_ptr)
 {
+    ReadLenFilter &other = *reinterpret_cast<ReadLenFilter *>(other_ptr);
     _num_reads += other._num_reads;
     _num_r1_dropped += other._num_r1_dropped;
     _num_r2_dropped += other._num_r2_dropped;
