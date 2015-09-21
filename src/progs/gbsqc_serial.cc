@@ -44,18 +44,16 @@
 
 using std::chrono::system_clock;
 
-static system_clock::time_point start;
-
-void
-progress(size_t n)
+inline void
+progress(size_t n, system_clock::time_point start)
 {
     std::chrono::duration<double> tdiff = system_clock::now() - start;
     double secs = tdiff.count();
     double k_reads = n / 1000.0;
     double rate = k_reads / secs;
-    std::cerr << "\x1b[2K" << "Kept " << k_reads << "K read pairs in "
-              << (int)secs << "s (" << std::setprecision(1) << (int)rate
-              << std::setprecision(3) << "K RP/sec)\r";
+    std::cerr << "\33[2K" << "Kept " << std::setprecision(3) << k_reads
+              << "K read pairs in " << (int)secs << "s (" << (int)rate
+              << "K RP/sec)\r";
 }
 
 int
@@ -63,16 +61,16 @@ usage_err()
 {
     using std::cerr;
     using std::endl;
-    cerr << "USAGE: threaded [-t THREADS -y REPORT -o OUTPUT] <read_file>"
-         << std::endl << std::endl;
+    cerr << "USAGE: gbsqc [-b -y REPORT -o OUTPUT] <read_file>" << std::endl
+         << std::endl;
     cerr << "OPTIONS:" << endl;
-    cerr << " -t THREADS  Worker threads to use [default: num_cpu - 1]" << endl;
-    cerr << " -y YAML     YAML report file. [default: none]" << endl;
-    cerr << " -o OUTPUT   Output file. [default: stdout]" << endl;
+    cerr << " -b         Use broken-paired output (don't keep read pairing) [default: false]" << endl;
+    cerr << " -y YAML    YAML report file. [default: none]" << endl;
+    cerr << " -o OUTPUT  Output file. [default: stdout]" << endl;
     return EXIT_FAILURE;
 }
 
-const char *cli_opts = "y:o:t:";
+const char *cli_opts = "y:o:b";
 
 int
 main (int argc, char *argv[])
@@ -80,22 +78,22 @@ main (int argc, char *argv[])
     using namespace qcpp;
 
     std::string             yaml_fname;
-    std::ostream           *output = &std::cout;
-    std::ofstream           output_file;
-    size_t                  threads = std::thread::hardware_concurrency() - 1;
+    bool                    broken_paired = false;
+    bool                    use_stdout = true;
+    std::ofstream           read_output;
 
     int c = 0;
     while ((c = getopt(argc, argv, cli_opts)) > 0) {
         switch (c) {
-            case 't':
-                threads = atoi(optarg);
-                break;
             case 'y':
                 yaml_fname = optarg;
                 break;
             case 'o':
-                output_file.open(optarg);
-                output = &output_file;
+                read_output.open(optarg);
+                use_stdout = false;
+                break;
+            case 'b':
+                broken_paired = true;
                 break;
             default:
                 std::cerr << "Bad arg '" << std::string(1, optopt) << "'"
@@ -109,26 +107,57 @@ main (int argc, char *argv[])
         return usage_err();
     }
 
-    std::string             in_fname(argv[optind]);
-    ThreadedQCProcessor     proc(in_fname, output, threads);
+    ReadPair                rp;
+    ProcessedReadStream     stream;
+    uint64_t                n_pairs = 0;
     bool                    qc_before = false;
 
-    if (qc_before) {
-        proc.append_processor<PerBaseQuality>("before qc");
+    try {
+        stream.open(argv[optind]);
+    } catch (qcpp::IOError  &e) {
+        std::cerr << "Error opening input file:" << std::endl;
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
-    proc.append_processor<AdaptorTrimPE>("trim or merge reads", 10);
-    proc.append_processor<WindowedQualTrim>("QC", SangerEncoding, 28, 64);
-    proc.append_processor<PerBaseQuality>("after qc");
 
-    proc.set_progress_callback(progress);
-    start = system_clock::now();
-    size_t num_reads = proc.run();
+    if (qc_before) {
+        stream.append_processor<PerBaseQuality>("before qc");
+    }
+    stream.append_processor<AdaptorTrimPE>("trim or merge reads", 10);
+    stream.append_processor<WindowedQualTrim>("QC", SangerEncoding, 28, 64);
+    stream.append_processor<PerBaseQuality>("after qc");
+
+    system_clock::time_point start = system_clock::now();
+    while (stream.parse_read_pair(rp)) {
+        std::string rp_str = "";
+
+        if (broken_paired) {
+            if (rp.first.size() >= 64) {
+                rp_str = rp.first.str();
+            }
+            if (rp.second.size() >= 64) {
+                rp_str += rp.second.str();
+            }
+        } else {
+            rp_str = rp.str();
+        }
+
+        if (n_pairs % 10000 == 0) {
+            progress(n_pairs, start);
+        }
+        n_pairs++;
+
+        if (use_stdout) {
+            std::cout << rp_str;
+        } else {
+            read_output << rp_str;
+        }
+    }
+    progress(n_pairs, start);
     std::cerr << std::endl;
-    std::cerr << "Done! Processed " << (float)num_reads / 1000
-              << "K read pairs." << std::endl;
     if (yaml_fname.size() > 0) {
         std::ofstream yml_output(yaml_fname);
-        yml_output << proc.report();
+        yml_output << stream.report();
     }
     return EXIT_SUCCESS;
 }
