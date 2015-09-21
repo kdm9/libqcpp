@@ -71,8 +71,8 @@ process_read_pair(ReadPair &the_read_pair)
         size_t r1_len = the_read_pair.first.size();
         size_t r2_len = the_read_pair.second.size();
         ssize_t read_len_diff = r1_len - r2_len;
-        size_t r1_start = toViewPosition(row(aligner, 0), 0);
-        size_t r2_start = toViewPosition(row(aligner, 1), 0);
+        ssize_t r1_start = toViewPosition(row(aligner, 0), 0);
+        ssize_t r2_start = toViewPosition(row(aligner, 1), 0);
 
         // Complement R2, as we use it to correct R1 below or concatenation it
         // to R1 if it's the read needs merging.
