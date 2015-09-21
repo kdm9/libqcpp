@@ -41,14 +41,14 @@ class WindowedQualTrim: public ReadProcessor
     // This class implements a similar algorithm to Nik Joshi's sickle tool
 public:
     WindowedQualTrim                (const std::string &name,
-                                     QualityEncoding    quality_encoding,
-                                     int8_t             phred_cutoff,
-                                     size_t             len_cutoff,
+                                     const QualityEncoding &encoding,
+                                     int8_t             min_quality,
+                                     size_t             min_length,
                                      size_t             window_size);
     WindowedQualTrim                (const std::string &name,
-                                     QualityEncoding    quality_encoding,
-                                     int8_t             phred_cutoff,
-                                     size_t             len_cutoff);
+                                     const QualityEncoding &encoding,
+                                     int8_t             min_quality,
+                                     size_t             min_length);
 
     void
     process_read                    (Read              &the_read);
@@ -56,23 +56,18 @@ public:
     void
     process_read_pair               (ReadPair          &the_read_pair);
 
+    void
+    add_stats_from                  (ReadProcessor     *other_ptr);
+
     std::string
-    report                          ();
+    yaml_report                          ();
 
 private:
-    std::atomic_ullong      _num_reads_trimmed;
-    std::atomic_ullong      _num_reads_dropped;
-    QualityEncoding         _encoding;
-    int8_t                  _phred_cutoff;
-    size_t                  _len_cutoff;
+    int8_t                  _min_quality;
+    size_t                  _min_length;
     size_t                  _window_size;
-
-    inline int8_t
-    _qual_of_base                   (const Read &the_read,
-                                     const size_t idx)
-    {
-        return qual_of_base(the_read, idx, _encoding);
-    }
+    size_t                  _num_reads_trimmed;
+    size_t                  _num_reads_dropped;
 };
 
 

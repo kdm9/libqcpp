@@ -33,23 +33,22 @@ namespace qcpp
 
 
 WindowedQualTrim::
-WindowedQualTrim(const std::string &name, QualityEncoding quality_encoding,
-                 int8_t phred_cutoff, size_t len_cutoff, size_t window_size):
-    ReadProcessor(name),
-    _num_reads_trimmed(0),
-    _num_reads_dropped(0),
-    _encoding(quality_encoding),
-    _phred_cutoff(phred_cutoff),
-    _len_cutoff(len_cutoff),
-    _window_size(window_size)
+WindowedQualTrim(const std::string &name, const QualityEncoding &encoding,
+                 int8_t min_quality, size_t min_length, size_t window_size)
+    : ReadProcessor(name, encoding)
+    , _min_quality(min_quality)
+    , _min_length(min_length)
+    , _window_size(window_size)
+    , _num_reads_trimmed(0)
+    , _num_reads_dropped(0)
 {
 }
 
 
 WindowedQualTrim::
-WindowedQualTrim(const std::string &name, QualityEncoding quality_encoding,
-                 int8_t phred_cutoff, size_t len_cutoff):
-    WindowedQualTrim(name, quality_encoding, phred_cutoff, len_cutoff, 0)
+WindowedQualTrim(const std::string &name, const QualityEncoding &encoding,
+                 int8_t min_quality, size_t min_length)
+    : WindowedQualTrim(name, encoding, min_quality, min_length, 0)
 {
 }
 
@@ -65,10 +64,11 @@ process_read(Read &the_read)
     size_t          read_len        = the_read.size();
     size_t          keep_from       = 0;
     size_t          keep_until      = 0;
+    std::string    &qual            = the_read.quality;
 
     _num_reads++;
     // Throw out reads which are already too short
-    if (read_len < _len_cutoff) {
+    if (read_len < _min_length) {
         _num_reads_dropped++;
         return;
     }
@@ -87,7 +87,7 @@ process_read(Read &the_read)
 
     // Trim until the first base which is of acceptable quality
     for (; win_start < read_len;) {
-        if (_qual_of_base(the_read, win_start) >= _phred_cutoff) {
+        if (_encoding.p2q(qual[win_start]) >= _min_quality) {
             break;
         }
         win_start++;
@@ -97,25 +97,25 @@ process_read(Read &the_read)
 
     // pre-sum the first window
     for (size_t i = win_start; i < win_size; i++) {
-        win_sum += _qual_of_base(the_read, i);
+        win_sum += _encoding.p2q(qual[i]);
     }
     // Trim with windows
     for (; win_start < read_len - win_size + 1; win_start += 1) {
         keep_until = win_start;
         win_avg = win_sum / (float)win_size;
-        if (win_avg < _phred_cutoff) {
+        if (win_avg < _min_quality) {
             // If the window is below threshold, stop and trim below
             break;
         }
-        win_sum -= _qual_of_base(the_read, win_start);
+        win_sum -= _encoding.p2q(qual[win_start]);
         if (win_start + win_size < read_len) {
-            win_sum += _qual_of_base(the_read, win_start + win_size);
+            win_sum += _encoding.p2q(qual[win_start + win_size]);
         }
     }
 
     // Find the last position above the threshold, trim there
     while (keep_until < read_len) {
-        if (_qual_of_base(the_read, keep_until) < _phred_cutoff) {
+        if (_encoding.p2q(qual[keep_until]) < _min_quality) {
             // Don't increment keep_until, as we should cut at this position
             break;
         }
@@ -124,7 +124,7 @@ process_read(Read &the_read)
 
 
     size_t new_len = keep_until - keep_from;
-    if (new_len < _len_cutoff) {
+    if (new_len < _min_length) {
         the_read.erase();
         _num_reads_dropped++;
         return;
@@ -152,10 +152,20 @@ process_read_pair(ReadPair &the_read_pair)
     process_read(the_read_pair.second);
 }
 
+void
+WindowedQualTrim::
+add_stats_from(ReadProcessor *other_ptr)
+{
+    WindowedQualTrim &other = *reinterpret_cast<WindowedQualTrim *>(other_ptr);
+
+    _num_reads += other._num_reads;
+    _num_reads_trimmed += other._num_reads_trimmed;
+    _num_reads_dropped += other._num_reads_dropped;
+}
 
 std::string
 WindowedQualTrim::
-report()
+yaml_report()
 {
     std::ostringstream ss;
     YAML::Emitter yml;
@@ -171,12 +181,12 @@ report()
         << YAML::Value << _name
         << YAML::Key   << "parameters"
         << YAML::Value << YAML::BeginMap
-                       << YAML::Key << "phred_cutoff"
-                       << YAML::Value << _phred_cutoff
+                       << YAML::Key << "min_quality"
+                       << YAML::Value << _min_quality
                        << YAML::Key << "quality_encoding"
                        << YAML::Value << _encoding.name
-                       << YAML::Key << "len_cutoff"
-                       << YAML::Value << _len_cutoff
+                       << YAML::Key << "min_length"
+                       << YAML::Value << _min_length
                        << YAML::Key << "window_size"
                        << YAML::Value << _window_size
                        << YAML::EndMap

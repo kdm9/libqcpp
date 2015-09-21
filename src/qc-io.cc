@@ -199,7 +199,7 @@ operator==(const ReadPair &r1, const ReadPair &r2)
 struct SeqAnReadWrapper
 {
     seqan::SeqFileIn stream;
-    std::mutex _mutex;
+    //std::mutex _mutex;
 
     ~SeqAnReadWrapper()
     {
@@ -223,7 +223,7 @@ struct SeqAnReadWrapper
 struct SeqAnWriteWrapper
 {
     seqan::SeqFileOut stream;
-    std::mutex _mutex;
+    //std::mutex _mutex;
 
     ~SeqAnWriteWrapper()
     {
@@ -232,10 +232,12 @@ struct SeqAnWriteWrapper
 
     void open(const char *filename)
     {
-        int flags = seqan::OPEN_CREATE | seqan::OPEN_WRONLY;
-        if (!seqan::open(stream, filename, flags)) {
+        using seqan::OPEN_CREATE;
+        using seqan::OPEN_WRONLY;
+        if (!seqan::open(stream, filename, OPEN_CREATE | OPEN_WRONLY)) {
+
             std::string message = "Could not open '";
-            message = message + filename + "' for writing.";
+            message = message + filename + "' for writing. asdfs";
             throw IOError(message);
         }
     }
@@ -320,7 +322,7 @@ parse_read(Read &the_read)
 
     // Non-threadsafe block
     {
-        std::lock_guard<std::mutex> lock(_private->_mutex);
+        //std::lock_guard<std::mutex> lock(_private->_mutex);
         atEnd = seqan::atEnd(_private->stream);
         if (!atEnd) {
             try {
@@ -358,7 +360,7 @@ parse_read_pair(ReadPair &the_read_pair)
 {
     bool first, second;
     {
-        std::lock_guard<std::mutex> lock(_pair_mutex);
+        //std::lock_guard<std::mutex> lock(_pair_mutex);
         first = parse_read(the_read_pair.first);
         second = parse_read(the_read_pair.second);
     }
@@ -441,7 +443,7 @@ ReadWriter::
 close()
 {
     assert(_private != NULL);
-    _private->_mutex.lock();
+    //_private->_mutex.lock();
     delete _private;
     _private = new SeqAnWriteWrapper;
 }
@@ -452,7 +454,7 @@ write_read(Read &the_read)
 {
     assert(_private != NULL);
     const char *exception = NULL;
-    _private->_mutex.lock();
+    //_private->_mutex.lock();
     try {
         seqan::writeRecord(_private->stream, the_read.name,
                            the_read.sequence, the_read.quality);
@@ -462,7 +464,7 @@ write_read(Read &the_read)
     } catch (seqan::ParseError &err) {
         exception = err.what();
     }
-    _private->_mutex.unlock();
+    //_private->_mutex.unlock();
     // Throw any error in the read, even if we're at the end
     if (exception != NULL) {
         throw IOError(exception);
@@ -473,7 +475,7 @@ void
 ReadWriter::
 write_read_pair(ReadPair &the_read_pair)
 {
-    std::lock_guard<std::mutex> lg(_pair_mutex);
+    //std::lock_guard<std::mutex> lg(_pair_mutex);
     write_read(the_read_pair.first);
     write_read(the_read_pair.second);
 }

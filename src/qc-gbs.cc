@@ -37,11 +37,11 @@ namespace qcpp
 
 GBSTrimPE::
 GBSTrimPE(const std::string &name, const std::string &re_site,
-          int overhang_pos):
-    ReadProcessor(name),
-    _num_pairs_trimmed(0),
-    _re_site(re_site),
-    _overhang_pos(overhang_pos)
+          int overhang_pos, const QualityEncoding &enc)
+    : ReadProcessor(name, enc)
+    , _num_pairs_trimmed(0)
+    , _re_site(re_site)
+    , _overhang_pos(overhang_pos)
 {
     _key_length = _re_site.size() - (2 * _overhang_pos);
     _re_key = _re_site.substr(_overhang_pos, _key_length);
@@ -80,6 +80,14 @@ process_read_pair(ReadPair &the_read_pair)
         }
     } while(r1_pos != std::string::npos && r2_pos != std::string::npos);
     _num_reads += 2;
+}
+
+void
+GBSTrimPE::
+add_stats_from(GBSTrimPE &other)
+{
+    _num_reads += other._num_reads;
+    _num_pairs_trimmed += other._num_pairs_trimmed;
 }
 
 std::string

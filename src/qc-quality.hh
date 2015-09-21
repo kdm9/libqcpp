@@ -34,10 +34,16 @@ namespace qcpp
 {
 
 struct QualityEncoding {
-    std::string name;
-    int8_t offset;
-    int8_t start;
-    int8_t stop;
+    const std::string name;
+    const int8_t offset;
+    const int8_t start;
+    const int8_t stop;
+
+    inline int8_t
+    p2q(char phred) const
+    {
+        return phred - offset;
+    }
 };
 
 static const QualityEncoding SangerEncoding{"Sanger", 33, 0, 40};

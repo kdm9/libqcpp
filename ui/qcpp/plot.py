@@ -55,7 +55,7 @@ class PlotPerBaseQuality(PlotResult):
 
     def _plot(self, qual_array, name):
         # array of read numbers per base
-        n_reads = qual_array.sum(axis=1)
+        n_reads = [sum(base.values()) for base in qual_array]
         percentile_vals = {p: [] for p in self.percentiles}
         # for each base
         for i in range(len(n_reads)):
@@ -64,11 +64,11 @@ class PlotPerBaseQuality(PlotResult):
                 idx = int(n_reads[i] * percentile)
                 # find the quality score of the idx'th read
                 up_to = 0
-                for qual, count in enumerate(qual_array[i]):
-                    if idx < up_to + count:
+                for qual, count in qual_array[i].items():
+                    up_to += count
+                    if idx < up_to:
                         percentile_vals[percentile].append(qual)
                         break
-                    up_to += count
 
         # create np arrays from each percentile vector
         lower_p, lower_q, med, upper_q, upper_p = [
@@ -144,13 +144,11 @@ class PlotPerBaseQuality(PlotResult):
         r1_name = name
         if paired:
             r1_name += " (R1)"
-        r1_image, r1_dict = self._plot(np.array(output['r1_phred_scores']),
-                                       r1_name)
+        r1_image, r1_dict = self._plot(output['r1_phred_scores'], r1_name)
         r2_image = None
         if paired:
             r2_name = name + " (R2)"
-            r2_image, r2_dict = self._plot(np.array(output['r2_phred_scores']),
-                                           r2_name)
+            r2_image, r2_dict = self._plot(output['r2_phred_scores'], r2_name)
 
         template = QCPP_ENV.get_template('perbasequality.html')
         return template.render(name=name,

@@ -33,8 +33,8 @@ namespace qcpp
 {
 
 ReadLenCounter::
-ReadLenCounter(const std::string  &name):
-    ReadProcessor(name)
+ReadLenCounter(const std::string &name, const QualityEncoding &encoding)
+    : ReadProcessor(name, encoding)
 {
     _max_len = 0;
     _have_r2 = false;
@@ -63,7 +63,6 @@ process_read_pair(ReadPair &the_read_pair)
     size_t read_len2 = the_read_pair.second.size();
     size_t larger_len = read_len1 > read_len2 ? read_len1 : read_len2;
     if (larger_len > _max_len) {
-        std::lock_guard<std::mutex> lg(_map_mutex);
         for (size_t i = _max_len + 1; i <= larger_len; i++) {
             _len_map_r1[i] = 0;
             _len_map_r2[i] = 0;
@@ -75,9 +74,24 @@ process_read_pair(ReadPair &the_read_pair)
     _num_reads += 2;
 }
 
+void
+ReadLenCounter::
+add_stats_from(ReadProcessor *other_ptr)
+{
+    ReadLenCounter &other = *reinterpret_cast<ReadLenCounter *>(other_ptr);
+    _num_reads += other._num_reads;
+
+    for (const auto &pair: other._len_map_r1) {
+        _len_map_r1[pair.first] += pair.second;
+    }
+    for (const auto &pair: other._len_map_r2) {
+        _len_map_r2[pair.first] += pair.second;
+    }
+}
+
 std::string
 ReadLenCounter::
-report()
+yaml_report()
 {
     std::ostringstream ss;
     YAML::Emitter yml;
@@ -111,13 +125,13 @@ report()
 }
 
 ReadLenFilter::
-ReadLenFilter(const std::string  &name,
-              size_t threshold):
-    ReadProcessor(name)
+ReadLenFilter(const std::string  &name, size_t threshold,
+              const QualityEncoding &encoding)
+    : ReadProcessor(name, encoding)
 {
-    _num_r1_trimmed = 0;
-    _num_r2_trimmed = 0;
-    _num_pairs_trimmed = 0;
+    _num_r1_dropped = 0;
+    _num_r2_dropped = 0;
+    _num_pairs_dropped = 0;
     _threshold = threshold;
 }
 
@@ -128,7 +142,7 @@ process_read(Read &the_read)
     size_t read_len = the_read.size();
     if (read_len < _threshold) {
         the_read.clear();
-        _num_r1_trimmed++;
+        _num_r1_dropped++;
     }
     _num_reads++;
 }
@@ -139,30 +153,42 @@ process_read_pair(ReadPair &the_read_pair)
 {
     size_t read_len1 = the_read_pair.first.size();
     size_t read_len2 = the_read_pair.second.size();
-    bool r1_trimmed = false;
+    bool r1_dropped = false;
     if (read_len1 < _threshold) {
         the_read_pair.first.clear();
-        _num_r1_trimmed++;
-        r1_trimmed = true;
+        _num_r1_dropped++;
+        r1_dropped = true;
     }
     if (read_len2 < _threshold) {
         the_read_pair.second.clear();
-        _num_r2_trimmed++;
-        if (r1_trimmed) {
-            _num_pairs_trimmed++;
+        _num_r2_dropped++;
+        if (r1_dropped) {
+            _num_pairs_dropped++;
         }
     }
     _num_reads += 2;
 }
 
+void
+ReadLenFilter::
+add_stats_from(ReadProcessor *other_ptr)
+{
+    ReadLenFilter &other = *reinterpret_cast<ReadLenFilter *>(other_ptr);
+    _num_reads += other._num_reads;
+    _num_r1_dropped += other._num_r1_dropped;
+    _num_r2_dropped += other._num_r2_dropped;
+    _num_pairs_dropped += other._num_pairs_dropped;
+
+}
+
 std::string
 ReadLenFilter::
-report()
+yaml_report()
 {
     std::ostringstream ss;
     YAML::Emitter yml;
-    float percent_trimmed = (_num_r1_trimmed + _num_r2_trimmed) * 100;
-    percent_trimmed /= (float) _num_reads;
+    float percent_dropped = (_num_r1_dropped + _num_r2_dropped) * 100;
+    percent_dropped /= (float) _num_reads;
 
     yml << YAML::BeginSeq;
     yml << YAML::BeginMap;
@@ -180,12 +206,14 @@ report()
         << YAML::Value << YAML::BeginMap
                        << YAML::Key << "num_reads"
                        << YAML::Value << _num_reads
-                       << YAML::Key << "num_r1_trimmed"
-                       << YAML::Value << _num_r1_trimmed
-                       << YAML::Key << "num_r2_trimmed"
-                       << YAML::Value << _num_r2_trimmed
-                       << YAML::Key << "percent_trimmed"
-                       << YAML::Value << percent_trimmed
+                       << YAML::Key << "num_r1_dropped"
+                       << YAML::Value << _num_r1_dropped
+                       << YAML::Key << "num_r2_dropped"
+                       << YAML::Value << _num_r2_dropped
+                       << YAML::Key << "num_pairs_dropped"
+                       << YAML::Value << _num_pairs_dropped
+                       << YAML::Key << "percent_dropped"
+                       << YAML::Value << percent_dropped
                        << YAML::EndMap
         << YAML::EndMap;
     yml << YAML::EndMap;

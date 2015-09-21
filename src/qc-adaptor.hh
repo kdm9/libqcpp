@@ -37,13 +37,17 @@ class AdaptorTrimPE: public ReadProcessor
 {
 public:
     AdaptorTrimPE                   (const std::string &name,
-                                     int                min_overlap);
+                                     int                min_overlap,
+                                     const QualityEncoding &encoding=SangerEncoding);
 
     void
     process_read_pair               (ReadPair          &the_read_pair);
 
+    void
+    add_stats_from                  (ReadProcessor     *other);
+
     std::string
-    report                          ();
+    yaml_report                     ();
 
 private:
     std::atomic_ullong      _num_pairs_trimmed;

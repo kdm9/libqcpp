@@ -31,6 +31,13 @@
 #include "qc-config.hh"
 #include "qc-util.hh"
 #include "qc-io.hh"
+#include "qc-quality.hh"
+
+
+#include <queue>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 
 namespace qcpp
@@ -39,7 +46,8 @@ namespace qcpp
 class ReadProcessor
 {
 public:
-    ReadProcessor                   (const std::string &name);
+    ReadProcessor                   (const std::string &name,
+                                     const QualityEncoding &encoding);
 
     virtual void
     process_read                    (Read              &the_read) = 0;
@@ -47,12 +55,16 @@ public:
     virtual void
     process_read_pair               (ReadPair          &the_read_pair) = 0;
 
+    virtual void
+    add_stats_from                  (ReadProcessor     *other) = 0;
+
     virtual std::string
-    report                          () = 0;
+    yaml_report                     () = 0;
 
 protected:
-    std::atomic_ullong      _num_reads;
     const std::string       _name;
+    size_t                  _num_reads;
+    const QualityEncoding   _encoding;
 };
 
 
@@ -66,7 +78,6 @@ public:
     void
     append_processor                (Args&&...          args)
     {
-        //_pipeline.push_back(std::make_unique<ReadProcType>(args...));
         _pipeline.push_back(
                 std::unique_ptr<ReadProcType>(new ReadProcType(args...)));
     }
@@ -76,6 +87,9 @@ public:
 
     void
     process_read_pair               (ReadPair          &the_read_pair);
+
+    void
+    add_stats_from                  (ReadProcessorPipeline &other);
 
     std::string
     report                          ();
@@ -118,6 +132,58 @@ protected:
     ReadProcessorPipeline   _pipeline;
 };
 
+/////////////////////////////  ThreadedQCProcessor ////////////////////////////
+
+class ThreadedQCProcessor
+{
+    typedef std::vector<ReadPair> ReadChunk;
+public:
+    ThreadedQCProcessor             (std::string        &input,
+                                     std::ostream       *output,
+                                     size_t              worker_threads=1);
+
+    template<typename ReadProcType, class ...  Args>
+    void
+    append_processor                (Args&&...          args)
+    {
+        for (auto &pipeline: _pipelines) {
+            pipeline.append_processor<ReadProcType>(args...);
+        }
+    }
+
+    void
+    set_progress_callback           (std::function<void(size_t)> func);
+
+    size_t
+    run                             ();
+
+    std::string
+    report                          ();
+
+    static void reader(ThreadedQCProcessor *self);
+    static void worker(ThreadedQCProcessor *self, size_t thread_id);
+    static void writer(ThreadedQCProcessor *self);
+
+protected:
+    size_t                  _num_reads;
+    // One pipeline per thread
+    std::vector<ReadProcessorPipeline> _pipelines;
+    ReadParser              _input;
+    std::ostream           *_output;
+    std::condition_variable _in_cv;
+    std::condition_variable _out_cv;
+    std::mutex              _in_mutex;
+    std::mutex              _out_mutex;
+    std::queue<ReadChunk>   _in_queue;
+    std::queue<ReadChunk>   _out_queue;
+    size_t                  _num_threads;
+    bool                    _input_complete;
+    size_t                  _output_complete;
+    std::function<void(size_t)> _progress_cb;
+
+private:
+    const size_t            _chunksize;
+};
 
 } // namespace qcpp
 

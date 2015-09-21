@@ -32,23 +32,42 @@
 namespace qcpp
 {
 
-/////////////////////////////////// BASE CLASS ////////////////////////////////
-QCMeasure::
-QCMeasure(const std::string &name, unsigned phred_offset):
-    ReadProcessor(name),
-    _have_r2(false),
-    _phred_offset(phred_offset)
-{
-}
-
-
 /////////////////////////////// PerBaseQuality /////////////////////////
 PerBaseQuality::
-PerBaseQuality(const std::string &name, unsigned phred_offset):
-    QCMeasure(name, phred_offset),
-    _max_len(0)
+PerBaseQuality(const std::string &name, const QualityEncoding &encoding)
+    : ReadProcessor(name, encoding)
+    , _have_r2(false)
+    , _max_len(0)
 {
 }
+
+
+void
+PerBaseQuality::
+add_stats_from(ReadProcessor *other_ptr)
+{
+    PerBaseQuality &other = *reinterpret_cast<PerBaseQuality *>(other_ptr);
+
+    _num_reads += other._num_reads;
+
+    while (_qual_scores_r1.size() < other._qual_scores_r1.size()) {
+        _qual_scores_r1.emplace_back();
+    }
+    while (_qual_scores_r2.size() < other._qual_scores_r2.size()) {
+        _qual_scores_r2.emplace_back();
+    }
+    for (size_t i = 0, len = _qual_scores_r1.size(); i < len; i++) {
+        for (const auto &pair: other._qual_scores_r1[i]) {
+            _qual_scores_r1[i][pair.first] += pair.second;
+        }
+    }
+    for (size_t i = 0, len = _qual_scores_r2.size(); i < len; i++) {
+        for (const auto &pair: other._qual_scores_r2[i]) {
+            _qual_scores_r2[i][pair.first] += pair.second;
+        }
+    }
+}
+
 
 void
 PerBaseQuality::
@@ -56,7 +75,6 @@ process_read(Read &the_read)
 {
     size_t read_len = the_read.size();
     if (read_len > _max_len) {
-        std::lock_guard<std::mutex> lg(_expansion_mutex);
         for (size_t i = _max_len; i <= read_len; i++) {
             _qual_scores_r1.emplace_back();
         }
@@ -64,10 +82,8 @@ process_read(Read &the_read)
     }
 
     for (size_t i = 0; i < read_len; i++) {
-        size_t qual_score = the_read.quality[i] - _phred_offset;
-        // It's a kludge, but we have to use uint64_t and to sync_add here, as
-        // std::atomic doesn't like being in a std::array
-        __sync_add_and_fetch(&_qual_scores_r1[i][qual_score], 1);
+        size_t qual_score = _encoding.p2q(the_read.quality[i]);
+        _qual_scores_r1[i][qual_score]++;
     }
     _num_reads++;
 }
@@ -84,7 +100,6 @@ process_read_pair(ReadPair &the_read_pair)
 
     _have_r2 = true;
     if (larger_len > _max_len) {
-        std::lock_guard<std::mutex> lg(_expansion_mutex);
         for (size_t i = _max_len + 1; i <= larger_len; i++) {
             _qual_scores_r1.emplace_back();
             _qual_scores_r2.emplace_back();
@@ -92,23 +107,19 @@ process_read_pair(ReadPair &the_read_pair)
         _max_len = larger_len;
     }
     for (size_t i = 0; i < read_len1; i++) {
-        size_t qual_score = r1.quality[i] - _phred_offset;
-        // It's a kludge, but we have to use uint64_t and to sync_add here, as
-        // std::atomic doesn't like being in a std::array
+        size_t qual_score = _encoding.p2q(r1.quality[i]);
         _qual_scores_r1[i][qual_score]++;
-        //__sync_add_and_fetch(&_qual_scores_r1[i][qual_score], 1);
     }
     for (size_t i = 0; i < read_len2; i++) {
-        size_t qual_score = r2.quality[i] - _phred_offset;
+        size_t qual_score = _encoding.p2q(r2.quality[i]);
         _qual_scores_r2[i][qual_score]++;
-        //__sync_add_and_fetch(&_qual_scores_r2[i][qual_score], 1);
     }
     _num_reads += 2;
 }
 
 std::string
 PerBaseQuality::
-report()
+yaml_report()
 {
     using namespace YAML;
     std::ostringstream ss;
@@ -116,51 +127,40 @@ report()
 
     yml << BeginSeq;
     yml << BeginMap;
-    yml << Key << "PerBaseQuality"
-        << Value
-        << BeginMap
-        << Key   << "name"
-        << Value << _name
-        << Key   << "parameters"
+    yml << Key << "PerBaseQuality" << Value;
+
+    yml << BeginMap;
+    yml << Key << "name" << Value << _name;
+    yml << Key << "parameters"
         << Value << BeginMap
-                 << Key << "phred_offset"
-                 << Value << _phred_offset
-                 << EndMap
-        << Key   << "output"
+            << Key << "quality_encoding" << Value << _encoding.name
+            << EndMap;
+
+    yml << Key << "output"
         << Value << BeginMap
-                 << Key << "num_reads"
-                 << Value << _num_reads
-                 << Key << "r1_phred_scores"
-                 << Value << BeginSeq;
-    // Handle R1 phred scores
-    for (size_t i = 0; i < _max_len; i++) {
-        yml << Flow;
-        yml << BeginSeq;
-        for (size_t j = 0; j < _qual_scores_r1[i].size(); j++) {
-            yml << _qual_scores_r1[i][j];
-        }
-        yml << EndSeq;
-    }
-    yml                   << EndSeq; // End of r1_phred_scores
-    yml          << Key << "r2_phred_scores"
-                 << Value << BeginSeq;
+             << Key << "num_reads"
+             << Value << _num_reads
+             << Key << "r1_phred_scores"
+             << Value << BeginSeq;
+            // Handle R1 phred scores
+            for (size_t i = 0; i < _max_len; i++) {
+                yml << Flow << _qual_scores_r1[i];
+            }
+            yml << EndSeq; // End of r1_phred_scores
+            yml << Key << "r2_phred_scores"
+                << Value << BeginSeq;
     if (_have_r2) {
         // Handle R2 phred scores
         for (size_t i = 0; i < _max_len; i++) {
-            yml << Flow;
-            yml << BeginSeq;
-            for (size_t j = 0; j < _qual_scores_r2[i].size(); j++) {
-                yml << _qual_scores_r2[i][j];
-            }
-            yml << EndSeq;
+            yml << Flow << _qual_scores_r2[i];
         }
     }
-    yml                   << EndSeq; // End of r2_phred_scores
+    yml << EndSeq; // End of r2_phred_scores
 
-    yml          << EndMap
+    yml << EndMap
         << EndMap;
-    yml << EndMap;
-    yml << EndSeq;
+    yml << EndMap;  // PerBaseQuality
+    yml << EndSeq;  // root
     ss << yml.c_str() << "\n";
     return ss.str();
 }

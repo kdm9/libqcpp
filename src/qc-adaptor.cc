@@ -37,8 +37,9 @@ namespace qcpp
 {
 
 AdaptorTrimPE::
-AdaptorTrimPE(const std::string &name, int min_overlap):
-    ReadProcessor(name),
+AdaptorTrimPE(const std::string &name, int min_overlap,
+              const QualityEncoding &encoding):
+    ReadProcessor(name, encoding),
     _num_pairs_trimmed(0),
     _num_pairs_joined(0),
     _min_overlap(min_overlap)
@@ -106,7 +107,6 @@ process_read_pair(ReadPair &the_read_pair)
 
             // If R1 base is lower quality than R2, use the base from R2
             for (size_t i = 0; i < overlap_size; i++) {
-                //BUG IN NEXT 2 LINES
                 size_t r1_pos = overlap_starts + i;
                 size_t r2_pos = r2_len - i - 1;
                 if (r1_qual[r1_pos] < r2_qual[r2_pos]) {
@@ -139,9 +139,19 @@ process_read_pair(ReadPair &the_read_pair)
     _num_reads += 2;
 }
 
+void
+AdaptorTrimPE::
+add_stats_from(ReadProcessor *other_ptr)
+{
+    AdaptorTrimPE &other = *reinterpret_cast<AdaptorTrimPE *>(other_ptr);
+    _num_reads += other._num_reads;
+    _num_pairs_trimmed += other._num_pairs_trimmed;
+    _num_pairs_joined += other._num_pairs_joined;
+}
+
 std::string
 AdaptorTrimPE::
-report()
+yaml_report()
 {
     std::ostringstream ss;
     YAML::Emitter yml;
@@ -157,6 +167,10 @@ report()
         << YAML::Value << _name
         << YAML::Key   << "parameters"
         << YAML::Value << YAML::BeginMap
+                       << YAML::Key << "quality_encoding"
+                       << YAML::Value << _encoding.name
+                       << YAML::Key << "min_overlap"
+                       << YAML::Value << _min_overlap
                        << YAML::EndMap
         << YAML::Key   << "output"
         << YAML::Value << YAML::BeginMap

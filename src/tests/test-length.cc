@@ -51,7 +51,7 @@ TEST_CASE("QC length counter works", "[ReadLenCounter]") {
             n_reads++;
         }
 
-        report = rlc.report();
+        report = rlc.yaml_report();
         REQUIRE(n_reads == 10);
         REQUIRE(filestrcmp(se_report_file, report));
     }
@@ -62,7 +62,7 @@ TEST_CASE("QC length counter works", "[ReadLenCounter]") {
             n_reads += 2;
         }
 
-        report = rlc.report();
+        report = rlc.yaml_report();
         REQUIRE(n_reads == 10);
         REQUIRE(filestrcmp(pe_report_file, report));
     }

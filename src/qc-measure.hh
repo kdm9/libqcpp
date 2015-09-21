@@ -35,26 +35,13 @@
 namespace qcpp
 {
 
-// It's a kludge, but we have to use uint64_t, as std::atomic doesn't like
-// being in a std::array. ALWAYS use __sync_add_and_fetch and friends.
-typedef std::array<uint64_t, 50> PhredHistogramArray;
+typedef std::map<int8_t, size_t> PhredHistogram;
 
-class QCMeasure: public ReadProcessor
-{
-public:
-    QCMeasure                       (const std::string &name,
-                                     unsigned           phred_offset=33);
-
-protected:
-    bool                    _have_r2;
-    unsigned                _phred_offset;
-};
-
-class PerBaseQuality: public QCMeasure
+class PerBaseQuality: public ReadProcessor
 {
 public:
     PerBaseQuality                  (const std::string &name,
-                                     unsigned           phred_offset=33);
+                                     const QualityEncoding &encoding=SangerEncoding);
 
     void
     process_read                    (Read              &the_read);
@@ -62,16 +49,19 @@ public:
     void
     process_read_pair               (ReadPair          &the_read_pair);
 
+    void
+    add_stats_from                  (ReadProcessor     *other);
+
     std::string
-    report                          ();
+    yaml_report                     ();
 
 private:
+    bool                    _have_r2;
     size_t                  _max_len;
-    std::mutex              _expansion_mutex;
-    // Vector of arrays, one histogram array per base of each read
-    std::vector<PhredHistogramArray> _qual_scores_r1;
-    std::vector<PhredHistogramArray> _qual_scores_r2;
+    std::vector<PhredHistogram> _qual_scores_r1;
+    std::vector<PhredHistogram> _qual_scores_r2;
 };
+
 
 } // end namespace qcpp
 
