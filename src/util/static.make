@@ -8,10 +8,10 @@ VERSION=$(shell git describe --always)
 
 all: gbsqc test-qcpp libqcpp.a
 
-src/qc-config.hh: src/qc-config.hh.in
+qc-config.hh: src/qc-config.hh.in
 	sed -e 's/\$${QCPP_VERSION}/$(VERSION)/' $< >$@
 
-%.o: %.cc src/qc-config.hh
+%.o: %.cc qc-config.hh
 	g++ $(CXXFLAGS) -c -o $@ $<
 
 libqcpp.a: $(ARCHIVES)
@@ -31,26 +31,22 @@ libqcpp.a: $(ARCHIVES)
 test-qcpp: $(TESTSRCS)
 	g++ $(CXXFLAGS) -I src/tests/ -I src/tests/ext/ -o $@ $(TESTSRCS) $(SRCS) $(LIBS)
 
-libdist: libqcpp.a $(SRCS)
+dist: libqcpp.a $(SRCS) qc-config.hh
 	rm -rf libqcpp_$(VERSION)
 	mkdir libqcpp_$(VERSION)
 	mkdir libqcpp_$(VERSION)/lib
 	mkdir libqcpp_$(VERSION)/include
-	sed -e 's/\$${QCPP_VERSION}/$(VERSION)/' src/qc-config.hh.in >src/qc-config.hh
 	cp src/*.hh libqcpp_$(VERSION)/include
+	cp qc-config.hh libqcpp_$(VERSION)/include
 	cp libqcpp.a libqcpp_$(VERSION)/lib
 	tar cvJf libqcpp_$(VERSION).tar.xz libqcpp_$(VERSION)
 
-dist: libqcpp.a $(SRCS)
+bindist: dist
 	rm -rf libqcpp_$(VERSION)
 	mkdir libqcpp_$(VERSION)
-	mkdir libqcpp_$(VERSION)/lib
 	mkdir libqcpp_$(VERSION)/bin
-	mkdir libqcpp_$(VERSION)/include
-	cp src/*.hh libqcpp_$(VERSION)/include
-	cp libqcpp.a libqcpp_$(VERSION)/lib
 	cp gbsqc test-qcpp libqcpp_$(VERSION)/bin
-	tar cvJf libqcpp_$(VERSION).tar.xz libqcpp_$(VERSION)
+	tar cvJf libqcpp-bin_$(VERSION).tar.xz libqcpp_$(VERSION)
 
 clean:
-	rm -rf *.mri *.a *.o gbsqc test-qcpp libqcpp_*
+	rm -rf *.mri *.a *.o gbsqc test-qcpp libqcpp_* qc-config.hh
