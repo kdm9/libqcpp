@@ -1,4 +1,4 @@
-CXXFLAGS=-static -static-libstdc++ -std=c++11 -O3 -I src/ -I src/ext/
+CXXFLAGS=-static -static-libstdc++ -std=c++11 -O3 -I src/ -I src/ext/ -I.
 LIBS=-L/usr/local/lib -lbz2 -lz -lm -lyaml-cpp -lmpc -lmpfr -lgmp -lpthread
 SRCS=$(wildcard src/*.cc src/ext/*.c src/ext/*.cpp)
 TESTSRCS=$(wildcard src/tests/*.cc src/test/ext/*.c)
@@ -14,7 +14,7 @@ qc-config.hh: src/qc-config.hh.in
 %.o: %.cc qc-config.hh
 	g++ $(CXXFLAGS) -c -o $@ $<
 
-libqcpp.a: $(ARCHIVES)
+libqcpp.a: $(ARCHIVES) qc-config.hh
 	ar rcs $@.tmp $(OBJS)
 	echo "CREATE $@" > qcpp-script.mri
 	list='$^ $@.tmp'; for p in $$list; do \
@@ -25,10 +25,10 @@ libqcpp.a: $(ARCHIVES)
 	ranlib $@
 	rm -f $@.tmp qcpp-script.mri
 
-%: ./src/progs/%.cc $(SRCS) src/qc-config.hh
+%: ./src/progs/%.cc $(SRCS) qc-config.hh
 	g++ $(CXXFLAGS) -o $@ $< $(SRCS) $(LIBS)
 
-test-qcpp: $(TESTSRCS)
+test-qcpp: $(TESTSRCS) qc-config.hh
 	g++ $(CXXFLAGS) -I src/tests/ -I src/tests/ext/ -o $@ $(TESTSRCS) $(SRCS) $(LIBS)
 
 dist: libqcpp.a $(SRCS) qc-config.hh
