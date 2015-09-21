@@ -44,3 +44,4 @@ tags
 *.yml
 *.fq
 *.fq.gz
+qc-config.hh
