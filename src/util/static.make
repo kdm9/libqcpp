@@ -14,7 +14,7 @@ qc-config.hh: src/qc-config.hh.in
 %.o: %.cc qc-config.hh
 	g++ $(CXXFLAGS) -c -o $@ $<
 
-libqcpp.a: $(ARCHIVES) qc-config.hh
+libqcpp.a: $(OBJS) $(ARCHIVES) qc-config.hh
 	ar rcs $@.tmp $(OBJS)
 	echo "CREATE $@" > qcpp-script.mri
 	list='$^ $@.tmp'; for p in $$list; do \
@@ -31,7 +31,7 @@ libqcpp.a: $(ARCHIVES) qc-config.hh
 test-qcpp: $(TESTSRCS) qc-config.hh
 	g++ $(CXXFLAGS) -I src/tests/ -I src/tests/ext/ -o $@ $(TESTSRCS) $(SRCS) $(LIBS)
 
-dist: libqcpp.a $(SRCS) qc-config.hh
+libdist: libqcpp.a $(SRCS) qc-config.hh
 	rm -rf libqcpp_$(VERSION)
 	mkdir libqcpp_$(VERSION)
 	mkdir libqcpp_$(VERSION)/lib
@@ -41,12 +41,15 @@ dist: libqcpp.a $(SRCS) qc-config.hh
 	cp libqcpp.a libqcpp_$(VERSION)/lib
 	tar cvJf libqcpp_$(VERSION).tar.xz libqcpp_$(VERSION)
 
-bindist: dist
+bindist: all
 	rm -rf libqcpp_$(VERSION)
 	mkdir libqcpp_$(VERSION)
 	mkdir libqcpp_$(VERSION)/bin
 	cp gbsqc test-qcpp libqcpp_$(VERSION)/bin
-	tar cvJf libqcpp-bin_$(VERSION).tar.xz libqcpp_$(VERSION)
+	tar cvJf qcpp-bin_$(VERSION).tar.xz libqcpp_$(VERSION)
+
+.Phony: dist
+dist: bindist libdist
 
 clean:
 	rm -rf *.mri *.a *.o gbsqc test-qcpp libqcpp_* qc-config.hh
