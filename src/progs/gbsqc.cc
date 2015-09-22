@@ -116,24 +116,27 @@ main (int argc, char *argv[])
     }
 
     std::string             in_fname(argv[optind]);
-    ThreadedQCProcessor     proc(in_fname, output, threads);
-    bool                    qc_before = false;
+    try {
+        ThreadedQCProcessor     proc(in_fname, output, threads);
 
-    if (qc_before) {
         proc.append_processor<PerBaseQuality>("before qc");
-    }
-    proc.append_processor<AdaptorTrimPE>("trim or merge reads", 10);
-    proc.append_processor<WindowedQualTrim>("QC", SangerEncoding, 28, 64);
-    proc.append_processor<PerBaseQuality>("after qc");
+        proc.append_processor<AdaptorTrimPE>("trim or merge reads", 10);
+        proc.append_processor<WindowedQualTrim>("QC", SangerEncoding, 28, 64);
+        proc.append_processor<PerBaseQuality>("after qc");
 
-    proc.set_progress_callback(progress);
-    start = system_clock::now();
-    size_t num_reads = proc.run();
-    cerr << endl << "Done! Processed " << (float)num_reads / 1000
-         << "K read pairs." << endl;
-    if (yaml_fname.size() > 0) {
-        std::ofstream yml_output(yaml_fname);
-        yml_output << proc.report();
+        proc.set_progress_callback(progress);
+        start = system_clock::now();
+        size_t num_reads = proc.run();
+        cerr << endl << "Done! Processed " << (float)num_reads / 1000
+             << "K read pairs." << endl;
+        if (yaml_fname.size() > 0) {
+            std::ofstream yml_output(yaml_fname);
+            yml_output << proc.report();
+        }
+    } catch (qcpp::IOError &e) {
+        std::cerr << "Error opening input file:" << std::endl;
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
 }
