@@ -17,7 +17,7 @@ qc-config.hh: src/qc-config.hh.in
 libqcpp.a: $(OBJS) $(ARCHIVES) qc-config.hh
 	ar rcs $@.tmp $(OBJS)
 	echo "CREATE $@" > qcpp-script.mri
-	list='$^ $@.tmp'; for p in $$list; do \
+	list='$(ARCHIVES) $@.tmp'; for p in $$list; do \
 	    echo "ADDLIB $$p" >> qcpp-script.mri; \
 	done
 	echo "SAVE" >> qcpp-script.mri
