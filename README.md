@@ -1,6 +1,7 @@
 libqc++
 =======
 
+[![Build Status](http://biojenkins.anu.edu.au/job/libqc++/badge/icon)](http://biojenkins.anu.edu.au/job/libqc++/)
 
 A C++11 library for sequence quality control.
 
@@ -13,6 +14,13 @@ Design features:
 
 Installation
 ------------
+
+Statically compiled libraries and binaries are available from the
+[GitHub releases page](https://github.com/kdmurray91/libqcpp/releases).
+
+These can be uncompressed then copied to, for instance, `/usr/local/` or `~/`.
+
+### From Source:
 
 On Debian-like systems:
 
@@ -32,4 +40,4 @@ All code is licensed under the GNU Lesser General Public License, version 3 or
 at your option any later version.
 
 Catch.hpp, seqan and libssw are licensed under their respective licenses, see
-files for more information
+their LICENSE files for more information.
