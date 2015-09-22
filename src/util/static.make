@@ -52,4 +52,4 @@ bindist: all
 dist: bindist libdist
 
 clean:
-	rm -rf *.mri *.a *.o gbsqc test-qcpp libqcpp_* qc-config.hh
+	rm -rf *.mri *.a *.o $(OBJS) gbsqc test-qcpp libqcpp_* qc-config.hh
