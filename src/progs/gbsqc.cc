@@ -63,7 +63,7 @@ progress(size_t n)
 int
 usage_err()
 {
-    cerr << "USAGE: threaded [-t THREADS -y REPORT -o OUTPUT] <read_file>"
+    cerr << "USAGE: gbsqc [options] <read_file>"
          << std::endl << std::endl;
     cerr << "OPTIONS:" << endl;
     cerr << " -t THREADS  Worker threads to use [default: 1]" << endl;
