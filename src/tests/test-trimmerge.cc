@@ -35,7 +35,7 @@
 TEST_CASE("AdaptorTrimPE correctness", "[AdaptorTrimPE]") {
     qcpp::ReadParser    parser;
     qcpp::ReadPair      rp; TestConfig         *config = TestConfig::get_config();
-    qcpp::AdaptorTrimPE at("tm", 10);
+    qcpp::AdaptorTrimPE at("tm", 4);
 
     SECTION("tm-trim") {
         std::string         infile = config->get_data_file("tm-trim.fastq");
@@ -56,10 +56,27 @@ TEST_CASE("AdaptorTrimPE correctness", "[AdaptorTrimPE]") {
 
         parser.open(infile);
 
-        std::vector<size_t> r1_expected_lens {166};
+        std::vector<std::string> expected_reads {
+            "TGCTATATAAATGATGAGGATCATGCGTCGATTCTACTTAATGGTGGGTTGAGTACTTGTTCAC",
+            "TGCAGAACCTGGAACTTTCATCTTGTACTTGTGCACG",
+            "TGCAGAACCTGGAACTTTCATCTTGTACTTGTGCACG",
+            "TGCAGAACCTGGAACTTTCATCTTGTACTTGTGCACG",
+            "TGCAGAACCTGGAACTCTCATCTTGTACTTGTGCACG",
+            "TGCAGAACCTGGAACTTTCATATTGTACTTGTGCACG",
+        };
+        std::vector<std::string> expected_qualities {
+            "JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJAAAAAAAAAAAAAAAAAAA",
+            "JJJJJJJJJJJJJJJJJJJJJJJJJAAAAAAAAAAAA",
+            "JJJJJJJJJJJJJJJJJJJJJJJAAAAAAAAAAAAAA",
+            "JJJJJJJJJJJJJJJJJJJJJJJJJAAAAAAAAAAAA",
+            "AAAAAAAAAAAAJJJJJJJJJJJJJJJJJJJJJJJJJ",
+            "JJJJJJJJJJJJJJJJJJJJJJJJJAAAAAAAAAAAA",
+        };
         for (size_t i = 0; parser.parse_read_pair(rp); i++) {
             at.process_read_pair(rp);
-            REQUIRE(rp.first.size() == r1_expected_lens[i]);
+            CAPTURE(i);
+            REQUIRE(rp.first.sequence == expected_reads[i]);
+            REQUIRE(rp.first.quality == expected_qualities[i]);
             REQUIRE(rp.second.size() == 0);
         }
     }
