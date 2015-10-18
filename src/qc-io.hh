@@ -173,6 +173,7 @@ public:
 protected:
     // Locks paired IO to ensure proper pairing
     std::mutex              _pair_mutex;
+    bool                    _broken_paired;
 };
 
 class ReadWriter: public ReadOutputStream, public ReadIO<SeqAnWriteWrapper>
