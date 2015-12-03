@@ -75,7 +75,7 @@ usage_err()
     return EXIT_FAILURE;
 }
 
-const char *cli_opts = "shy:o:b";
+const char *cli_opts = "shq:y:o:b";
 
 int
 main (int argc, char *argv[])
