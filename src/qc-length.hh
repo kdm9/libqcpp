@@ -87,6 +87,32 @@ private:
     size_t                  _threshold;
 };
 
+class ReadTruncator: public ReadProcessor
+{
+public:
+    ReadTruncator                   (const std::string &name,
+                                     const QualityEncoding &encoding=SangerEncoding,
+                                     size_t             threshold=64);
+
+    void
+    process_read                    (Read              &the_read);
+
+    void
+    process_read_pair               (ReadPair          &the_read_pair);
+
+    void
+    add_stats_from                  (ReadProcessor     *other_ptr);
+
+    std::string
+    yaml_report                     ();
+
+private:
+    size_t                  _num_r1_dropped;
+    size_t                  _num_r2_dropped;
+    size_t                  _num_pairs_dropped;
+    size_t                  _threshold;
+};
+
 
 } // end namespace qcpp
 

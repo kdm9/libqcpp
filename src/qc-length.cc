@@ -222,4 +222,109 @@ yaml_report()
     return ss.str();
 }
 
+
+ReadTruncator::
+ReadTruncator(const std::string  &name, const QualityEncoding &encoding,
+              size_t threshold)
+    : ReadProcessor(name, encoding)
+{
+    _num_r1_dropped = 0;
+    _num_r2_dropped = 0;
+    _num_pairs_dropped = 0;
+    _threshold = threshold;
+}
+
+void
+ReadTruncator::
+process_read(Read &the_read)
+{
+    size_t read_len = the_read.size();
+    if (read_len < _threshold) {
+        the_read.clear();
+        _num_r1_dropped++;
+    } else {
+        the_read.erase(_threshold);
+    }
+    _num_reads++;
+}
+
+void
+ReadTruncator::
+process_read_pair(ReadPair &the_read_pair)
+{
+    size_t read_len1 = the_read_pair.first.size();
+    size_t read_len2 = the_read_pair.second.size();
+    bool r1_dropped = false;
+    if (read_len1 < _threshold) {
+        the_read_pair.first.clear();
+        _num_r1_dropped++;
+        r1_dropped = true;
+    } else {
+        the_read_pair.first.erase(_threshold);
+    }
+    if (read_len2 < _threshold) {
+        the_read_pair.second.clear();
+        _num_r2_dropped++;
+        if (r1_dropped) {
+            _num_pairs_dropped++;
+        }
+    } else {
+        the_read_pair.second.erase(_threshold);
+    }
+    _num_reads += 2;
+}
+
+void
+ReadTruncator::
+add_stats_from(ReadProcessor *other_ptr)
+{
+    ReadTruncator &other = *reinterpret_cast<ReadTruncator *>(other_ptr);
+    _num_reads += other._num_reads;
+    _num_r1_dropped += other._num_r1_dropped;
+    _num_r2_dropped += other._num_r2_dropped;
+    _num_pairs_dropped += other._num_pairs_dropped;
+
+}
+
+std::string
+ReadTruncator::
+yaml_report()
+{
+    std::ostringstream ss;
+    YAML::Emitter yml;
+    float percent_dropped = (_num_r1_dropped + _num_r2_dropped) * 100;
+    percent_dropped /= (float) _num_reads;
+
+    yml << YAML::BeginSeq;
+    yml << YAML::BeginMap;
+    yml << YAML::Key   << "ReadTruncator"
+        << YAML::Value
+        << YAML::BeginMap
+        << YAML::Key   << "name"
+        << YAML::Value << _name
+        << YAML::Key   << "parameters"
+        << YAML::Value << YAML::BeginMap
+                       << YAML::Key << "threshold"
+                       << YAML::Value << _threshold
+                       << YAML::EndMap
+        << YAML::Key   << "output"
+        << YAML::Value << YAML::BeginMap
+                       << YAML::Key << "num_reads"
+                       << YAML::Value << _num_reads
+                       << YAML::Key << "num_r1_dropped"
+                       << YAML::Value << _num_r1_dropped
+                       << YAML::Key << "num_r2_dropped"
+                       << YAML::Value << _num_r2_dropped
+                       << YAML::Key << "num_pairs_dropped"
+                       << YAML::Value << _num_pairs_dropped
+                       << YAML::Key << "percent_dropped"
+                       << YAML::Value << percent_dropped
+                       << YAML::EndMap
+        << YAML::EndMap;
+    yml << YAML::EndMap;
+    yml << YAML::EndSeq;
+    ss << yml.c_str() << "\n";
+    return ss.str();
+}
+
 } // end namespace qcpp

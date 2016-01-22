@@ -69,11 +69,12 @@ usage_err()
     cerr << " -t THREADS  Worker threads to use [default: 1]" << endl;
     cerr << " -y YAML     YAML report file. [default: none]" << endl;
     cerr << " -q QUAL     Minimum quality score [default: 25]" << endl;
+    cerr << " -l LEN      Fix read lengths to LEN [default: off]" << endl;
     cerr << " -o OUTPUT   Output file. [default: stdout]" << endl;
     return EXIT_FAILURE;
 }
 
-const char *cli_opts = "q:y:o:t:";
+const char *cli_opts = "q:y:o:t:l:";
 
 int
 main (int argc, char *argv[])
@@ -85,6 +86,7 @@ main (int argc, char *argv[])
     std::ofstream           output_file;
     size_t                  num_cpu = std::thread::hardware_concurrency();
     size_t                  threads = 1;
+    size_t                  fix_length = 0;
     int                     quality_threshold = 25;
 
     cerr << "gbsqc -- from libqc++ version " << QCPP_VERSION << endl << endl;
@@ -108,6 +110,9 @@ main (int argc, char *argv[])
                 output_file.open(optarg);
                 output = &output_file;
                 break;
+            case 'l':
+                fix_length = atoll(optarg);
+                break;
             default:
                 cerr << "Bad arg '" << std::string(1, optopt) << "'"
                           << endl << endl;
@@ -128,6 +133,11 @@ main (int argc, char *argv[])
         proc.append_processor<AdaptorTrimPE>("trim or merge reads", 10);
         proc.append_processor<WindowedQualTrim>("QC", SangerEncoding,
                                                 quality_threshold, 1);
+        if (fix_length > 0) {
+            proc.append_processor<ReadTruncator>("fl", SangerEncoding,
+                                                 fix_length);
+
+        }
         proc.append_processor<PerBaseQuality>("after qc");
         proc.append_processor<ReadLenCounter>("Read Length Distribution");
 
