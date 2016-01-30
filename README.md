@@ -1,7 +1,8 @@
 libqc++
 =======
 
-[![Build Status](http://biojenkins.anu.edu.au/job/libqc++/badge/icon)](http://biojenkins.anu.edu.au/job/libqc++/)
+[![Build
+Status](https://travis-ci.org/kdmurray91/libqcpp.svg?branch=master)](https://travis-ci.org/kdmurray91/libqcpp)
 
 A C++11 library for sequence quality control.
 
