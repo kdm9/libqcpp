@@ -61,11 +61,11 @@ namespace seqan {
  *
  * Access SAM or BAM files.
  *
- * @include demos/tutorial/bam_io/solution1.cpp
+ * @include demos/tutorial/sam_and_bam_io/solution1.cpp
  *
  * The output is as follows:
  *
- * @include demos/tutorial/bam_io/example.sam
+ * @include demos/tutorial/sam_and_bam_io/example.sam
  */
 
 typedef FormattedFile<Bam, Input> BamFileIn;
@@ -88,11 +88,11 @@ typedef FormattedFile<Bam, Input> BamFileIn;
  *
  * Access SAM or BAM files.
  *
- * @include demos/tutorial/bam_io/solution1.cpp
+ * @include demos/tutorial/sam_and_bam_io/solution1.cpp
  *
  * The output is as follows:
  *
- * @include demos/tutorial/bam_io/example.sam
+ * @include demos/tutorial/sam_and_bam_io/example.sam
  */
 
 typedef FormattedFile<Bam, Output> BamFileOut;
@@ -247,11 +247,11 @@ inline SEQAN_FUNC_ENABLE_IF(And<IsSameType<typename Value<TRecords>::Type, BamAl
 readRecords(TRecords & records, FormattedFile<Bam, Input, TSpec> & file, TSize maxRecords)
 {
     String<CharString> & buffers = context(file).buffers;
-    if ((TSize)length(buffers) < maxRecords)
-    {
+    if (static_cast<TSize>(length(buffers)) < maxRecords)
         resize(buffers, maxRecords, Exact());
+    if (static_cast<TSize>(length(records)) < maxRecords)
         resize(records, maxRecords, Exact());
-    }
+
 
     TSize numRecords = 0;
     for (; numRecords < maxRecords && !atEnd(file.iter); ++numRecords)
@@ -357,6 +357,24 @@ writeRecords(FormattedFile<Bam, Output, TSpec> & file, TRecords const & records)
     }
     for (int i = 0; i < (int)length(records); ++i)
         write(file.iter, buffers[i]);
+}
+
+// ----------------------------------------------------------------------------
+// Function getFileExtensions()
+// ----------------------------------------------------------------------------
+// NOTE(h-2): this is overloaded so we get Bgzf in addition to other
+// compressions which is crucial for Bam
+
+template <typename TDirection, typename TSpec>
+static std::vector<std::string>
+getFileExtensions(FormattedFile<Bam, TDirection, TSpec> const &)
+{
+    std::vector<std::string> extensions;
+    _getCompressionExtensions(extensions,
+                              typename FormattedFile<Bam, TDirection, TSpec>::TFileFormats(),
+                              CompressedFileTypes(),
+                              false);
+    return extensions;
 }
 
 }  // namespace seqan

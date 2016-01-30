@@ -71,6 +71,11 @@
 #pragma warning( disable : 4345 )
 #pragma warning( disable : 4351 )
 
+// Disable warning for "this" used in derived c'tor
+// Documentation of C4355 from Microsoft:
+//   https://msdn.microsoft.com/en-us/library/3c594ae3(v=vs.100).aspx
+#pragma warning( disable : 4355 )
+
 // ==========================================================================
 // Define Integers
 // ==========================================================================
@@ -128,9 +133,11 @@ inline T round(T const & x)
 }
 
 // Rename some underscore-functions in Windows.
+#if _MSC_VER < 1900
 #ifndef snprintf
 #define snprintf _snprintf
 #endif  // #ifndef snprintf
+#endif
 
 // Define ftello
 #ifndef ftello
