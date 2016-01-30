@@ -1,0 +1,39 @@
+language: cpp
+
+env:
+ matrix:
+  - BUILD_TYPE=Release
+  - BUILD_TYPE=Debug
+
+compiler:
+ - clang
+ - gcc
+
+sudo: false
+
+notifications:
+  email:
+    - spam@kdmurray.id.au
+
+addons:
+ apt:
+  sources:
+   - kalakris-cmake
+  packages:
+   - cmake
+   - libboost-all-dev
+   - libyaml-cpp-dev
+   - zlib1g-dev
+   - python-sphinx
+
+install:
+ - mkdir build
+ - mkdir target
+ - cd build
+
+script:
+ - cmake .. -DCMAKE_INSTALL_PREFIX=../target -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+ - make
+ - ctest --verbose
+ - make install
+ - test -f ../target/bin/gbsqc

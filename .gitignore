@@ -42,6 +42,7 @@ tags
 
 # data
 *.yml
+!.travis.yml
 *.fq
 *.fq.gz
 qc-config.hh
