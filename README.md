@@ -25,8 +25,8 @@ These can be uncompressed then copied to, for instance, `/usr/local/` or `~/`.
 
 On Debian-like systems:
 
-    sudo apt-get install git libboost-dev libyaml-cpp-dev zlib1g-dev cmake \
-                         build-essential
+    sudo apt-get install git libboost-dev libyaml-cpp-dev zlib1g-dev \
+                         libbz2-dev cmake build-essential
     git clone https://github.com/kdmurray91/libqcpp.git
     cd libqcpp
     mkdir build && cd build
