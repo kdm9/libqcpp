@@ -76,6 +76,7 @@ SET(DEPENDS_INLCUDE_DIRS ${DEPENDS_INLCUDE_DIRS} ${YAMLCPP_INCLUDE_DIR})
 ## Set Compiler Options ##
 ##########################
 
+OPTION(STATIC_BINARIES "Link programs to libqcpp.a not .so" ON)
 OPTION(ENABLE_ASAN "Build with AddressSanitizer" OFF)
 OPTION(ENABLE_TSAN "Build with ThreadSanitizer" OFF)
 

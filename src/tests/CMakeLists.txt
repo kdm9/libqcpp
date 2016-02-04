@@ -6,7 +6,7 @@ ADD_EXECUTABLE(test_qcpp
                test-trimmerge.cc
                )
 
-TARGET_LINK_LIBRARIES(test_qcpp ${QCPP_DEPENDS_LIBRARIES} libqc++)
+TARGET_LINK_LIBRARIES(test_qcpp ${QCPP_DEPENDS_LIBRARIES} libqcpp)
 
 # Copy test files over to bin dir & make output
 ADD_CUSTOM_TARGET(setup_tests ALL

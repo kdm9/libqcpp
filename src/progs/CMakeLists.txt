@@ -1,13 +1,19 @@
+IF(${STATIC_BINARIES})
+    SET(QCPP libqcppa)
+ELSE()
+    SET(QCPP libqcpp)
+ENDIF()
+
 ADD_EXECUTABLE(gbsqc gbsqc.cc)
-TARGET_LINK_LIBRARIES(gbsqc libqc++ ${DEPENDS_LIBS})
+TARGET_LINK_LIBRARIES(gbsqc ${QCPP} ${DEPENDS_LIBS})
 INSTALL(TARGETS gbsqc DESTINATION "bin")
 
 ADD_EXECUTABLE(trimit trimit.cc)
-TARGET_LINK_LIBRARIES(trimit libqc++ ${DEPENDS_LIBS})
+TARGET_LINK_LIBRARIES(trimit ${QCPP} ${DEPENDS_LIBS})
 INSTALL(TARGETS trimit DESTINATION "bin")
 
 ADD_EXECUTABLE(gbsqc_serial gbsqc_serial.cc)
-TARGET_LINK_LIBRARIES(gbsqc_serial libqc++ ${DEPENDS_LIBS})
+TARGET_LINK_LIBRARIES(gbsqc_serial ${QCPP} ${DEPENDS_LIBS})
 
 ADD_EXECUTABLE(lenfilter lenfilter.cc)
-TARGET_LINK_LIBRARIES(lenfilter libqc++ ${DEPENDS_LIBS})
+TARGET_LINK_LIBRARIES(lenfilter ${QCPP} ${DEPENDS_LIBS})
