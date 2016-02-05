@@ -28,8 +28,6 @@ SET(LIBQCPP_SRC
         qc-measure.cc
         qc-qualtrim.cc
         qc-quality.cc
-        ext/ssw.c
-        ext/ssw_cpp.cpp
         )
 
 ADD_LIBRARY(libqcpp SHARED ${LIBQCPP_SRC})
