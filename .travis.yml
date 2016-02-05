@@ -25,7 +25,7 @@ addons:
    - clang
    - cmake
    - libboost-dev
-   - libyaml-cpp-dev
+#   - libyaml-cpp-dev
    - zlib1g-dev
    - python-sphinx
 
@@ -35,8 +35,8 @@ before_install:
  - pushd $HOME
  - git clone https://github.com/jbeder/yaml-cpp
  - cd yaml-cpp
- - cmake -DCMAKE_INSTALL_PREFIX=$HOME .
- - make all install
+ - cmake . -DCMAKE_INSTALL_PREFIX=$HOME -DBUILD_SHARED_LIBS=On
+ - make install
  - popd
 
 install:
