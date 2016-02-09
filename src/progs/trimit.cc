@@ -128,7 +128,7 @@ main (int argc, char *argv[])
 
     ProcessedReadStream     stream;
     uint64_t                n_pairs = 0;
-    bool                    qc_before = false;
+    bool                    measure_qual = yaml_fname.size() > 0;
 
     try {
         stream.open(infile);
@@ -138,14 +138,16 @@ main (int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    if (qc_before) {
+    if (measure_qual) {
         stream.append_processor<PerBaseQuality>("before qc");
     }
     if (!single_end) {
         stream.append_processor<AdaptorTrimPE>("trim or merge reads", 10);
     }
     stream.append_processor<WindowedQualTrim>("QC", SangerEncoding, qual_threshold, 1);
-    stream.append_processor<PerBaseQuality>("after qc");
+    if (measure_qual) {
+        stream.append_processor<PerBaseQuality>("after qc");
+    }
 
     system_clock::time_point start = system_clock::now();
     if (single_end) {
