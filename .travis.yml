@@ -49,4 +49,4 @@ script:
  - make
  - ctest --verbose
  - make install
- - test -f ../target/bin/gbsqc
+ - test -f ../target/bin/trimit
