@@ -61,21 +61,22 @@ usage_err()
 {
     using std::cerr;
     using std::endl;
-    cerr << "USAGE: gbsqc [-b -s -y REPORT -o OUTPUT] [<read_file>]" << std::endl
+    cerr << "USAGE: trimit [options] <read_file>" << std::endl
          << std::endl;
     cerr << "OPTIONS:" << endl;
-    cerr << " -b         Use broken-paired output (don't keep read pairing) [default: false]" << endl;
     cerr << " -q QUAL    Minimum acceptable PHRED score. [default: 25]" << endl;
+    cerr << " -l LEN      Fix read lengths to LEN [default: off]" << endl;
     cerr << " -y YAML    YAML report file. [default: none]" << endl;
     cerr << " -o OUTPUT  Output file. [default: stdout]" << endl;
     cerr << " -s         Single ended mode (no trim-merge). [default: false]" << endl;
+    cerr << " -b         Use broken-paired output (don't keep read pairing) [default: false]" << endl;
     cerr << " -h         Show this help message." << endl;
     cerr << endl;
     cerr << "By default, reads from stdin and spits out good reads on stdout." <<  endl;
     return EXIT_FAILURE;
 }
 
-const char *cli_opts = "shq:y:o:b";
+const char *cli_opts = "q:y:o:l:bsh";
 
 int
 main (int argc, char *argv[])
@@ -88,6 +89,7 @@ main (int argc, char *argv[])
     std::ofstream           read_output;
     std::string             outfile = "/dev/stdout";
     std::string             infile = "/dev/stdin";
+    size_t                  fix_length = 0;
     int                     qual_threshold = 25;
 
     int c = 0;
@@ -107,6 +109,9 @@ main (int argc, char *argv[])
                 break;
             case 'q':
                 qual_threshold = atoi(optarg);
+                break;
+            case 'l':
+                fix_length = atoi(optarg);
                 break;
             case 'h':
                 usage_err();
@@ -130,13 +135,6 @@ main (int argc, char *argv[])
     uint64_t                n_pairs = 0;
     bool                    measure_qual = yaml_fname.size() > 0;
 
-    try {
-        stream.open(infile);
-    } catch (qcpp::IOError  &e) {
-        std::cerr << "Error opening input file:" << std::endl;
-        std::cerr << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
 
     if (measure_qual) {
         stream.append_processor<PerBaseQuality>("before qc");
@@ -145,10 +143,21 @@ main (int argc, char *argv[])
         stream.append_processor<AdaptorTrimPE>("trim or merge reads", 10);
     }
     stream.append_processor<WindowedQualTrim>("QC", SangerEncoding, qual_threshold, 1);
+    if (fix_length > 0) {
+        stream.append_processor<ReadTruncator>("Fix Length", SangerEncoding,
+                                               fix_length);
+    }
     if (measure_qual) {
         stream.append_processor<PerBaseQuality>("after qc");
     }
 
+    try {
+        stream.open(infile);
+    } catch (qcpp::IOError  &e) {
+        std::cerr << "Error opening input file:" << std::endl;
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
     system_clock::time_point start = system_clock::now();
     if (single_end) {
         Read rd;

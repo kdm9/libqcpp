@@ -57,7 +57,7 @@ progress(size_t n)
     double rate = k_reads / secs;
     cerr << "\x1b[2K" << "Kept " << k_reads << "K read pairs in "
          << (int)secs << "s (" << std::setprecision(1) << (int)rate
-         << std::setprecision(3) << "K RP/sec)\r";
+         << std::setprecision(3) << "K RP/sec)";
 }
 
 int
@@ -66,7 +66,6 @@ usage_err()
     cerr << "USAGE: gbsqc [options] <read_file>"
          << std::endl << std::endl;
     cerr << "OPTIONS:" << endl;
-    cerr << " -t THREADS  Worker threads to use [default: 1]" << endl;
     cerr << " -y YAML     YAML report file. [default: none]" << endl;
     cerr << " -q QUAL     Minimum quality score [default: 25]" << endl;
     cerr << " -l LEN      Fix read lengths to LEN [default: off]" << endl;
@@ -74,7 +73,7 @@ usage_err()
     return EXIT_FAILURE;
 }
 
-const char *cli_opts = "q:y:o:t:l:";
+const char *cli_opts = "q:y:o:l:";
 
 int
 main (int argc, char *argv[])
@@ -94,12 +93,6 @@ main (int argc, char *argv[])
     int c = 0;
     while ((c = getopt(argc, argv, cli_opts)) > 0) {
         switch (c) {
-            case 't':
-                threads = atoll(optarg);
-                if (threads < 1 || threads > num_cpu) {
-                    threads = std::thread::hardware_concurrency() - 1;
-                }
-                break;
             case 'q':
                 quality_threshold = atoi(optarg);
                 break;
@@ -126,34 +119,48 @@ main (int argc, char *argv[])
     }
 
     std::string             in_fname(argv[optind]);
+    ProcessedReadStream     stream;
     try {
-        ThreadedQCProcessor     proc(in_fname, output, threads);
-
-        proc.append_processor<PerBaseQuality>("before qc");
-        proc.append_processor<AdaptorTrimPE>("trim or merge reads", 10);
-        proc.append_processor<WindowedQualTrim>("QC", SangerEncoding,
-                                                quality_threshold, 1);
-        if (fix_length > 0) {
-            proc.append_processor<ReadTruncator>("fl", SangerEncoding,
-                                                 fix_length);
-
-        }
-        proc.append_processor<PerBaseQuality>("after qc");
-        proc.append_processor<ReadLenCounter>("Read Length Distribution");
-
-        proc.set_progress_callback(progress);
-        start = system_clock::now();
-        size_t num_reads = proc.run();
-        cerr << endl << "Done! Processed " << (float)num_reads / 1000
-             << "K read pairs." << endl;
-        if (yaml_fname.size() > 0) {
-            std::ofstream yml_output(yaml_fname);
-            yml_output << proc.report();
-        }
+        stream.open(argv[optind]);
     } catch (qcpp::IOError &e) {
         std::cerr << "Error opening input file:" << std::endl;
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
+    }
+
+    if (yaml_fname.size() > 0) {
+        stream.append_processor<PerBaseQuality>("Measure Quality (Before)");
+    }
+    stream.append_processor<AdaptorTrimPE>("Trim or merge reads", 10);
+    stream.append_processor<WindowedQualTrim>("Sliding window QC",
+                                              SangerEncoding,
+                                              quality_threshold, 1);
+    if (fix_length > 0) {
+        stream.append_processor<ReadTruncator>("Fix Length", SangerEncoding,
+                                               fix_length);
+    }
+    if (yaml_fname.size() > 0) {
+        stream.append_processor<PerBaseQuality>("after qc");
+        stream.append_processor<ReadLenCounter>("Read Length Distribution");
+    }
+
+    while (stream.parse_read_pair(rp)) {
+        std::string rp_str = rp.str();
+
+        if (use_stdout) {
+            std::cout << rp_str;
+        } else {
+            read_output << rp_str;
+        }
+
+        if (n_pairs % 10000 == 0) {
+            progress(n_pairs, start);
+        }
+        n_pairs++;
+    }
+    if (yaml_fname.size() > 0) {
+        std::ofstream yml_output(yaml_fname);
+        yml_output << stream.report();
     }
     return EXIT_SUCCESS;
 }

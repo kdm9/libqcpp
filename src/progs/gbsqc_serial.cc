@@ -70,7 +70,7 @@ usage_err()
     return EXIT_FAILURE;
 }
 
-const char *cli_opts = "y:o:b";
+const char *cli_opts = "q:y:o:t:l:";
 
 int
 main (int argc, char *argv[])
