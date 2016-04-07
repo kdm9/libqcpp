@@ -36,7 +36,7 @@ script:
  - cd ..
  - test -f target/bin/trimit
  - rm -rf target
- -  if [ -n "$TRAVIS_TAG" ] ;
+ -  if [ -n "$TRAVIS_TAG" ] && [ "${BUILD_TYPE}" == "Release" ] ;
     then
         make -f src/Makefile.static ;
     fi ;
