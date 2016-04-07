@@ -8,36 +8,20 @@ env:
 compiler:
  - gcc
 
-sudo: false
+sudo: required
+dist: trusty
 
 notifications:
   email:
     - spam@kdmurray.id.au
 
-addons:
- apt:
-  sources:
-   - kalakris-cmake
-   - ubuntu-toolchain-r-test
-  packages:
-   - gcc-4.8
-   - g++-4.8
-   - clang
-   - cmake
-   - libboost-dev
-#   - libyaml-cpp-dev
-   - zlib1g-dev
-   - python-sphinx
-
-# Remove this entire before_install section once travis allows libyaml-cpp-dev.
 before_install:
- - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
- - pushd $HOME
- - git clone https://github.com/jbeder/yaml-cpp
- - cd yaml-cpp
- - cmake . -DCMAKE_INSTALL_PREFIX=$HOME -DBUILD_SHARED_LIBS=On
- - make install
- - popd
+  - sudo apt-get install -yy
+        libyaml-cpp-dev
+        libboost-dev
+        libbz2-dev
+        zlib1g-dev
+        python-sphinx
 
 install:
  - mkdir build
@@ -45,7 +29,7 @@ install:
  - cd build
 
 script:
- - cmake .. -DCMAKE_INSTALL_PREFIX=../target -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DYAMLCPP_ROOT=$HOME
+ - cmake .. -DCMAKE_INSTALL_PREFIX=../target -DCMAKE_BUILD_TYPE=$BUILD_TYPE
  - make
  - ctest --verbose
  - make install
