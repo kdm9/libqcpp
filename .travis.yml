@@ -26,14 +26,16 @@ before_install:
 install:
  - mkdir build
  - mkdir target
- - cd build
 
 script:
+ - cd build
  - cmake .. -DCMAKE_INSTALL_PREFIX=../target -DCMAKE_BUILD_TYPE=$BUILD_TYPE
  - make
  - ctest --verbose
  - make install
- - test -f ../target/bin/trimit
+ - cd ..
+ - test -f target/bin/trimit
+ - rm -rf target
  -  if [ -n "$TRAVIS_TAG" ] ;
     then
         make -f src/Makefile.static ;
