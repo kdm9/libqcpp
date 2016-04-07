@@ -34,7 +34,7 @@ script:
  - ctest --verbose
  - make install
  - test -f ../target/bin/trimit
- -  if [ -n "$TRAVIS_TAG" ];
-    then;
-        make -f src/Makefile.static;
-    fi;
+ -  if [ -n "$TRAVIS_TAG" ] ;
+    then ;
+        make -f src/Makefile.static ;
+    fi ;
