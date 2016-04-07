@@ -64,13 +64,13 @@ usage_err()
     cerr << "USAGE: trimit [options] <read_file>" << endl
          << endl;
     cerr << "OPTIONS:" << endl;
-    cerr << " -q QUAL    Minimum acceptable PHRED score. [default: 25]" << endl;
-    cerr << " -l LEN      Fix read lengths to LEN [default: off]" << endl;
-    cerr << " -y YAML    YAML report file. [default: none]" << endl;
-    cerr << " -o OUTPUT  Output file. [default: stdout]" << endl;
-    cerr << " -s         Single ended mode (no trim-merge). [default: false]" << endl;
-    cerr << " -b         Use broken-paired output (don't keep read pairing) [default: false]" << endl;
-    cerr << " -h         Show this help message." << endl;
+    cerr << " -q QUALITY  Minimum acceptable PHRED score. [default: 25]" << endl;
+    cerr << " -l LENGTH   Fix read lengths to LEN [default: off]" << endl;
+    cerr << " -y YAML     YAML report file. [default: none]" << endl;
+    cerr << " -o OUTPUT   Output file. [default: stdout]" << endl;
+    cerr << " -s          Single ended mode (no trim-merge). [default: false]" << endl;
+    cerr << " -b          Use broken-paired output (don't keep read pairing) [default: false]" << endl;
+    cerr << " -h          Show this help message." << endl;
     cerr << endl;
     cerr << "By default good reads are printed to stdout." <<  endl;
     return EXIT_FAILURE;
