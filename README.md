@@ -37,8 +37,10 @@ On Debian-like systems:
 License
 -------
 
-All code is licensed under the GNU Lesser General Public License, version 3 or
-at your option any later version.
+Library code is licensed under the GNU Lesser General Public License, version 3
+or at your option any later version. `trimit` and other executables bundled
+with `libqcpp` are licensed under the GNU General Public License, version 3 or
+higher.
 
 Catch.hpp, seqan and libssw are licensed under their respective licenses, see
 their LICENSE files for more information.
