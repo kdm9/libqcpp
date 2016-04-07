@@ -43,3 +43,5 @@ cmake /io -DCMAKE_INSTALL_PREFIX=$prefix -DQCPP_ENABLE_TESTS=Off
 make -j4
 make install
 popd
+
+chown 1000:1000 -R $prefix

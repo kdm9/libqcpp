@@ -5,27 +5,29 @@ DEP_TARS	= yaml-cpp.tar.gz boost.tar.bz2
 
 VERSION		= $(shell git describe)
 PREFIXDIR	= ./libqcpp_$(VERSION)_amd64
-TRIMIT_TAR	= trimit_$(VERSION)_amd64.tar.gz
-QCPP_TAR	= libqcpp_$(VERSION)_amd64.tar.gz
+QCPP_TARS	= trimit_$(VERSION)_amd64.tar.gz libqcpp_$(VERSION)_amd64.tar.gz
+QCPP_TARSUMS = $(foreach tar,$(QCPP_TARS),$(tar).sha512sums)
 
 .PHONY: all build clean
-all: $(QCPP_TAR) $(TRIMIT_TAR)
+all: $(QCPP_TARS) $(QCPP_TARSUMS)
 
 clean:
 	rm -rf libqcpp_*_amd64/ trimit_*_amd64
-	rm -f $(DEP_TARS) $(TRIMIT_TAR) $(QCPP_TAR)
+	rm -f $(DEP_TARS) $(QCPP_TARS)
 
-build: src/hbb-build.sh $(DEP_TARS)
+libqcpp_$(VERSION)_amd64: src/hbb-build.sh $(DEP_TARS)
 	$(HBB_DOCKER) /io/$< $(VERSION)
 
-$(TRIMIT_TAR): build
-	mkdir -p trimit_$(VERSION)_amd64/bin
-	mv libqcpp_$(VERSION)_amd64/bin/trimit trimit_$(VERSION)_amd64/bin
+%.sha512sums: %
+	sha512sum $< >$@
+
+trimit_$(VERSION)_amd64.tar.gz: libqcpp_$(VERSION)_amd64
+	mkdir -p trimit_$(VERSION)_amd64
+	cp -r libqcpp_$(VERSION)_amd64/bin trimit_$(VERSION)_amd64/bin
 	tar cvzf $@ trimit_$(VERSION)_amd64
 
-$(QCPP_TAR): build
-	rm -rf libqcpp_$(VERSION)_amd64/bin
-	tar cvzf $@ libqcpp_$(VERSION)_amd64
+libqcpp_$(VERSION)_amd64.tar.gz: libqcpp_$(VERSION)_amd64
+	tar cvzf $@ --exclude=bin libqcpp_$(VERSION)_amd64
 
 yaml-cpp.tar.gz:
 	wget -O $@ https://github.com/jbeder/yaml-cpp/archive/master.tar.gz
