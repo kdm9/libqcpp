@@ -49,8 +49,6 @@ qc-config.hh
 
 # hbb builds
 *_amd64/
-yaml-cpp.tar*
-libbz2.tar*
-boost.tar*
+deps/
 libqcpp_*
 trimit_*

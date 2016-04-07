@@ -14,7 +14,7 @@ cd $(mktemp -d)
 ########
 
 # Install libbz2
-tar xf /io/libbz2.tar*
+tar xf /io/deps/libbz2.tar*
 pushd bzip2*/
 make CFLAGS=-fPIC
 make install
@@ -22,12 +22,12 @@ popd
 rm -rf boost*/
 
 # Install boost headers only
-tar xf /io/boost.tar* boost_1_60_0/boost/
+tar xf /io/deps/boost.tar* boost_1_60_0/boost/
 mv boost_1_*/boost /usr/local/include
 rm -rf boost*/
 
 # Compile & install yaml-cpp 
-tar xf /io/yaml-cpp.tar*
+tar xf /io/deps/yaml-cpp.tar*
 pushd yaml-cpp*/
 mkdir build && cd build
 cmake .. -DYAML_CPP_BUILD_TOOLS=Off -DYAML_CPP_BUILD_CONTRIB=Off
