@@ -9,10 +9,12 @@ VERSION		= $(shell git describe)
 PREFIXDIR	= ./libqcpp_$(VERSION)_amd64
 QCPP_TARS	= trimit_$(VERSION)_amd64.tar.gz libqcpp_$(VERSION)_amd64.tar.gz
 QCPP_TARSUMS = $(foreach tar,$(QCPP_TARS),$(tar).sha512sums)
-QCPP_TARSUMS += $(foreach tar,$(QCPP_TARS),$(tar).asc)
+QCPP_SIGS   = $(foreach tar,$(QCPP_TARS),$(tar).asc)
 
-.PHONY: all clean
+.PHONY: all clean cleandep sign
 all: $(QCPP_TARS) $(QCPP_TARSUMS)
+
+sign: $(QCPP_SIGS)
 
 clean:
 	rm -rf libqcpp_*_amd64 trimit_*_amd64
@@ -24,11 +26,14 @@ cleandep:
 libqcpp_$(VERSION)_amd64: src/hbb-build.sh $(DEP_TARS) .git/index
 	$(HBB_DOCKER) /io/$< $(VERSION)
 
+
+
 %.sha512sums: %
 	sha512sum $< >$@
 
 %.asc: %
 	gpg --armour --local-user $(GPGKEY) --detach-sign $<
+
 
 trimit_$(VERSION)_amd64.tar.gz: libqcpp_$(VERSION)_amd64
 	mkdir -p trimit_$(VERSION)_amd64
