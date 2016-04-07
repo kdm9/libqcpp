@@ -13,8 +13,16 @@ cd $(mktemp -d)
 # DEPS #
 ########
 
+# Install libbz2
+tar xf /io/libbz2.tar*
+pushd bzip2*/
+make CFLAGS=-fPIC
+make install
+popd
+rm -rf boost*/
+
 # Install boost headers only
-tar xf /io/boost.tar*
+tar xf /io/boost.tar* boost_1_60_0/boost/
 mv boost_1_*/boost /usr/local/include
 rm -rf boost*/
 

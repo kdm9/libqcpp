@@ -2,7 +2,7 @@ GPGKEY 		= "E56C E72C 8060 C9F9 5F6B  5E72 0FEB 966A 205B 4780"
 HBB_DOCKER 	= docker run -t -i --rm -v $(shell pwd):/io \
 			  		phusion/holy-build-box-64:latest bash
 
-DEP_TARS	= yaml-cpp.tar.gz boost.tar.bz2
+DEP_TARS	= yaml-cpp.tar.gz boost.tar.bz2 libbz2.tar.gz
 
 VERSION		= $(shell git describe)
 PREFIXDIR	= ./libqcpp_$(VERSION)_amd64
@@ -43,3 +43,5 @@ yaml-cpp.tar.gz:
 boost.tar.bz2:
 	wget -O $@ http://downloads.sourceforge.net/project/boost/boost/1.60.0/boost_1_60_0.tar.bz2
 
+libbz2.tar.gz:
+	wget -O $@ http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
