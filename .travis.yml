@@ -35,6 +35,6 @@ script:
  - make install
  - test -f ../target/bin/trimit
  -  if [ -n "$TRAVIS_TAG" ] ;
-    then ;
+    then
         make -f src/Makefile.static ;
     fi ;
