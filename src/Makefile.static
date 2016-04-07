@@ -1,3 +1,4 @@
+GPGKEY 		= "E56C E72C 8060 C9F9 5F6B  5E72 0FEB 966A 205B 4780"
 HBB_DOCKER 	= docker run -t -i --rm -v $(shell pwd):/io \
 			  		phusion/holy-build-box-64:latest bash
 
@@ -7,13 +8,17 @@ VERSION		= $(shell git describe)
 PREFIXDIR	= ./libqcpp_$(VERSION)_amd64
 QCPP_TARS	= trimit_$(VERSION)_amd64.tar.gz libqcpp_$(VERSION)_amd64.tar.gz
 QCPP_TARSUMS = $(foreach tar,$(QCPP_TARS),$(tar).sha512sums)
+QCPP_TARSUMS += $(foreach tar,$(QCPP_TARS),$(tar).asc)
 
 .PHONY: all build clean
 all: $(QCPP_TARS) $(QCPP_TARSUMS)
 
 clean:
-	rm -rf libqcpp_*_amd64/ trimit_*_amd64
-	rm -f $(DEP_TARS) $(QCPP_TARS)
+	rm -rf libqcpp_*_amd64 trimit_*_amd64
+	rm -f libqcpp_*_amd64.tar* trimit_*_amd64.tar*
+
+cleandep:
+	rm -f $(DEP_TARS)
 
 libqcpp_$(VERSION)_amd64: src/hbb-build.sh $(DEP_TARS)
 	$(HBB_DOCKER) /io/$< $(VERSION)
@@ -21,13 +26,16 @@ libqcpp_$(VERSION)_amd64: src/hbb-build.sh $(DEP_TARS)
 %.sha512sums: %
 	sha512sum $< >$@
 
+%.asc: %
+	gpg --armour --local-user $(GPGKEY) --detach-sign $<
+
 trimit_$(VERSION)_amd64.tar.gz: libqcpp_$(VERSION)_amd64
 	mkdir -p trimit_$(VERSION)_amd64
 	cp -r libqcpp_$(VERSION)_amd64/bin trimit_$(VERSION)_amd64/bin
-	tar cvzf $@ trimit_$(VERSION)_amd64
+	tar czf $@ trimit_$(VERSION)_amd64
 
 libqcpp_$(VERSION)_amd64.tar.gz: libqcpp_$(VERSION)_amd64
-	tar cvzf $@ --exclude=bin libqcpp_$(VERSION)_amd64
+	tar czf $@ --exclude=bin libqcpp_$(VERSION)_amd64
 
 yaml-cpp.tar.gz:
 	wget -O $@ https://github.com/jbeder/yaml-cpp/archive/master.tar.gz

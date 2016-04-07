@@ -39,8 +39,9 @@ mkdir -p $prefix
 builddir=$(mktemp -d)
 pushd $builddir
 
-cmake /io -DCMAKE_INSTALL_PREFIX=$prefix -DQCPP_ENABLE_TESTS=Off
+cmake /io -DCMAKE_INSTALL_PREFIX=$prefix
 make -j4
+make test
 make install
 popd
 
