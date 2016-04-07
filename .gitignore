@@ -51,3 +51,5 @@ qc-config.hh
 *_amd64/
 yaml-cpp.tar*
 boost.tar*
+libqcpp_*
+trimit_*
