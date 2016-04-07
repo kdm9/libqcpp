@@ -61,8 +61,8 @@ usage_err()
 {
     using std::cerr;
     using std::endl;
-    cerr << "USAGE: trimit [options] <read_file>" << std::endl
-         << std::endl;
+    cerr << "USAGE: trimit [options] <read_file>" << endl
+         << endl;
     cerr << "OPTIONS:" << endl;
     cerr << " -q QUAL    Minimum acceptable PHRED score. [default: 25]" << endl;
     cerr << " -l LEN      Fix read lengths to LEN [default: off]" << endl;
@@ -72,7 +72,7 @@ usage_err()
     cerr << " -b         Use broken-paired output (don't keep read pairing) [default: false]" << endl;
     cerr << " -h         Show this help message." << endl;
     cerr << endl;
-    cerr << "By default, reads from stdin and spits out good reads on stdout." <<  endl;
+    cerr << "By default good reads are printed to stdout." <<  endl;
     return EXIT_FAILURE;
 }
 
@@ -88,7 +88,7 @@ main (int argc, char *argv[])
     bool                    single_end = false;
     std::ofstream           read_output;
     std::string             outfile = "/dev/stdout";
-    std::string             infile = "/dev/stdin";
+    std::string             infile = "";
     size_t                  fix_length = 0;
     int                     qual_threshold = 25;
 
@@ -123,13 +123,14 @@ main (int argc, char *argv[])
         }
     }
 
-    read_output.open(outfile);
-
-    if (optind + 1 > argc) {
-        std::cerr << "Reading from stdin! (Use -h for help)" << std::endl;
-    } else {
-        infile = argv[optind];
+    if (optind == argc) {
+        std::cerr << "Must give input file!" << std::endl << std::endl;
+        usage_err();
+        return EXIT_SUCCESS;
     }
+
+    infile = argv[optind];
+    read_output.open(outfile);
 
     ProcessedReadStream     stream;
     uint64_t                n_pairs = 0;
