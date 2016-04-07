@@ -11,7 +11,7 @@ QCPP_TARS	= trimit_$(VERSION)_amd64.tar.gz libqcpp_$(VERSION)_amd64.tar.gz
 QCPP_TARSUMS = $(foreach tar,$(QCPP_TARS),$(tar).sha512sums)
 QCPP_TARSUMS += $(foreach tar,$(QCPP_TARS),$(tar).asc)
 
-.PHONY: all build clean
+.PHONY: all clean
 all: $(QCPP_TARS) $(QCPP_TARSUMS)
 
 clean:
@@ -21,7 +21,7 @@ clean:
 cleandep:
 	rm -rf deps
 
-libqcpp_$(VERSION)_amd64: src/hbb-build.sh $(DEP_TARS)
+libqcpp_$(VERSION)_amd64: src/hbb-build.sh $(DEP_TARS) .git/index
 	$(HBB_DOCKER) /io/$< $(VERSION)
 
 %.sha512sums: %
