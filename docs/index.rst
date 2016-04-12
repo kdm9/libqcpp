@@ -6,8 +6,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   applications
    dev/index
-   applications/index
 
 Indices and tables
 ==================
