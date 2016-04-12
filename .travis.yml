@@ -21,7 +21,8 @@ before_install:
         libboost-dev
         libbz2-dev
         zlib1g-dev
-        python-sphinx
+        python-pip
+  - pip install --user -r docs/requirements.txt
 
 install:
  - mkdir build
@@ -33,6 +34,8 @@ script:
  - make
  - ctest --verbose
  - make install
+ - cd ../docs
+ - make html
  - cd ..
  - test -f target/bin/trimit
  - rm -rf target
