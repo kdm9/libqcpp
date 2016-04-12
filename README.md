@@ -3,6 +3,8 @@ libqc++
 
 [![Build
 Status](https://travis-ci.org/kdmurray91/libqcpp.svg?branch=master)](https://travis-ci.org/kdmurray91/libqcpp)
+[![Documentation
+Status](https://readthedocs.org/projects/qcpp/badge/?version=latest)](http://qcpp.readthedocs.org/en/latest/?badge=latest)
 
 A C++11 library for sequence quality control.
 
