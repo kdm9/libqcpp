@@ -130,6 +130,7 @@ main (int argc, char *argv[])
     }
 
     infile = argv[optind];
+    if (infile == "-") infile = "/dev/stdin";
     read_output.open(outfile);
 
     ProcessedReadStream     stream;
