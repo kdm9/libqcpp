@@ -33,6 +33,8 @@ script:
  - make
  - ctest --verbose
  - make install
+ - cd ../docs
+ - make html
  - cd ..
  - test -f target/bin/trimit
  - rm -rf target
