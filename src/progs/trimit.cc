@@ -92,6 +92,7 @@ main (int argc, char *argv[])
     size_t                  fix_length = 0;
     int                     qual_threshold = 25;
 
+    std::cerr << "trimit -- QCPP version " << QCPP_VERSION << std::endl;
     int c = 0;
     while ((c = getopt(argc, argv, cli_opts)) > 0) {
         switch (c) {
