@@ -1,9 +1,9 @@
 /*
  * ============================================================================
  *
- *       Filename:  gbsqc.cc
- *    Description:  A GBS quality control pipeline
- *        License:  LGPL-3+
+ *       Filename:  lenfilter.cc
+ *    Description:  Drops reads less than N, truncates reads greater than N
+ *        License:  GPL-3+
  *         Author:  Kevin Murray, spam@kdmurray.id.au
  *
  * ============================================================================
@@ -146,8 +146,12 @@ main (int argc, char *argv[])
         usage();
         return EXIT_FAILURE;
     }
+    std::string input_file = argv[optind];
+    if (input_file == "-") {
+        input_file = "/dev/stdin";
+    }
 
-    ProcessedReadStream     stream(argv[optind]);
+    ProcessedReadStream     stream(input_file);
 
     stream.append_processor<ReadLenCounter>("Length Counter");
     stream.append_processor<ReadLenFilter>("Length Filter", len_cutoff);
