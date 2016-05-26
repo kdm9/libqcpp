@@ -65,7 +65,8 @@ usage_err()
          << endl;
     cerr << "OPTIONS:" << endl;
     cerr << " -q QUALITY  Minimum acceptable PHRED score. [default: 25]" << endl;
-    cerr << " -l LENGTH   Fix read lengths to LEN [default: off]" << endl;
+    cerr << " -l LENGTH   Remove reads less than LEN bases long [default: off]" << endl;
+    cerr << " -L LENGTH   Truncate read to length LEN [default: off]" << endl;
     cerr << " -y YAML     YAML report file. [default: none]" << endl;
     cerr << " -o OUTPUT   Output file. [default: stdout]" << endl;
     cerr << " -s          Single ended mode (no trim-merge). [default: false]" << endl;
@@ -89,7 +90,8 @@ main (int argc, char *argv[])
     std::ofstream           read_output;
     std::string             outfile = "/dev/stdout";
     std::string             infile = "";
-    size_t                  fix_length = 0;
+    size_t                  truncate_length = 0;
+    size_t                  filter_length = 0;
     int                     qual_threshold = 25;
 
     std::cerr << "trimit -- QCPP version " << QCPP_VERSION << std::endl;
@@ -111,8 +113,11 @@ main (int argc, char *argv[])
             case 'q':
                 qual_threshold = atoi(optarg);
                 break;
+            case 'L':
+                truncate_length = atoi(optarg);
+                break;
             case 'l':
-                fix_length = atoi(optarg);
+                filter_length = atoi(optarg);
                 break;
             case 'h':
                 usage_err();
@@ -146,9 +151,12 @@ main (int argc, char *argv[])
         stream.append_processor<AdaptorTrimPE>("trim or merge reads", 10);
     }
     stream.append_processor<WindowedQualTrim>("QC", SangerEncoding, qual_threshold, 1);
-    if (fix_length > 0) {
+    if (truncate_length > 0) {
         stream.append_processor<ReadTruncator>("Fix Length", SangerEncoding,
-                                               fix_length);
+                                               truncate_length);
+    }
+    if (filter_length > 0) {
+        stream.append_processor<ReadLenFilter>("Length Filter", filter_length);
     }
     if (measure_qual) {
         stream.append_processor<PerBaseQuality>("after qc");
