@@ -30,6 +30,7 @@
 #include <getopt.h>
 
 #include "qcpp.hh"
+#include "qc-length.hh"
 
 using namespace qcpp;
 
@@ -51,7 +52,7 @@ const char *cli_opts = "o:i:";
 int
 main (int argc, char *argv[])
 {
-    ReadParser          input;
+    ProcessedReadStream stream;
     std::ofstream       output;
     Read                read;
     std::string         input_file = "/dev/stdin";
@@ -75,8 +76,9 @@ main (int argc, char *argv[])
     }
 
     output.open(output_file);
-    input.open(input_file);
-    while (input.parse_read(read)) {
+    stream.append_processor<ReadTruncator>("Fix Length", SangerEncoding, 64);
+    stream.open(input_file);
+    while (stream.parse_read(read)) {
         read.sequence.insert(0, "A");
         read.quality.insert(0, "I");
         output << read.str();
