@@ -58,6 +58,8 @@ main (int argc, char *argv[])
     std::string         input_file = "/dev/stdin";
     std::string         output_file = "/dev/stdout";
 
+    std::cerr << argv[0] << " version " << QCPP_VERSION
+                          << std::endl << std::endl;
     int c = 0;
     while ((c = getopt(argc, argv, cli_opts)) > 0) {
         switch (c) {

@@ -110,6 +110,8 @@ const char *cli_opts = "o:l:y:p";
 int
 main (int argc, char *argv[])
 {
+    std::cerr << argv[0] << " version " << QCPP_VERSION
+                          << std::endl << std::endl;
 
     size_t                  len_cutoff = 40;
     std::string             yaml_fname;
