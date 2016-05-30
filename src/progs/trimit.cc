@@ -71,13 +71,14 @@ usage_err()
     cerr << " -o OUTPUT   Output file. [default: stdout]" << endl;
     cerr << " -s          Single ended mode (no trim-merge). [default: false]" << endl;
     cerr << " -b          Use broken-paired output (don't keep read pairing) [default: false]" << endl;
+    cerr << " -Q          Quiet mode, does not log progress [default: log progress to stderr]" << endl;
     cerr << " -h          Show this help message." << endl;
     cerr << endl;
     cerr << "By default good reads are printed to stdout." <<  endl;
     return EXIT_FAILURE;
 }
 
-const char *cli_opts = "q:y:o:l:bsh";
+const char *cli_opts = "q:y:o:l:L:bshQ";
 
 int
 main (int argc, char *argv[])
@@ -87,6 +88,7 @@ main (int argc, char *argv[])
     std::string             yaml_fname;
     bool                    broken_paired = false;
     bool                    single_end = false;
+    bool                    quiet = false;
     std::ofstream           read_output;
     std::string             outfile = "/dev/stdout";
     std::string             infile = "";
@@ -110,6 +112,9 @@ main (int argc, char *argv[])
                 break;
             case 's':
                 single_end = true;
+                break;
+            case 'Q':
+                quiet = true;
                 break;
             case 'q':
                 qual_threshold = atoi(optarg);
@@ -175,7 +180,7 @@ main (int argc, char *argv[])
         Read rd;
         while (stream.parse_read(rd)) {
             read_output << rd.str();
-            if (n_pairs % 10000 == 0) {
+            if (!quiet && n_pairs % 10000 == 0) {
                 progress(n_pairs, start);
             }
             n_pairs++;
@@ -196,7 +201,7 @@ main (int argc, char *argv[])
                 rp_str = rp.str();
             }
 
-            if (n_pairs % 10000 == 0) {
+            if (!quiet && n_pairs % 10000 == 0) {
                 progress(n_pairs, start);
             }
             n_pairs++;
