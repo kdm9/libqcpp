@@ -3,7 +3,6 @@ libqcpp Applications
 
 Libqcpp ships with some applications built using the library.
 
-
 .. contents::
 
 
@@ -12,7 +11,7 @@ Trimit
 
 Trimit ties together several common QC measures applied to short read
 sequencing data. It works with paired end Illumina and similar sequencing
-experiemnts.
+experiments.
 
 
 QC Steps
@@ -26,8 +25,9 @@ QC Steps
   merged. Read pairs from fragments longer than twice the read length are not
   modified.
 - Windowed quality control: a sliding-window based quality score trimmer, which
-  uses an improved version of the `sickle <https://github.com/najoshi/sickle>`_
-  trimming algorithm.
+  uses a slightly improved version of the `sickle 
+  <https://github.com/najoshi/sickle>`_ trimming algorithm.
+- Optional length filtering and/or truncation
 
 Usage
 -----
