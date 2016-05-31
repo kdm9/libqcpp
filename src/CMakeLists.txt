@@ -1,3 +1,4 @@
+INCLUDE_DIRECTORIES(processors)
 IF(QCPP_ENABLE_TESTS)
     ADD_SUBDIRECTORY(tests)
 ENDIF()
@@ -12,12 +13,12 @@ SET(QCPP_HEADERS
         qc-ds.hh
         qc-io.hh
         qc-processor.hh
-        qc-length.hh
-        qc-adaptor.hh
-        qc-measure.hh
-        qc-qualtrim.hh
         qc-quality.hh
         qc-util.hh
+        processors/qc-length.hh
+        processors/qc-adaptor.hh
+        processors/qc-measure.hh
+        processors/qc-qualtrim.hh
         )
 
 SET(LIBQCPP_SRC
@@ -25,11 +26,11 @@ SET(LIBQCPP_SRC
         qc-ds.cc
         qc-io.cc
         qc-processor.cc
-        qc-length.cc
-        qc-adaptor.cc
-        qc-measure.cc
-        qc-qualtrim.cc
         qc-quality.cc
+        processors/qc-length.cc
+        processors/qc-adaptor.cc
+        processors/qc-measure.cc
+        processors/qc-qualtrim.cc
         )
 
 ADD_LIBRARY(libqcpp SHARED ${LIBQCPP_SRC})
