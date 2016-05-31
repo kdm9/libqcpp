@@ -9,6 +9,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/qc-config.hh.in
 # Library
 SET(QCPP_HEADERS
         qcpp.hh
+        qc-ds.hh
         qc-io.hh
         qc-processor.hh
         qc-length.hh
@@ -22,6 +23,7 @@ SET(QCPP_HEADERS
 
 SET(LIBQCPP_SRC
 	qc-util.cc
+        qc-ds.cc
         qc-io.cc
         qc-processor.cc
         qc-length.cc

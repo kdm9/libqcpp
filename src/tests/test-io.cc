@@ -173,7 +173,7 @@ TEST_CASE("Read Interleaving", "[ReadInterleaver]") {
     REQUIRE_NOTHROW(interleaver.open(r1_file, r2_file));
 
     SECTION("Interleaving yields a correctly paired read stream") {
-        size_t n_pairs = 0;
+        size_t n_reads = 0;
         bool parse_ret = true, il_ret = true;
 
         // Count all reads, parse_read returns false on EOF
@@ -182,16 +182,14 @@ TEST_CASE("Read Interleaving", "[ReadInterleaver]") {
             il_ret = interleaver.parse_read_pair(read_interleaver_pair);
             REQUIRE(read_parser_pair == read_interleaver_pair);
             if (parse_ret && il_ret) {
-                n_pairs++;
+                n_reads += 2;
             }
         }
         REQUIRE(parse_ret == il_ret);
 
-        size_t n_reads = n_pairs * 2;
         REQUIRE(n_reads == 10);
         REQUIRE(parser.get_num_reads() == n_reads);
         REQUIRE(interleaver.get_num_reads() == n_reads);
-        REQUIRE(interleaver.get_num_pairs() == n_pairs);
     }
 }
 

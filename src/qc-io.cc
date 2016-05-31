@@ -16,167 +16,9 @@
 namespace qcpp
 {
 
-/*****************************************************************************
- *                                    Read
- *****************************************************************************/
-
-Read::
-Read()
-{
-}
-
-Read::
-Read(const std::string &name_, const std::string &sequence_,
-     const std::string &quality_):
-    name(name_),
-    sequence(sequence_),
-    quality(quality_)
-{
-}
-
-void
-Read::
-clear()
-{
-    name.clear( );
-    sequence.clear( );
-    quality.clear( );
-}
-
-size_t
-Read::
-size() const
-{
-    return sequence.size();
-}
-
-std::string
-Read::
-str() const
-{
-    std::ostringstream oss;
-
-    if (name.size() == 0 || sequence.size() == 0) {
-        return "";
-    }
-    if (quality.size() > 0) {
-        oss << "@";
-    } else {
-        oss << ">";
-    }
-    oss << name << "\n";
-    oss << sequence << "\n";
-    if (quality.size() > 0) {
-        oss << "+\n";
-        oss << quality << "\n";
-    }
-
-    return oss.str();
-}
-
-void
-Read::
-erase(size_t pos)
-{
-    sequence.erase(pos);
-    quality.erase(pos);
-}
-
-void
-Read::
-erase(size_t pos, size_t count)
-{
-    sequence.erase(pos, count);
-    quality.erase(pos, count);
-}
-
-bool
-operator==(const Read &r1, const Read &r2)
-{
-    return r1.name == r2.name && \
-           r1.sequence == r2.sequence && \
-           r1.quality == r2.quality;
-}
-
-ReadPair::
-ReadPair():
-    std::pair<Read, Read>()
-{
-}
-
-ReadPair::
-ReadPair(const std::string &name1, const std::string &sequence1,
-         const std::string &quality1, const std::string &name2,
-         const std::string &sequence2, const std::string &quality2):
-    first(name1, sequence1, quality1),
-    second(name2, sequence2, quality2)
-{
-}
-
-std::string
-ReadPair::
-str()
-{
-    std::ostringstream oss;
-    bool fastq = first.quality.size() > 0 || second.quality.size() > 0;
-
-    if (first.name.size() == 0 || second.name.size() == 0 ||
-            (first.sequence.size() == 0 && second.quality.size() == 0)) {
-        return "";
-    }
-
-    if (first.sequence.size() == 0) {
-        // Make a fake record of a single N, to avoid breaking pairing.
-        if (fastq) {
-            oss << "@";
-        } else {
-            oss << ">";
-        }
-        oss << first.name << "\n";
-        oss << "N\n";
-        if (fastq) {
-            oss << "+\n";
-            // 'B' is the lowest quality score that is valid in all encodings.
-            // See https://en.wikipedia.org/wiki/FASTQ_format#Encoding
-            oss << "B\n";
-        }
-    } else {
-        oss << first.str();
-    }
-
-    if (second.sequence.size() == 0) {
-        // Make a fake record of a single N, to avoid breaking pairing.
-        if (fastq) {
-            oss << "@";
-        } else {
-            oss << ">";
-        }
-        oss << second.name << "\n";
-        oss << "N\n";
-        if (fastq) {
-            oss << "+\n";
-            // 'B' is the lowest quality score that is valid in all encodings.
-            // See https://en.wikipedia.org/wiki/FASTQ_format#Encoding
-            oss << "B\n";
-        }
-    } else {
-        oss << second.str();
-    }
-
-    return oss.str();
-
-}
-
-bool
-operator==(const ReadPair &r1, const ReadPair &r2)
-{
-    return r1.first == r2.first && r1.second == r2.second;
-}
-
-/*****************************************************************************
- *                               SeqAn Wrapper
- *****************************************************************************/
-
+/*******************************************************************************
+*                                Seqan Wrapper                                *
+*******************************************************************************/
 struct SeqAnReadWrapper
 {
     seqan::SeqFileIn stream;
@@ -199,7 +41,13 @@ struct SeqAnReadWrapper
             throw IOError(message);
         }
     }
+
+    void close()
+    {
+        seqan::close(stream);
+    }
 };
+
 
 struct SeqAnWriteWrapper
 {
@@ -208,7 +56,7 @@ struct SeqAnWriteWrapper
 
     ~SeqAnWriteWrapper()
     {
-        seqan::close(stream);
+        this->close();
     }
 
     void open(const char *filename)
@@ -222,13 +70,17 @@ struct SeqAnWriteWrapper
             throw IOError(message);
         }
     }
+
+    void close()
+    {
+        seqan::close(stream);
+    }
 };
 
 
 /*****************************************************************************
  *                                BASE CLASS
  *****************************************************************************/
-
 template<typename SeqAnWrapper>
 ReadIO<SeqAnWrapper>::
 ReadIO()
@@ -262,6 +114,14 @@ open(const char *filename)
 }
 
 template<typename SeqAnWrapper>
+void
+ReadIO<SeqAnWrapper>::
+close()
+{
+    _private->close();
+}
+
+template<typename SeqAnWrapper>
 size_t
 ReadIO<SeqAnWrapper>::
 get_num_reads()
@@ -269,11 +129,13 @@ get_num_reads()
     return _num_reads;
 }
 
+template class ReadIO<SeqAnReadWrapper>;
+template class ReadIO<SeqAnWriteWrapper>;
 
-/*****************************************************************************
- *                                 READERS
- *****************************************************************************/
 
+/*******************************************************************************
+*                                   Readers                                   *
+*******************************************************************************/
 bool
 ReadInputStream::
 at_end()
@@ -281,17 +143,6 @@ at_end()
     return _at_end;
 }
 
-ReadInputStream::
-ReadInputStream()
-{
-    _at_end = false;
-}
-
-ReadInputStream::
-ReadInputStream(const ReadInputStream &other)
-{
-    _at_end = other._at_end;
-}
 
 bool
 ReadParser::
@@ -353,12 +204,10 @@ parse_read_pair(ReadPair &the_read_pair)
     return true;
 }
 
-ReadInterleaver::
-ReadInterleaver()
-{
-    _num_pairs = 0;
-}
 
+/*******************************************************************************
+*                               ReadInterleaver                               *
+*******************************************************************************/
 void
 ReadInterleaver::
 open(const char *r1_filename, const char *r2_filename)
@@ -382,7 +231,6 @@ parse_read_pair(ReadPair &the_read_pair)
     bool first = r1_parser.parse_read(the_read_pair.first);
     bool second = r2_parser.parse_read(the_read_pair.second);
     if (first && second) {
-        _num_pairs++;
         return true;
     }
     the_read_pair.first.clear();
@@ -390,45 +238,30 @@ parse_read_pair(ReadPair &the_read_pair)
     return false;
 }
 
+bool
+ReadInterleaver::
+parse_read(Read &the_read)
+{
+    if (_last_was_r1) {
+        _last_was_r1 = false;
+        return r2_parser.parse_read(the_read);
+    } else {
+        _last_was_r1 = true;
+        return r1_parser.parse_read(the_read);
+    }
+}
+
 size_t
 ReadInterleaver::
 get_num_reads()
 {
-    return _num_pairs * 2;
-}
-
-size_t
-ReadInterleaver::
-get_num_pairs()
-{
-    return _num_pairs;
+    return r1_parser.get_num_reads() + r2_parser.get_num_reads();
 }
 
 
-/*****************************************************************************
- *                                 WRITERS
- *****************************************************************************/
-
-ReadOutputStream::
-ReadOutputStream()
-{
-}
-
-ReadOutputStream::
-ReadOutputStream(const ReadOutputStream &other)
-{
-}
-
-void
-ReadWriter::
-close()
-{
-    assert(_private != NULL);
-    //_private->_mutex.lock();
-    delete _private;
-    _private = new SeqAnWriteWrapper;
-}
-
+/*******************************************************************************
+*                                 ReadWriter                                  *
+*******************************************************************************/
 void
 ReadWriter::
 write_read(Read &the_read)
@@ -456,18 +289,14 @@ void
 ReadWriter::
 write_read_pair(ReadPair &the_read_pair)
 {
-    //std::lock_guard<std::mutex> lg(_pair_mutex);
     write_read(the_read_pair.first);
     write_read(the_read_pair.second);
 }
 
-ReadDeInterleaver::
-ReadDeInterleaver()
-{
-    _num_pairs = 0;
-}
 
-
+/*******************************************************************************
+*                              ReadDeInterleaver                              *
+*******************************************************************************/
 void
 ReadDeInterleaver::
 open(const char *r1_filename, const char *r2_filename)
@@ -490,24 +319,26 @@ write_read_pair(ReadPair &the_read_pair)
 {
     r1_writer.write_read(the_read_pair.first);
     r2_writer.write_read(the_read_pair.second);
-    _num_pairs++;
+}
+
+void
+ReadDeInterleaver::
+write_read(Read &the_read)
+{
+    if (_last_was_r1) {
+        _last_was_r1 = false;
+        r2_writer.write_read(the_read);
+    } else {
+        _last_was_r1 = true;
+        r1_writer.write_read(the_read);
+    }
 }
 
 size_t
 ReadDeInterleaver::
 get_num_reads()
 {
-    return _num_pairs * 2;
+    return r1_writer.get_num_reads() + r2_writer.get_num_reads();
 }
-
-size_t
-ReadDeInterleaver::
-get_num_pairs()
-{
-    return _num_pairs;
-}
-
-template class ReadIO<SeqAnReadWrapper>;
-template class ReadIO<SeqAnWriteWrapper>;
 
 } // namespace qcpp
