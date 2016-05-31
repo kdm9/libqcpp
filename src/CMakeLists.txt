@@ -13,7 +13,6 @@ SET(QCPP_HEADERS
         qc-io.hh
         qc-processor.hh
         qc-length.hh
-        qc-gbs.hh
         qc-adaptor.hh
         qc-measure.hh
         qc-qualtrim.hh
@@ -27,7 +26,6 @@ SET(LIBQCPP_SRC
         qc-io.cc
         qc-processor.cc
         qc-length.cc
-        qc-gbs.cc
         qc-adaptor.cc
         qc-measure.cc
         qc-qualtrim.cc
