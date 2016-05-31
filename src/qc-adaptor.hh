@@ -32,8 +32,8 @@ public:
     yaml_report                     ();
 
 private:
-    std::atomic_ullong      _num_pairs_trimmed;
-    std::atomic_ullong      _num_pairs_joined;
+    uint64_t                _num_pairs_trimmed;
+    uint64_t                _num_pairs_joined;
     int                     _min_overlap;
 
     void
