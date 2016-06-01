@@ -1,49 +1,57 @@
 language: cpp
+
 env:
   matrix:
   - BUILD_TYPE=Release
   - BUILD_TYPE=Debug
+
 compiler:
 - gcc
+
 sudo: required
+
 dist: trusty
+
 notifications:
   email:
   - spam@kdmurray.id.au
+
 addons:
   apt:
     packages:
-    - libyaml-cpp-dev
-    - libboost-dev
-    - libbz2-dev
-    - zlib1g-dev
-    - python-pip
-    - docker-io
+      - libyaml-cpp-dev
+      - libboost-dev
+      - libbz2-dev
+      - zlib1g-dev
+      - python-pip
+
 before_install:
-- pip install --user -r docs/requirements.txt
-- mkdir build
-- mkdir target
+  - pip install --user -r docs/requirements.txt
+  - mkdir build
+  - mkdir target
+
 script:
-- cd build
-- cmake .. -DCMAKE_INSTALL_PREFIX=../target -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-- make
-- ctest --verbose
-- make install
-- cd ../docs
-- make html
-- cd ..
-- test -f target/bin/trimit
-- rm -rf target
-- if [ -n "$TRAVIS_TAG" ] && [ "${BUILD_TYPE}" == "Release" ] ; then
-  make -f src/Makefile.static ; fi ;
+  - cd build
+  - cmake .. -DCMAKE_INSTALL_PREFIX=../target -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  - make
+  - ctest --verbose
+  - make install
+  - cd ../docs
+  - make html
+  - cd ..
+  - test -f target/bin/trimit
+  - rm -rf target
+  - if [ -n "$TRAVIS_TAG" ] && [ "${BUILD_TYPE}" == "Release" ] ; then
+    make -f src/Makefile.static ; fi ;
+
 
 deploy:
   provider: releases
   api_key:
     secure: KuX0+mJTojQiDOu9pM6mnXxSOa9PbLoyAQXBwHLrFPsn7HyBwGtbDtCzOV0hxdAxsOrIo19VaAyQOXczQN9Jb1wPNCA2GT1vtEVkLFaJ9nQTf/Oe78Hm1FjECqUcXXbMTUWbgOFnKJLn0RpN5Z1N5G0EoKCO0GoFk4jUb2S33HM=
   file:
-      - "libqcpp_*.tar.gz"
-      - "trimit_*.tar.gz"
-      - "*.sha512sums"
+    - "libqcpp_*.tar.gz"
+    - "trimit_*.tar.gz"
+    - "*.sha512sums"
   on:
     repo: kdmurray91/libqcpp
