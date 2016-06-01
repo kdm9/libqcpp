@@ -42,8 +42,8 @@ deploy:
   api_key:
     secure: KuX0+mJTojQiDOu9pM6mnXxSOa9PbLoyAQXBwHLrFPsn7HyBwGtbDtCzOV0hxdAxsOrIo19VaAyQOXczQN9Jb1wPNCA2GT1vtEVkLFaJ9nQTf/Oe78Hm1FjECqUcXXbMTUWbgOFnKJLn0RpN5Z1N5G0EoKCO0GoFk4jUb2S33HM=
   file:
-      - libqcpp_*.tar.gz
-      - trimit_*.tar.gz
-      - *.sha512sums
+      - "libqcpp_*.tar.gz"
+      - "trimit_*.tar.gz"
+      - "*.sha512sums"
   on:
     repo: kdmurray91/libqcpp
