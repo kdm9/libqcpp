@@ -23,6 +23,7 @@ addons:
       - libbz2-dev
       - zlib1g-dev
       - python-pip
+      - docker-io
 
 before_install:
   - pip install --user -r docs/requirements.txt
