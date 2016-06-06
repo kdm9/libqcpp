@@ -51,7 +51,9 @@ process_read(Read &the_read)
     _num_reads++;
     // Throw out reads which are already too short
     if (read_len < _min_length) {
-        _num_reads_dropped++;
+        if (read_len > 0) {
+            _num_reads_dropped++;
+        }
         return;
     }
 
@@ -170,16 +172,16 @@ yaml_report()
                        << YAML::Key << "min_length"
                        << YAML::Value << _min_length
                        << YAML::Key << "window_size"
-                       << YAML::Value << _window_size
+                       << YAML::Value << (_window_size == 0 ? 0.1 : _window_size)
                        << YAML::EndMap
         << YAML::Key   << "output"
         << YAML::Value << YAML::BeginMap
                        << YAML::Key << "num_reads"
                        << YAML::Value << _num_reads
                        << YAML::Key << "num_trimmed"
-                       << YAML::Value << (_num_reads_trimmed * 2)
+                       << YAML::Value << _num_reads_trimmed
                        << YAML::Key << "num_dropped"
-                       << YAML::Value << (_num_reads_dropped * 2)
+                       << YAML::Value << _num_reads_dropped
                        << YAML::Key << "percent_trimmed"
                        << YAML::Value << percent_trimmed
                        << YAML::Key << "percent_dropped"
