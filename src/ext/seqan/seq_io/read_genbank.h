@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -195,6 +195,7 @@ readRecord(TSeqString & seq, TFwdIterator & iter, GenBankSequence)
 
         readUntil(seq, iter, isNewline, asserter);
     }
+    skipUntil(iter, NotFunctor<IsWhitespace>());
 }
 
 // readRecord() for GenBank id/seq pairs.

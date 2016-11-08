@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // Copyright (c) 2013 NVIDIA Corporation
 // All rights reserved.
 //
@@ -36,7 +36,7 @@
 #ifndef SEQAN_HEADER_SHAPE_THRESHOLD_H
 #define SEQAN_HEADER_SHAPE_THRESHOLD_H
 
-namespace SEQAN_NAMESPACE_MAIN
+namespace seqan
 {
 
 struct ThreshQGramLemma_;
@@ -150,7 +150,6 @@ int qgramThreshold(TShape const & shape, TPatternSize patternLength, TErrors err
     inline void assign(char & c_target,
                        ErrorAlphabet const & source)
     {
-    SEQAN_CHECKPOINT
         c_target = TranslateTableErrorToChar_<>::VALUE[source.value];
     }
 
@@ -160,13 +159,13 @@ int qgramThreshold(TShape const & shape, TPatternSize patternLength, TErrors err
     template <typename TValue>
     struct Host<String<TValue, Packed<ErrorPackedString> > >
     {
-        typedef String<__int64, Array<1> > Type;
+        typedef String<int64_t, Array<1> > Type;
     };
 
     template <typename TValue>
     struct Host<String<TValue, Packed<ErrorPackedString> > const >
     {
-        typedef String<__int64, Array<1> > const Type;
+        typedef String<int64_t, Array<1> > const Type;
     };
 
 
@@ -204,7 +203,7 @@ int qgramThreshold(TShape const & shape, TPatternSize patternLength, TErrors err
         bool intermediate:1;        // this is an intermediate result (beginning with INSERT)
         bool qgramHit:1;            // is this a q-gram hit? (result of the former delta function)
     }
-#ifndef PLATFORM_WINDOWS
+#ifndef STDLIB_VS
     __attribute__((packed))
 #endif
     ;
@@ -223,12 +222,12 @@ int qgramThreshold(TShape const & shape, TPatternSize patternLength, TErrors err
         bool intermediate:1;        // this is an intermediate result (beginning with INSERT)
         bool qgramHit:1;            // is this a q-gram hit? (result of the former delta function)
     }
-#ifndef PLATFORM_WINDOWS
+#ifndef STDLIB_VS
     __attribute__((packed))
 #endif
     ;
 
-#if defined(PLATFORM_WINDOWS) | defined(PLATFORM_CUDA)
+#if defined(STDLIB_VS)
 
     template<typename TValue>
     inline bool isNan(TValue value)
@@ -438,6 +437,71 @@ _getLastPatternProb(TState &, Nothing const &, TPattern const &, int)
 {
 }
 
+template <template <typename, typename> class TState,
+          typename TDistance, typename TFloat,
+          typename TPatternStore,
+          typename TPattern,
+          typename TErr>
+inline void
+_setInsertTransitions(TState<TDistance, TFloat> & state,
+                      TPatternStore const & patternStore,
+                      TPattern const & pattern,
+                      TErr const errors,
+                      TErr const maxErrors)
+{
+    if (errors <= maxErrors)
+        state.transition[SEQAN_INSERT] = _getErrorPatternIndex(patternStore, pattern);
+    else
+        state.transition[SEQAN_INSERT] = -1;
+}
+
+template <template <typename, typename> class TState,
+          typename TFloat,
+          typename TPatternStore,
+          typename TPattern,
+          typename TErr>
+inline void
+_setInsertTransitions(TState<HammingDistance, TFloat> & /*state*/,
+                      TPatternStore const & /*patternStore*/,
+                      TPattern const & /*pattern*/,
+                      TErr const /*errors*/,
+                      TErr const /*maxErrors*/)
+{
+    // no-op
+}
+
+template <template <typename, typename> class TState,
+          typename TDistance, typename TFloat,
+          typename TPatternStore,
+          typename TPattern,
+          typename TErr>
+inline void
+_setDeleteTransitions(TState<TDistance, TFloat> & state,
+                      TPatternStore const & patternStore,
+                      TPattern const & pattern,
+                      TErr const errors,
+                      TErr const maxErrors)
+{
+    if (errors <= maxErrors)
+        state.transition[SEQAN_DELETE] = _getErrorPatternIndex(patternStore, pattern);
+    else
+        state.transition[SEQAN_DELETE] = -1;
+}
+
+template <template <typename, typename> class TState,
+          typename TFloat,
+          typename TPatternStore,
+          typename TPattern,
+          typename TErr>
+inline void
+_setDeleteTransitions(TState<HammingDistance, TFloat> & /*state*/,
+                      TPatternStore const & /*patternStore*/,
+                      TPattern const & /*pattern*/,
+                      TErr const /*errors*/,
+                      TErr const /*maxErrors*/)
+{
+    // no-op
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // Initialize states-string for edit/hamming-distance filters
@@ -710,13 +774,7 @@ void initPatterns(
         // prepend INSERT
         ++errors;
         insertValue(pattern, 0, SEQAN_INSERT);
-        if ((int)SEQAN_INSERT < (int)state.TRANSITIONS)
-        {
-            if (errors <= maxErrors)
-                state.transition[SEQAN_INSERT] = _getErrorPatternIndex(patternStore, pattern);
-            else
-                state.transition[SEQAN_INSERT] = -1;
-        }
+        _setInsertTransitions(state, patternStore, pattern, errors, maxErrors);
 
         // prepend MISMATCH and cut INSERTS
         errors -= _cutErrorPattern(pattern);
@@ -730,14 +788,8 @@ void initPatterns(
         }
 
         // prepend DELETE
-        if ((int)SEQAN_DELETE < (int)state.TRANSITIONS)
-        {
-            pattern[0] = SEQAN_DELETE;
-            if (errors <= maxErrors)
-                state.transition[SEQAN_DELETE] = _getErrorPatternIndex(patternStore, pattern);
-            else
-                state.transition[SEQAN_DELETE] = -1;
-        }
+        pattern[0] = SEQAN_DELETE;
+        _setDeleteTransitions(state, patternStore, pattern, errors, maxErrors);
 
         // prepend MATCH
         if ((int)SEQAN_MATCH < (int)state.TRANSITIONS)

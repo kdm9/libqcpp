@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@
 #include <seqan/index/pizzachili_api.h>
 #include <seqan/index/index_pizzachili_string.h>
 
-namespace SEQAN_NAMESPACE_MAIN {
+namespace seqan {
 
 /*!
  * @defgroup PizzaChiliIndexFibres Pizza &amp; Chili Index Fibres
@@ -54,9 +54,11 @@ namespace SEQAN_NAMESPACE_MAIN {
  * @see PizzaChiliIndex
  *
  * @tag PizzaChiliIndexFibres#PizzaChiliText
+ * @deprecated Module is outdated and is not maintained anymore. Will presumably be removed in the next major release.
  * @brief The original text the index is based on.
  *
  * @tag PizzaChiliIndexFibres#PizzaChiliCompressed
+ * @deprecated Module is outdated and is not maintained anymore. Will presumably be removed in the next major release.
  * @brief The compressed suffix array.
  */
 
@@ -70,6 +72,8 @@ typedef FibrePizzaChiliCompressed PizzaChiliCompressed;
 
 /*!
  * @class PizzaChiliIndex Pizza & Chili Index
+ *
+ * @deprecated Module is outdated and is not maintained anymore. Will presumably be removed in the next major release.
  *
  * @extends Index
  *
@@ -99,33 +103,40 @@ public:
     impl::index_t index_handle;
     Holder<String<TValue, PizzaChili<TSpec> > > text;
 
+    /*!
+     * @fn PizzaChiliIndex::Index
+     * @brief Constructor
+     *
+     * @signature Index::Index();
+     * @signature Index::Index(index);
+     * @signature Index::Index(text);
+     *
+     * @param[in] index Other Index object to copy from.
+     * @param[in] text  The text to be indexed.
+     */
+
     Index() : index_handle(0), text() { }
 
     Index(Index& other) : index_handle(0), text() {
-SEQAN_CHECKPOINT
         // Explicitly request the other's index text.
         setIndexText(*this, indexText(other));
     }
 
     Index(Index const& other) : index_handle(0), text() {
-SEQAN_CHECKPOINT
         // Explicitly request the other's index text.
         setIndexText(*this, indexText(other));
     }
 
     template <typename TOtherText>
     Index(TOtherText& txt) : index_handle(0), text() {
-SEQAN_CHECKPOINT
         setIndexText(*this, txt);
     }
 
     ~Index() {
-SEQAN_CHECKPOINT
         clear(*this);
     }
 
     Index& operator =(Index const& other) {
-SEQAN_CHECKPOINT
         if (this == &other)
             return *this;
 
@@ -158,7 +169,6 @@ namespace impl {
     template <typename TText, typename TSpec>
     inline void
     clearIndex(Index<TText, PizzaChili<TSpec> >& me) {
-SEQAN_CHECKPOINT
         typedef typename PizzaChiliCodeProvider<TSpec>::Type TCodeProvider;
 
         if (me.index_handle != 0) {
@@ -176,7 +186,6 @@ SEQAN_CHECKPOINT
 template <typename TText, typename TSpec>
 inline void
 clear(Index<TText, PizzaChili<TSpec> >& me) {
-SEQAN_CHECKPOINT
     impl::clearIndex(me);
     clear(me.text);
 }
@@ -188,28 +197,24 @@ namespace impl {
     template <typename TText, typename TSpec>
     inline char const*
     getOptionsString(Index<TText, PizzaChili<TSpec> >& /*me*/) {
-SEQAN_CHECKPOINT
         return "";
     }
 
     template <typename TText>
     inline char const*
     getOptionsString(Index<TText, PizzaChili<PizzaChiliSA> >& /*me*/) {
-SEQAN_CHECKPOINT
         return "copy_text";
     }
 
     template <typename TText>
     inline char const*
     getOptionsString(Index<TText, PizzaChili<PizzaChiliFM> >& /*me*/) {
-SEQAN_CHECKPOINT
         return "-a 0";
     }
 
     template <typename TText>
     inline char const*
     getOptionsString(Index<TText, PizzaChili<PizzaChiliRsa> >& /*me*/) {
-SEQAN_CHECKPOINT
         return "copy_text";
     }
 
@@ -220,14 +225,12 @@ SEQAN_CHECKPOINT
 template <typename TText, typename TSpec>
 inline typename Fibre<Index<TText, PizzaChili<TSpec> >, PizzaChiliText>::Type
 indexText(Index<TText, PizzaChili<TSpec> >& me) {
-SEQAN_CHECKPOINT
     return getFibre(me, PizzaChiliText());
 }
 
 template <typename TText, typename TSpec>
 inline typename Fibre<Index<TText, PizzaChili<TSpec> > const, PizzaChiliText>::Type
 indexText(Index<TText, PizzaChili<TSpec> > const& me) {
-SEQAN_CHECKPOINT
     return getFibre(me, PizzaChiliText());
 }
 
@@ -236,14 +239,12 @@ SEQAN_CHECKPOINT
 template <typename TText, typename TSpec>
 inline typename Fibre<Index<TText, PizzaChili<TSpec> > const, PizzaChiliText>::Type
 getFibre(Index<TText, PizzaChili<TSpec> > const& me, PizzaChiliText const) {
-SEQAN_CHECKPOINT
     return value(me.text);
 }
 
 template <typename TText, typename TSpec>
 inline typename Fibre<Index<TText, PizzaChili<TSpec> >, PizzaChiliText>::Type
 getFibre(Index<TText, PizzaChili<TSpec> >& me, PizzaChiliText const) {
-SEQAN_CHECKPOINT
     return value(me.text);
 }
 
@@ -252,14 +253,12 @@ SEQAN_CHECKPOINT
 template <typename TText, typename TSpec>
 inline bool
 indexSupplied(Index<TText, PizzaChili<TSpec> >& me, PizzaChiliCompressed const) {
-SEQAN_CHECKPOINT
     return me.index_handle != 0;
 }
 
 template <typename TText, typename TSpec>
 inline bool
 indexSupplied(Index<TText, PizzaChili<TSpec> >& me, PizzaChiliText const) {
-SEQAN_CHECKPOINT
     return length(value(me.text)) > 0;
 }
 
@@ -268,7 +267,6 @@ SEQAN_CHECKPOINT
 template <typename TText, typename TSpec>
 inline bool
 indexSolveDependencies(Index<TText, PizzaChili<TSpec> >& me, PizzaChiliCompressed const) {
-SEQAN_CHECKPOINT
     return indexSupplied(me, PizzaChiliText());
 }
 
@@ -357,7 +355,6 @@ inline bool open(
     Index<TText, PizzaChili<TSpec> >& me,
     char const* filename
 ) {
-SEQAN_CHECKPOINT
     typedef typename PizzaChiliCodeProvider<TSpec>::Type TCodeProvider;
     clear(me);
     impl::error_t e =
@@ -375,7 +372,6 @@ inline bool save(
     Index<TText, PizzaChili<TSpec> >& me,
     char const* filename
 ) {
-SEQAN_CHECKPOINT
     typedef typename PizzaChiliCodeProvider<TSpec>::Type TCodeProvider;
     // Before we can save the index we have to construct it, in case it isn't
     // already constructed.
@@ -388,6 +384,6 @@ SEQAN_CHECKPOINT
     return e == 0;
 }
 
-} // namespace SEQAN_NAMESPACE_MAIN
+} // namespace seqan
 
 #endif // SEQAN_HEADER_INDEX_PIZZACHILI_H

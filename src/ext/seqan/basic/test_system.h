@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -44,18 +44,18 @@
 #ifndef INCLUDE_SEQAN_BASIC_TEST_SYSTEM_H_
 #define INCLUDE_SEQAN_BASIC_TEST_SYSTEM_H_
 
-#ifdef PLATFORM_WINDOWS
+#ifdef STDLIB_VS
 #include <typeinfo>
-#endif  // #ifdef PLATFORM_WINDOWS
+#endif  // #ifdef STDLIB_VS
 
 #include <seqan/basic/fundamental_tags.h>
 
 #include <memory>
 #include <string>
 
-#ifdef PLATFORM_GCC
+#if !defined(STDLIB_VS)
 #include <cxxabi.h>
-#endif  // #ifdef PLATFORM_GCC
+#endif  // #if !defined(STDLIB_VS)
 
 namespace seqan {
 
@@ -91,7 +91,7 @@ public:
     std::string testCaseName;
     std::string testName;
     std::string typeName;
-    std::SEQAN_AUTO_PTR_NAME<Test> instance;
+    std::unique_ptr<Test> instance;
 
     TestDescription_(char const * testCaseName, char const * testName,
                      char const * typeName, Test * instance) :
@@ -173,6 +173,11 @@ public:
             }
             seqan::ClassTest::endTest();
         }
+
+        // explicitly delete heap allocated resources
+        for (auto test: instance.testDescriptions)
+            delete test;
+
         return seqan::ClassTest::endTestSuite();
     }
 };
@@ -225,15 +230,15 @@ public:
     static std::string getTypeName()
     {
         const char* const name = typeid(T).name();
-#ifdef PLATFORM_GCC
+#if !defined(STDLIB_VS)
         int status = 0;
         char* const readableName = abi::__cxa_demangle(name, 0, 0, &status);
         std::string nameString(status == 0 ? readableName : name);
         free(readableName);
         return nameString;
-#else  // #ifdef PLATFORM_GCC
+#else  // #if !defined(STDLIB_VS)
         return name;
-#endif  // #ifdef PLATFORM_GCC
+#endif  // #if !defined(STDLIB_VS)
     }
 
     static bool make(char const * testCaseName, char const * testName)

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@
 #ifndef SEQAN_HEADER_INDEX_DFI_H
 #define SEQAN_HEADER_INDEX_DFI_H
 
-namespace SEQAN_NAMESPACE_MAIN
+namespace seqan
 {
 
 
@@ -215,6 +215,20 @@ namespace SEQAN_NAMESPACE_MAIN
         TPredHull        predHull;
         TPred            pred;
 
+        /*!
+         * @fn IndexDfi::Index
+         * @brief Constructor
+         *
+         * @signature Index::Index();
+         * @signature Index::Index(index);
+         * @signature Index::Index(text[, predHull][, pred]);
+         *
+         * @param[in] index    Other Index object to copy from.
+         * @param[in] text     The text to be indexed.
+         * @param[in] predHull (TPredHull) A monotonic hull of TPred. (optional)
+         * @param[in] pred     (TPred) An arbitrary frequeny predicate. (optional)
+         */
+
         Index() {}
 
         Index(Index &other):
@@ -283,7 +297,6 @@ namespace SEQAN_NAMESPACE_MAIN
     typename Size< Index<StringSet<TText, TSpec>, IndexWotd<Dfi<TPredHull, TPred> > > >::Type
     _sortFirstWotdBucket(Index<StringSet<TText, TSpec>, IndexWotd<Dfi<TPredHull, TPred> > > &index)
     {
-    SEQAN_CHECKPOINT
         typedef Index<StringSet<TText, TSpec>, IndexWotd<Dfi<TPredHull, TPred> > >    TIndex;
         typedef typename Fibre<TIndex, WotdSA >::Type            TSA;
         typedef typename TIndex::TCounter                        TCounter;
@@ -376,7 +389,6 @@ namespace SEQAN_NAMESPACE_MAIN
         TEndPos right,
         TSize prefixLen)
     {
-    SEQAN_CHECKPOINT
         typedef Index<StringSet<TText, TSpec>, IndexWotd<Dfi<TPredHull, TPred> > >    TIndex;
         typedef typename Fibre<TIndex, WotdSA >::Type                TSA;
         typedef typename TIndex::TCounter                            TCounter;
@@ -522,7 +534,6 @@ namespace SEQAN_NAMESPACE_MAIN
         TSize dirOfs,
         TSize lcp)
     {
-    SEQAN_CHECKPOINT
         typedef Index<TText, IndexWotd<Dfi<TPredHull, TPred> > >    TIndex;
 
         typedef typename Fibre<TIndex, WotdDir>::Type        TDir;
@@ -559,12 +570,16 @@ namespace SEQAN_NAMESPACE_MAIN
                 *itDir = (index.sentinelBound - index.sentinelOcc) | orMask;    ++itDir;
                 *itDir = index.sentinelBound | index.UNEVALUATED;                ++itDir;
             } else
+            {
                 orMask |= index.LEAF;
-                for (TDirSize d = index.sentinelBound - index.sentinelOcc; d != index.sentinelBound; ++d)
-                {
-                    itPrev = itDir;
-                    *itDir = d | orMask;                                        ++itDir;
-                }
+            }
+            //NOTE(h-2): previosly the following block was indented, as though belonging to
+            //           to the else statement. If something here is unexpected, please investigate.
+            for (TDirSize d = index.sentinelBound - index.sentinelOcc; d != index.sentinelBound; ++d)
+            {
+                itPrev = itDir;
+                *itDir = d | orMask;                                        ++itDir;
+            }
         }
 
         for (; it != itEnd; ++it, ++bit, ++itEntry)

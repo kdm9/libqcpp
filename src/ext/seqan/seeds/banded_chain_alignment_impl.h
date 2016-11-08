@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -446,7 +446,7 @@ _computeCell(TDPScout & scout,
     typedef DPMetaColumn_<TDPProfile, TColumnDescriptor> TMetaColumnProfile;
 
     activeCell = _verticalCellInitialization(scout, traceMatrixNavigator);
-    assignValue(traceMatrixNavigator, +TraceBitMap_::NONE);
+    assignValue(traceMatrixNavigator, +TraceBitMap_<>::NONE);
     if (TrackingEnabled_<TMetaColumnProfile, TCellDescriptor>::VALUE)
         _applyBandedChainTracking(scout, traceMatrixNavigator, activeCell, TColumnDescriptor(), TCellDescriptor(), TDPProfile());
 }
@@ -468,7 +468,7 @@ _computeHorizontalInitCell(TDPScout & scout,
     typedef DPMetaColumn_<TDPProfile, TColumnDescriptor> TMetaColumnProfile;
 
     activeCell = _horizontalCellInitialization(scout, traceMatrixNavigator);
-    assignValue(traceMatrixNavigator, +TraceBitMap_::NONE);
+    assignValue(traceMatrixNavigator, +TraceBitMap_<>::NONE);
     if (TrackingEnabled_<TMetaColumnProfile, TCellDescriptor>::VALUE)
         _applyBandedChainTracking(scout, traceMatrixNavigator, activeCell, TColumnDescriptor(), TCellDescriptor(), TDPProfile());
 }

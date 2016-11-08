@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -371,7 +371,6 @@ struct MMap;
             next(other.next)
         {}
 
-#ifdef SEQAN_CXX11_STANDARD
         Buffer(Buffer && other) :
             TBase(other),
             dirty(other.dirty),
@@ -380,7 +379,7 @@ struct MMap;
             status(other.status),
             next(other.next)
         {}
-#endif
+
     private:
         Buffer(Buffer const &)
         {}
@@ -438,7 +437,6 @@ struct MMap;
             dirty(other.dirty)
         {}
 
-#ifdef SEQAN_CXX11_STANDARD
         Buffer(Buffer && other) :
             begin(other.begin),
             end(other.end),
@@ -450,7 +448,7 @@ struct MMap;
             pageNo(other.pageNo),
             dirty(other.dirty)
         {}
-#endif
+
         template <typename TPos>
         inline TValue &
         operator[] (TPos i)
@@ -640,7 +638,7 @@ struct MMap;
     {
         if (pf.begin)
         {
-#ifdef PLATFORM_WINDOWS
+#ifdef STDLIB_VS
 #else
             munmap(pf.begin, length(pf) * sizeof(TValue));
 #endif
@@ -657,7 +655,7 @@ struct MMap;
         pf.status = READY;
         SEQAN_ASSERT_GT(size, 0);
 
-#ifdef PLATFORM_WINDOWS
+#ifdef STDLIB_VS
 #if 0
         DWORD prot = 0;
         DWORD access = 0;
@@ -720,7 +718,7 @@ struct MMap;
         pf.status = READY;
         SEQAN_ASSERT_GT(size, 0u);
 
-#ifdef PLATFORM_WINDOWS
+#ifdef STDLIB_VS
 #else
         pf.begin = (TValue*)mmap(NULL, size * sizeof(TValue), PROT_READ | PROT_WRITE, MAP_SHARED, file.handle, (TPos)pf.pageNo * (TPos)capacity(pf) * (TPos)sizeof(TValue));
 

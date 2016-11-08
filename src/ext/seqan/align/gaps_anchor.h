@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -79,7 +79,7 @@ inline void _reinitAnchorGaps(Gaps<TSequence, AnchorGaps<TGapAnchors> > & gaps);
  * @signature template <typename TSource, typename TGapAnchors = String<GapAnchor<unsigned> > >
  *            class Gaps<TSource, AnchorGaps<TGapAnchors> >;
  *
- * @tparam TSource     The type of the underling sequence.
+ * @tparam TSource     The type of the underlying sequence.
  * @tparam TGapAnchors The type of the string of @link GapAnchor @endlink objects.
  */
 
@@ -92,7 +92,7 @@ inline void _reinitAnchorGaps(Gaps<TSequence, AnchorGaps<TGapAnchors> > & gaps);
  * @signature Gaps::Gaps(anchors);
  *
  * @param[in] other   Another @link AnchorGaps @endlink object to copy from.
- * @param[in] source  The underling sequence to construct the Gaps object from.
+ * @param[in] source  The underlying sequence to construct the Gaps object from.
  * @param[in] anchors The string of anchors to construct with.
  *
  * An AnchorGaps object has a default constructor, can be constructed from the underlying source, and/or a string of
@@ -220,8 +220,14 @@ public:
     // Array Subscript Operator
     // -----------------------------------------------------------------------
 
-    inline TValue_
-    operator[](TPosition_ clippedViewPos) const
+    inline typename Reference<Gaps>::Type
+    operator[](TPosition_ const clippedViewPos)
+    {
+        return value(*this, clippedViewPos);
+    }
+
+    inline typename Reference<Gaps const>::Type
+    operator[](TPosition_ const clippedViewPos) const
     {
         return value(*this, clippedViewPos);
     }
@@ -342,7 +348,7 @@ _getAnchor(TAnchor & anchor, Gaps<TSource, AnchorGaps<TGapAnchors> > const & me,
                     anchor.seqPos = maxValue(anchor.gapPos);
                 // if the sequence has a length > 0, but there is an anchor behind the end
                 // -> elongate sequence
-                else if ((__int64)anchor.seqPos < (__int64)back(_dataAnchors(me)).seqPos)
+                else if ((int64_t)anchor.seqPos < (int64_t)back(_dataAnchors(me)).seqPos)
                     anchor.seqPos = back(_dataAnchors(me)).seqPos;
             }
             anchor.gapPos = maxValue(anchor.gapPos);
@@ -462,24 +468,6 @@ insertGaps(Gaps<TSequence, AnchorGaps<TGapAnchors> > & gaps, TPosition clippedVi
 }
 
 // ----------------------------------------------------------------------------
-// Function value()
-// ----------------------------------------------------------------------------
-
-template <typename TSequence, typename TGapAnchors, typename TPosition>
-inline typename Value<Gaps<TSequence, AnchorGaps<TGapAnchors> > >::Type
-value(Gaps<TSequence, AnchorGaps<TGapAnchors> > const & gaps, TPosition clippedViewPos)
-{
-    // TODO(holtgrew): Implement without iterator?
-    typedef Gaps<TSequence, AnchorGaps<TGapAnchors> > TGaps;
-    typedef typename Iterator<TGaps const>::Type TIter;
-
-    TIter it = iter(gaps, clippedViewPos);
-    if (isGap(it))
-        return '-';
-    return *it;
-}
-
-// ----------------------------------------------------------------------------
 // Function removeGaps()
 // ----------------------------------------------------------------------------
 
@@ -518,7 +506,6 @@ template <typename TSource, typename TGapAnchors>
 inline typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > >::Type
 begin(Gaps<TSource, AnchorGaps<TGapAnchors> > & me, Standard)
 {
-    SEQAN_CHECKPOINT
     return typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > >::Type(me);
 }
 
@@ -526,7 +513,6 @@ template <typename TSource, typename TGapAnchors>
 inline typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > const>::Type
 begin(Gaps<TSource, AnchorGaps<TGapAnchors> > const & me, Standard)
 {
-    SEQAN_CHECKPOINT
     return typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > const>::Type(me);
 }
 
@@ -534,7 +520,6 @@ template <typename TSource, typename TGapAnchors>
 inline typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > >::Type
 begin(Gaps<TSource, AnchorGaps<TGapAnchors> > & me, Rooted)
 {
-    SEQAN_CHECKPOINT
     return typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > >::Type(me);
 }
 
@@ -542,7 +527,6 @@ template <typename TSource, typename TGapAnchors>
 inline typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > const>::Type
 begin(Gaps<TSource, AnchorGaps<TGapAnchors> > const & me, Rooted)
 {
-    SEQAN_CHECKPOINT
     return typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > const>::Type(me);
 }
 
@@ -554,7 +538,6 @@ template <typename TSource, typename TGapAnchors>
 inline typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > >::Type
 end(Gaps<TSource, AnchorGaps<TGapAnchors> > & me, Standard)
 {
-    SEQAN_CHECKPOINT
     return typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > >::Type(me, length(me));
 }
 
@@ -562,7 +545,6 @@ template <typename TSource, typename TGapAnchors>
 inline typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > const>::Type
 end(Gaps<TSource, AnchorGaps<TGapAnchors> > const & me, Standard)
 {
-    SEQAN_CHECKPOINT
     return typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > const>::Type(me, length(me));
 }
 
@@ -570,7 +552,6 @@ template <typename TSource, typename TGapAnchors>
 inline typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > >::Type
 end(Gaps<TSource, AnchorGaps<TGapAnchors> > & me, Rooted)
 {
-    SEQAN_CHECKPOINT
     return typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > >::Type(me, length(me));
 }
 
@@ -578,7 +559,6 @@ template <typename TSource, typename TGapAnchors>
 inline typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > const>::Type
 end(Gaps<TSource, AnchorGaps<TGapAnchors> > const & me, Rooted)
 {
-    SEQAN_CHECKPOINT
     return typename Iterator<Gaps<TSource, AnchorGaps<TGapAnchors> > const>::Type(me, length(me));
 }
 
@@ -711,7 +691,7 @@ assignSource(Gaps<TSequence, AnchorGaps<TGapAnchor> > & gaps, TSequence2 const &
  *
  * @return TPos Position in sequence space (Metafunction: @link ContainerConcept#Position @endlink).
  *
- * See the example below to construct the Gaps ojbect.  Note that this construction is fast since it ionly a thing wrapper
+ * See the example below to construct the Gaps object.  Note that this construction is fast since it is only a thin wrapper
  * around underlying objects.
  *
  * @section Examples
@@ -756,13 +736,13 @@ assignSource(Gaps<TSequence, AnchorGaps<TGapAnchor> > & gaps, TSequence2 const &
  * @endcode
  */
 
-template <typename TSource, typename TGapAnchors, typename TPosition>
+template <typename TSource, typename TGapAnchors, typename TPosition, typename TProjectionDir>
 inline TPosition
-positionGapToSeq(Gaps<TSource, AnchorGaps<TGapAnchors> > const & me, TPosition pos)
+positionGapToSeq(Gaps<TSource, AnchorGaps<TGapAnchors> > const & me, TPosition const pos, TProjectionDir const & /*dir*/)
 {
     typedef typename Position<typename Value<TGapAnchors>::Type>::Type TAnchorPos;
 
-    GapAnchor<__int64> prevAnchor, nextAnchor;
+    GapAnchor<int64_t> prevAnchor, nextAnchor;
     TPosition           seqPos;
     int                 anchorIdx;
 
@@ -786,11 +766,20 @@ positionGapToSeq(Gaps<TSource, AnchorGaps<TGapAnchors> > const & me, TPosition p
     _getAnchor(prevAnchor, me, anchorIdx);
     _getAnchor(nextAnchor, me, anchorIdx + 1);
 
+    // View position points to a source.
     if (nextAnchor.seqPos - prevAnchor.seqPos > (int)pos - prevAnchor.gapPos)
         seqPos = prevAnchor.seqPos + (pos - prevAnchor.gapPos);
-    else
-        seqPos = nextAnchor.seqPos;
+    else  // View position points to a gap
+        seqPos = (IsSameType<TProjectionDir, RightOfViewPos>::VALUE) ? nextAnchor.seqPos :
+                    (_max(static_cast<TPosition>(nextAnchor.seqPos) - 1, static_cast<TPosition>(0)));
     return seqPos;
+}
+
+template <typename TSource, typename TGapAnchors, typename TPosition>
+inline TPosition
+positionGapToSeq(Gaps<TSource, AnchorGaps<TGapAnchors> > const & me, TPosition pos)
+{
+    return positionGapToSeq(me, pos, RightOfViewPos());
 }
 
 // ----------------------------------------------------------------------------
@@ -804,7 +793,7 @@ positionGapToSeq(Gaps<TSource, AnchorGaps<TGapAnchors> > const & me, TPosition p
  * @signature TPos positionSeqToGap(gaps, pos);
  *
  * @param[in] gaps The AnchorGaps object to use for the translation.
- * @param[in] pos  The gap space position to conver to sequence space.
+ * @param[in] pos  The gap space position to convert to sequence space.
  *
  * @return TPos The resulting position in sequence space (Metafunction: @link ContainerConcept#Position @endlink).
  *
@@ -843,7 +832,7 @@ positionSeqToGap(Gaps<TSource, AnchorGaps<TGapAnchors> > const & me, TPosition p
 {
     typedef typename Position<typename Value<TGapAnchors>::Type>::Type TAnchorPos;
 
-    GapAnchor<__int64>  prevAnchor, nextAnchor;
+    GapAnchor<int64_t>  prevAnchor, nextAnchor;
     TPosition           gapPos;
     int                 anchorIdx;
 
@@ -880,7 +869,7 @@ positionSeqToGap(Gaps<TSource, AnchorGaps<TGapAnchors> > const & me, TPosition p
 
 template <typename TSequence, typename TGapAnchors, typename TPosition>
 inline typename Position<Gaps<TSequence, AnchorGaps<TGapAnchors> > >::Type
-toViewPosition(Gaps<TSequence, AnchorGaps<TGapAnchors> > const & gaps, TPosition sourcePosition)
+toViewPosition(Gaps<TSequence, AnchorGaps<TGapAnchors> > const & gaps, TPosition const sourcePosition)
 {
     return positionSeqToGap(gaps, sourcePosition) - gaps.data_viewCutBegin - gaps.data_cutBegin;
 }
@@ -889,13 +878,15 @@ toViewPosition(Gaps<TSequence, AnchorGaps<TGapAnchors> > const & gaps, TPosition
 // Function toSourcePosition()
 // ----------------------------------------------------------------------------
 
-template <typename TSequence, typename TGapAnchors, typename TPosition>
+template <typename TSequence, typename TGapAnchors, typename TPosition, typename TProjectionDir>
 inline typename Position<TSequence>::Type
-toSourcePosition(Gaps<TSequence, AnchorGaps<TGapAnchors> > const & gaps, TPosition clippedViewPos)
+toSourcePosition(Gaps<TSequence, AnchorGaps<TGapAnchors> > const & gaps,
+                 TPosition const clippedViewPos,
+                 TProjectionDir const /*dir*/)
 {
     // TODO(weese): possibly change positionGapToSeq interface to consider a different zero
     // shifted by data_cutBegin
-    return positionGapToSeq(gaps, clippedViewPos + gaps.data_viewCutBegin + gaps.data_cutBegin);
+    return positionGapToSeq(gaps, clippedViewPos + gaps.data_viewCutBegin + gaps.data_cutBegin, TProjectionDir());
 }
 
 // ----------------------------------------------------------------------------

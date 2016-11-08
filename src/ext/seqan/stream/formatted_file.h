@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -354,7 +354,7 @@ struct FormattedFile
 
         _getCompressionExtensions(extensions,
                                   TFileFormats(),
-                                  CompressedFileTypesWithoutBgzf_(),
+                                  CompressedFileTypes(),
                                   false);
         return extensions;
     }
@@ -609,10 +609,11 @@ _checkThatStreamOutputFormatIsSet(FormattedFile<TFileFormat, Output, TSpec> cons
  * @fn FormattedFile#open
  * @brief Open a FormattedFile.
  *
- * @signature bool open(file, fileName);
+ * @signature bool open(file, fileName, mode);
  *
  * @param[in,out] file The FormattedFile to open.
  * @param[in]     fileName The name of the file open.
+ * @param[in]     mode The open mode: @link FileOpenMode @endlink.
  * @return bool <tt>true</tt> in the case of success, <tt>false</tt> otherwise.
  */
 
@@ -840,7 +841,7 @@ _getCompressionExtensions(
     typedef Tag<TFormat_> TFormat;
 
     std::vector<std::string> compressionExtensions;
-    _getFileExtensions(compressionExtensions, compress, primaryExtensionOnly);
+    _getFileExtensions(compressionExtensions, compress, true);
 
     unsigned len = (primaryExtensionOnly)? 1 : sizeof(FileExtensions<TFormat>::VALUE) / sizeof(char*);
     for (unsigned i = 0; i < len; ++i)

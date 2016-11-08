@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -107,12 +107,16 @@ public:
     TCargo_ _cargo;
 
     // Default constructor.
-    ModifiedString() : _host(), _cargo()
+    ModifiedString() :
+        _host(),
+        _cargo()
     {}
 
     // Construct with the actual host.
     explicit
-    ModifiedString(typename Parameter_<THost>::Type host) : _host(_toPointer(host)), _cargo()
+    ModifiedString(typename Parameter_<THost>::Type host) :
+        _host(_toPointer(host)),
+        _cargo()
     {}
 
     // Constructor for creating a ModifiedString with const host from a non-const host.
@@ -120,7 +124,8 @@ public:
     explicit
     ModifiedString(THost_ & host,
                    SEQAN_CTOR_ENABLE_IF(IsConstructible<THost, THost_>)) :
-            _host(_toPointer(host)), _cargo()
+            _host(_toPointer(host)),
+            _cargo()
     {
         ignoreUnusedVariableWarning(dummy);
     }
@@ -128,9 +133,12 @@ public:
     // Constructor for an inner host type; forward host to hosted type.
     template <typename THost_>
     explicit
-    ModifiedString(THost_ & host,
-                   SEQAN_CTOR_ENABLE_IF(IsAnInnerHost<THost, THost_>)) :
-            _host(host), _cargo()
+    ModifiedString(THost_ && host,
+                   SEQAN_CTOR_ENABLE_IF(IsAnInnerHost<
+                                            typename RemoveReference<THost>::Type,
+                                            typename RemoveReference<THost_>::Type >)) :
+            _host(std::forward<THost_>(host)),
+            _cargo()
     {
         ignoreUnusedVariableWarning(dummy);
     }
@@ -151,7 +159,7 @@ public:
 
     ModifiedString & operator= (THost & other)
     {
-        _host = _toPointer(other);
+        assign(*this, other);
         return *this;
     }
 };
@@ -325,16 +333,16 @@ struct Iterator<ModifiedString<THost, TSpec> const, Rooted>
 };
 
 // VARIANT B: const ModifiedString propagates its constness upwards
-// template <typename THost, typename TSpec >
-// struct Iterator<ModifiedString<THost, TSpec> const, Standard>
-// {
+//template <typename THost, typename TSpec >
+//struct Iterator<ModifiedString<THost, TSpec> const, Standard>
+//{
 //    typedef ModifiedIterator<typename Iterator<THost const, Standard>::Type, TSpec> Type;
-// };
-// template <typename THost, typename TSpec >
-// struct Iterator<ModifiedString<THost, TSpec> const, Rooted>
-// {
+//};
+//template <typename THost, typename TSpec >
+//struct Iterator<ModifiedString<THost, TSpec> const, Rooted>
+//{
 //    typedef ModifiedIterator<typename Iterator<THost const, Rooted>::Type, TSpec> Type;
-// };
+//};
 
 // --------------------------------------------------------------------------
 // Metafunction Host
@@ -364,10 +372,10 @@ struct Host<ModifiedString<THost, TSpec> const > {
 };
 
 // VARIANT B: const ModifiedString propagates its constness upwards
-// template <typename THost, typename TSpec >
-// struct Host<ModifiedString<THost, TSpec> const > {
+//template <typename THost, typename TSpec >
+//struct Host<ModifiedString<THost, TSpec> const > {
 //    typedef typename ConvertArrayToPointer<THost const>::Type Type;
-// };
+//};
 
 // --------------------------------------------------------------------------
 // Metafunction Parameter_
@@ -475,14 +483,14 @@ _toPointer(ModifiedString<THost, TSpec> const & me)
 // --------------------------------------------------------------------------
 
 template <typename THost, typename TSpec>
-SEQAN_HOST_DEVICE inline typename Parameter_<ModifiedString<THost, TSpec> >::Type
+inline typename Parameter_<ModifiedString<THost, TSpec> >::Type
 _toParameter(ModifiedString<THost, TSpec> & me)
 {
     return me;
 }
 
 template <typename THost, typename TSpec>
-SEQAN_HOST_DEVICE inline typename Parameter_<ModifiedString<THost, TSpec> const >::Type
+inline typename Parameter_<ModifiedString<THost, TSpec> const >::Type
 _toParameter(ModifiedString<THost, TSpec> const & me)
 {
     return me;
@@ -825,6 +833,17 @@ getObjectId(ModifiedString<THost, TSpec> const & me)
     return getObjectId(host(me));
 }
 
+// ----------------------------------------------------------------------------
+// Function assign()
+// ----------------------------------------------------------------------------
+
+template <typename THost, typename TSpec, typename TOtherHost, typename TOtherSpec>
+inline void assign(ModifiedString<THost, TSpec> & me, ModifiedString<TOtherHost, TOtherSpec> const & other)
+{
+    setHost(me, host(other));
+    assign(cargo(me), cargo(other));
+}
+
 // --------------------------------------------------------------------------
 // Function open()
 // --------------------------------------------------------------------------
@@ -864,6 +883,14 @@ save(StringSet<ModifiedString<THost, TSpec>, Owner<ConcatDirect<TSpec2> > > cons
 {
     return true; // NOOP; this has to be done manually right now
 }
+
+// --------------------------------------------------------------------------
+// Function clear()
+// --------------------------------------------------------------------------
+
+template <typename THost, typename TSpec >
+inline void clear(ModifiedString<THost, TSpec> &)
+{}
 
 }  // namespace seqan
 

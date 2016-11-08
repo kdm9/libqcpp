@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -357,24 +357,6 @@ writeRecords(FormattedFile<Bam, Output, TSpec> & file, TRecords const & records)
     }
     for (int i = 0; i < (int)length(records); ++i)
         write(file.iter, buffers[i]);
-}
-
-// ----------------------------------------------------------------------------
-// Function getFileExtensions()
-// ----------------------------------------------------------------------------
-// NOTE(h-2): this is overloaded so we get Bgzf in addition to other
-// compressions which is crucial for Bam
-
-template <typename TDirection, typename TSpec>
-static std::vector<std::string>
-getFileExtensions(FormattedFile<Bam, TDirection, TSpec> const &)
-{
-    std::vector<std::string> extensions;
-    _getCompressionExtensions(extensions,
-                              typename FormattedFile<Bam, TDirection, TSpec>::TFileFormats(),
-                              CompressedFileTypes(),
-                              false);
-    return extensions;
 }
 
 }  // namespace seqan

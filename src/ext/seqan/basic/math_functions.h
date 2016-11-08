@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,6 @@ namespace seqan {
 template <typename TValue, typename TExponent>
 inline TValue _intPow(TValue a, TExponent b)
 {
-    SEQAN_CHECKPOINT;
     TValue ret = 1;
     while (b != 0) {
         if (b & 1) ret *= a;
@@ -143,7 +142,7 @@ log2(T val)
 // we define our own Min/Max functions
 
 template<typename Tx_>
-SEQAN_HOST_DEVICE inline
+inline
 const Tx_& _min(const Tx_& _Left, const Tx_& Right_)
 {   // return smaller of _Left and Right_
     if (_Left < Right_)
@@ -153,7 +152,7 @@ const Tx_& _min(const Tx_& _Left, const Tx_& Right_)
 }
 
 template<typename Tx_, typename Ty_>
-SEQAN_HOST_DEVICE inline
+inline
 Tx_ _min(const Tx_& _Left, const Ty_& Right_)
 {   // return smaller of _Left and Right_
     return (Right_ < _Left ? Right_ : _Left);

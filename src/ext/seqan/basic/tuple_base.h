@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // Copyright (c) 2013 NVIDIA Corporation
 // All rights reserved.
 //
@@ -100,22 +100,22 @@ struct Tuple
     // TODO(holtgrew): Return Value<>::Type?
 
     template <typename TPos>
-    SEQAN_HOST_DEVICE inline
+    inline
     typename StoredTupleValue_<TValue>::Type &
     operator[](TPos k)
     {
-        SEQAN_ASSERT_GEQ(static_cast<__int64>(k), 0);
-        SEQAN_ASSERT_LT(static_cast<__int64>(k), static_cast<__int64>(SIZE));
+        SEQAN_ASSERT_GEQ(static_cast<int64_t>(k), 0);
+        SEQAN_ASSERT_LT(static_cast<int64_t>(k), static_cast<int64_t>(SIZE));
         return i[k];
     }
 
     template <typename TPos>
-    SEQAN_HOST_DEVICE inline
+    inline
     typename StoredTupleValue_<TValue>::Type const &
     operator[](TPos k) const
     {
-        SEQAN_ASSERT_GEQ(static_cast<__int64>(k), 0);
-        SEQAN_ASSERT_LT(static_cast<__int64>(k), static_cast<__int64>(SIZE));
+        SEQAN_ASSERT_GEQ(static_cast<int64_t>(k), 0);
+        SEQAN_ASSERT_LT(static_cast<int64_t>(k), static_cast<int64_t>(SIZE));
         return i[k];
     }
 
@@ -130,9 +130,7 @@ struct Tuple
 };
 
 
-#ifdef PLATFORM_WINDOWS
-    #pragma pack(push,1)
-#endif
+#pragma pack(push,1)
 template <typename TValue, unsigned SIZE>
 struct Tuple<TValue, SIZE, Pack>
 {
@@ -152,8 +150,8 @@ struct Tuple<TValue, SIZE, Pack>
     inline typename StoredTupleValue_<TValue>::Type &
     operator[](TPos k)
     {
-        SEQAN_ASSERT_GEQ(static_cast<__int64>(k), 0);
-        SEQAN_ASSERT_LT(static_cast<__int64>(k), static_cast<__int64>(SIZE));
+        SEQAN_ASSERT_GEQ(static_cast<int64_t>(k), 0);
+        SEQAN_ASSERT_LT(static_cast<int64_t>(k), static_cast<int64_t>(SIZE));
         return i[k];
     }
 
@@ -161,8 +159,8 @@ struct Tuple<TValue, SIZE, Pack>
     inline typename StoredTupleValue_<TValue>::Type const &
     operator[](TPos k) const
     {
-        SEQAN_ASSERT_GEQ(static_cast<__int64>(k), 0);
-        SEQAN_ASSERT_LT(static_cast<__int64>(k), static_cast<__int64>(SIZE));
+        SEQAN_ASSERT_GEQ(static_cast<int64_t>(k), 0);
+        SEQAN_ASSERT_LT(static_cast<int64_t>(k), static_cast<int64_t>(SIZE));
         return i[k];
     }
 
@@ -174,14 +172,8 @@ struct Tuple<TValue, SIZE, Pack>
     {
         return i[k] = source;
     }
-}
-#ifndef PLATFORM_WINDOWS
-    __attribute__((packed))
-#endif
-    ;
-#ifdef PLATFORM_WINDOWS
-      #pragma pack(pop)
-#endif
+};
+#pragma pack(pop)
 
 //template <typename TValue, unsigned SIZE>
 //const unsigned Tuple<TValue, SIZE, Pack>::SIZE = SIZE;
@@ -608,6 +600,19 @@ operator+(Tuple<TValue, SIZE, TSpecL> const & left,
           Tuple<TValue, SIZE, TSpecR> const & right)
 {
     Tuple<TValue, SIZE, TSpecL>  tuple;
+
+    for (unsigned j = 0; j < SIZE; ++j)
+        tuple[j] = left[j] + right[j];
+
+    return tuple;
+}
+
+template <typename TValue1, unsigned SIZE, typename TSpecL, typename TValue2, typename TSpecR>
+inline Tuple<TValue1, SIZE, TSpecL>
+operator+(Tuple<TValue1, SIZE, TSpecL> const & left,
+          Tuple<TValue2, SIZE, TSpecR> const & right)
+{
+    Tuple<TValue1, SIZE, TSpecL>  tuple;
 
     for (unsigned j = 0; j < SIZE; ++j)
         tuple[j] = left[j] + right[j];
