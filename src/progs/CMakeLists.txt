@@ -8,9 +8,3 @@ ENDIF()
 ADD_EXECUTABLE(trimit trimit.cc)
 TARGET_LINK_LIBRARIES(trimit ${QCPP} ${DEPENDS_LIBS})
 INSTALL(TARGETS trimit DESTINATION "bin")
-
-ADD_EXECUTABLE(lenfilter lenfilter.cc)
-TARGET_LINK_LIBRARIES(lenfilter ${QCPP} ${DEPENDS_LIBS})
-
-ADD_EXECUTABLE(tassel_fixer tassel_fixer.cc)
-TARGET_LINK_LIBRARIES(tassel_fixer ${QCPP} ${DEPENDS_LIBS})
