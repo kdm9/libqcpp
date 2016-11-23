@@ -1,0 +1,1 @@
+../src/ext/seqan-2.2.0/share/cmake/Modules/FindSeqAn.cmake

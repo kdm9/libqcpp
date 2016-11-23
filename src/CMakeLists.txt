@@ -31,14 +31,18 @@ SET(LIBQCPP_SRC
     qc-quality.cc
     )
 
-ADD_LIBRARY(libqcpp SHARED ${LIBQCPP_SRC})
-SET_TARGET_PROPERTIES(libqcpp PROPERTIES SONAME_VERSION 0 VERSION 0)
-SET_TARGET_PROPERTIES(libqcpp PROPERTIES OUTPUT_NAME qcpp)
-TARGET_LINK_LIBRARIES(libqcpp ${DEPENDS_LIBS})
+add_library(libqcpp SHARED ${LIBQCPP_SRC})
+set_target_properties(libqcpp PROPERTIES SONAME_VERSION 0 VERSION 0)
+set_target_properties(libqcpp PROPERTIES OUTPUT_NAME qcpp)
+target_link_libraries(libqcpp ${QCPPDEPS_LIBS})
+target_include_directories(libqcpp PUBLIC ${QCPPDEPS_INCLUDE_DIRS})
+target_compile_definitions(libqcpp PUBLIC ${QCPPDEPS_DEFINITIONS})
 
 ADD_LIBRARY(libqcppa STATIC ${LIBQCPP_SRC})
 SET_TARGET_PROPERTIES(libqcppa PROPERTIES OUTPUT_NAME qcpp)
-TARGET_LINK_LIBRARIES(libqcppa ${DEPENDS_LIBS})
+target_link_libraries(libqcppa ${QCPPDEPS_LIBS})
+target_include_directories(libqcppa PUBLIC ${QCPPDEPS_INCLUDE_DIRS})
+target_compile_definitions(libqcppa PUBLIC ${QCPPDEPS_DEFINITIONS})
 
 INSTALL(TARGETS libqcpp libqcppa DESTINATION "lib")
 INSTALL(FILES ${QCPP_HEADERS} DESTINATION "include")
