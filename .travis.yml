@@ -5,25 +5,25 @@ env:
   - BUILD_TYPE=Release
   - BUILD_TYPE=Debug
 
-compiler:
-- gcc
-
 sudo: required
-
 dist: trusty
 
 notifications:
   email:
-  - spam@kdmurray.id.au
+  - kdmfoss@gmail.com
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - libyaml-cpp-dev
       - libboost-dev
       - libbz2-dev
       - zlib1g-dev
       - python-pip
+      - gcc-5
+      - g++-5
 
 before_install:
   - pip install --user -r docs/requirements.txt
@@ -32,7 +32,9 @@ before_install:
 
 script:
   - cd build
-  - cmake .. -DCMAKE_INSTALL_PREFIX=../target -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  - CC=gcc-5 CXX=g++-5 cmake ..
+             -DCMAKE_INSTALL_PREFIX=../target
+             -DCMAKE_BUILD_TYPE=$BUILD_TYPE
   - make
   - ctest --verbose
   - make install
