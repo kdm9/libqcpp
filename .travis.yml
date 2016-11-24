@@ -57,3 +57,4 @@ deploy:
     - "*.sha512sums"
   on:
     repo: kdmurray91/libqcpp
+    tags: true
