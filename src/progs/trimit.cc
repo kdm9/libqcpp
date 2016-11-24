@@ -38,7 +38,6 @@
 #include "qc-measure.hh"
 #include "qc-length.hh"
 #include "qc-qualtrim.hh"
-#include "qc-gbs.hh"
 #include "qc-adaptor.hh"
 
 
