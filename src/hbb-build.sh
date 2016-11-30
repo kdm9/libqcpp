@@ -16,7 +16,7 @@ export  CMAKE_PREFIX_PATH=/hbb_exe
 # DEPS #
 ########
 
-# Compile & install yaml-cpp 
+# Compile & install yaml-cpp
 curl -LSO https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-${YAMLCPP_VER}.tar.gz
 tar xf yaml-cpp*.tar.gz
 pushd yaml-cpp*/
