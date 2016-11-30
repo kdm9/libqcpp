@@ -35,8 +35,8 @@ OPTION(ENABLE_TSAN "Build with ThreadSanitizer" OFF)
 
 if (STATIC_BINARIES)
     message(STATUS "Building static ${PROJECT_NAME} binaries")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static ")
-    #set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++")
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 endif()
 
 ###############################
