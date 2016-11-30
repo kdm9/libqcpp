@@ -1,15 +1,9 @@
-GPGKEY 		= "E56C E72C 8060 C9F9 5F6B  5E72 0FEB 966A 205B 4780"
-HBB_DOCKER 	= docker run -t -i --rm -v $(shell pwd):/io \
-			  		phusion/holy-build-box-64:latest bash
-
-DEP_TARS_	= yaml-cpp.tar.gz boost.tar.bz2 libbz2.tar.gz
-DEP_TARS 	= $(foreach dep,$(DEP_TARS_),deps/$(dep))
-
-VERSION		= $(shell git describe)
-PREFIXDIR	= ./libqcpp_$(VERSION)_amd64
-QCPP_TARS	= trimit_$(VERSION)_amd64.tar.gz libqcpp_$(VERSION)_amd64.tar.gz
+HBB_DOCKER 	 = docker run -t -i --rm -v $(shell pwd):/io kdmurray91/kdm-hbb-64:latest bash
+VERSION      = $(shell git describe --match '[[:digit:]]*')
+PREFIXDIR    = ./libqcpp_$(VERSION)_amd64
+QCPP_TARS    = trimit_$(VERSION)_amd64.tar.gz libqcpp_$(VERSION)_amd64.tar.gz
 QCPP_TARSUMS = $(foreach tar,$(QCPP_TARS),$(tar).sha512sums)
-QCPP_SIGS   = $(foreach tar,$(QCPP_TARS),$(tar).asc)
+QCPP_SIGS    = $(foreach tar,$(QCPP_TARS),$(tar).asc)
 
 .PHONY: all clean cleandep sign
 all: $(QCPP_TARS) $(QCPP_TARSUMS)
@@ -20,20 +14,12 @@ clean:
 	rm -rf libqcpp_*_amd64 trimit_*_amd64
 	rm -f libqcpp_*_amd64.tar* trimit_*_amd64.tar*
 
-cleandep:
-	rm -rf deps
-
-libqcpp_$(VERSION)_amd64: src/hbb-build.sh $(DEP_TARS) .git/index
+libqcpp_$(VERSION)_amd64: src/hbb-build.sh .git/refs/tags
 	$(HBB_DOCKER) /io/$< $(VERSION)
-
-
+	mv static_build $@
 
 %.sha512sums: %
 	sha512sum $< >$@
-
-%.asc: %
-	gpg --armour --local-user $(GPGKEY) --detach-sign $<
-
 
 trimit_$(VERSION)_amd64.tar.gz: libqcpp_$(VERSION)_amd64
 	mkdir -p trimit_$(VERSION)_amd64
@@ -42,15 +28,3 @@ trimit_$(VERSION)_amd64.tar.gz: libqcpp_$(VERSION)_amd64
 
 libqcpp_$(VERSION)_amd64.tar.gz: libqcpp_$(VERSION)_amd64
 	tar czf $@ --exclude=bin libqcpp_$(VERSION)_amd64
-
-deps/yaml-cpp.tar.gz:
-	mkdir -p deps
-	wget -O $@ https://github.com/jbeder/yaml-cpp/archive/master.tar.gz
-
-deps/boost.tar.bz2:
-	mkdir -p deps
-	wget -O $@ http://downloads.sourceforge.net/project/boost/boost/1.60.0/boost_1_60_0.tar.bz2
-
-deps/libbz2.tar.gz:
-	mkdir -p deps
-	wget -O $@ http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
