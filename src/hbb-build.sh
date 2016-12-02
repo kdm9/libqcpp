@@ -29,8 +29,6 @@ make install
 popd
 rm -rf yaml-cpp*
 
-yum install -y git
-
 #########
 # BUILD #
 #########
@@ -43,9 +41,8 @@ chown 1000:1000 -R $prefix
 
 # Clone to builddir
 builddir=$(mktemp -d)
-git clone /io $builddir
 pushd $builddir
-git reset --hard HEAD
+tar xvf /io/libqcpp_${QCPP_VERSION}.tar
 
 mkdir build
 cd build

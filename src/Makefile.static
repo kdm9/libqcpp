@@ -15,6 +15,9 @@ clean:
 	rm -f libqcpp_*_amd64.tar* trimit_*_amd64.tar*
 
 libqcpp_$(VERSION)_amd64: src/hbb-build.sh .git/refs/tags
+	git stash -u
+	tar cvf libqcpp_$(VERSION).tar .
+	git stash pop || true
 	$(HBB_DOCKER) /io/$< $(VERSION)
 	mv static_build $@
 
