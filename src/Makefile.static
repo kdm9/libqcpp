@@ -13,6 +13,7 @@ sign: $(QCPP_SIGS)
 clean:
 	rm -rf libqcpp_*_amd64 trimit_*_amd64
 	rm -f libqcpp_*_amd64.tar* trimit_*_amd64.tar*
+	rm -f libqcpp_$(VERSION).tar
 
 libqcpp_$(VERSION)_amd64: src/hbb-build.sh .git/refs/tags
 	git stash -u
