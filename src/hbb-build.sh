@@ -37,7 +37,6 @@ rm -rf yaml-cpp*
 prefix=/io/static_build
 rm -rf $prefix
 mkdir -p $prefix
-chown 1000:1000 -R $prefix
 
 # Clone to builddir
 builddir=$(mktemp -d)
@@ -54,5 +53,3 @@ cmake $builddir                    \
 make -j4 VERBOSE=1
 make test
 make install
-
-chown 1000:1000 -R $prefix
