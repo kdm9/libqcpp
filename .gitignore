@@ -56,3 +56,4 @@ qc-config.hh
 deps/
 libqcpp_*
 trimit_*
+*.pdf
