@@ -38,11 +38,11 @@ these features into a single unit. Application code can then simply read from a
 stream of sequence reads that have passed quality control measures.
 Optionally, parsing and quality control can occur in one or more background
 threads for efficiency. Reports detailing actions performed and summaries of
-results may be obtained in YAML format.
+results may be obtained in YAML format. Libqcpp includes `trimit`, a command
+line interface to these features for those not building their own applications.
 
 Libqcpp uses the SeqAn library for sequence parsing and alignment
 [@doring08_seqan], libyaml-cpp for YAML report generation, and Catch for unit
 testing.
-
 
 # References
