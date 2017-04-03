@@ -13,13 +13,13 @@ libqcpp's API is built around two concepts: Stream and Processors.
 Streams
 -------
 
-``ReadStreams`` are streams of sequence reads. The in the basic case, these
-streams parse reads from or write reads to a file or stream without
-manipulation (``ReadInputStream`` and ``ReadOutputStream``). Streams that
-process reads using some pipeline of processors have been implemented
-(``ProcessedReadStream``). A high-level, multi-threaded read processor is also
-provided (``ThreadedQCProcessor``). Streams can report statistics reads that
-that have parsed or written as member variables or as a YAML report.
+``ReadStreams`` are streams of sequence reads. These streams parse reads from
+or write reads to a file or stream. ``ReadInputStream`` and
+``ReadOutputStream`` do so without any manipulation. A ``ProcessedReadStream``
+processes reads using a pipeline of processors. ``ThreadedQCProcessor`` is a
+high-level, multi-threaded read processor that reads from and writes to files
+directly. Streams can report, as member variables or as a YAML report,
+statistics on reads that have been parsed or written.
 
 Processors
 ----------
@@ -39,7 +39,7 @@ The following processors are implemented (shown with constructor arguments).
    AdaptorTrimPE(const std::string &name, int min_overlap=10,
                  const QualityEncoding &encoding=SangerEncoding);
 
-Aligns a read pair to each other, and detect either adapter read-through, or
+Aligns a read pair to each other, and detect either adaptor read-through, or
 read overlap. Operates only on paired reads. Yields single ended reads if the
 read pair is either shorter than the read length (thus each read contains
 adaptor sequence) or the read ends overlap.
