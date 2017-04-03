@@ -7,6 +7,7 @@ Contents:
    :maxdepth: 2
 
    applications
+   api
    dev/index
 
 Indices and tables
