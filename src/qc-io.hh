@@ -14,6 +14,7 @@
 
 #include <atomic>
 #include <mutex>
+#include <tuple>
 
 namespace qcpp
 {
@@ -201,7 +202,10 @@ private:
 
     bool
     parse_read                  (Read              &the_read)
-    {return false;}
+    {
+        std::ignore = the_read;
+        return false;
+    }
 
 };
 
@@ -234,7 +238,10 @@ private:
     std::mutex          _mutex;
 
     void
-    write_read                  (Read              &the_read) {}
+    write_read                  (Read              &the_read)
+    {
+        std::ignore = the_read;
+    }
 
 };
 

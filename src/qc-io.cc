@@ -417,6 +417,7 @@ ReadOutputStream()
 ReadOutputStream::
 ReadOutputStream(const ReadOutputStream &other)
 {
+    std::ignore = other;
 }
 
 void

@@ -11,6 +11,7 @@
 #define QC_ADAPTOR_HH
 
 #include "qc-processor.hh"
+#include <tuple>
 
 namespace qcpp
 {
@@ -38,7 +39,7 @@ private:
 
     void
     process_read                    (Read              &the_read)
-    {} // "Deleted" Pure Virtual function
+    {std::ignore = the_read;} // "Deleted" Pure Virtual function
 
 };
 
