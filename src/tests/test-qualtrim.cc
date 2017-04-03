@@ -22,7 +22,7 @@ TEST_CASE("WindowedQualTrimmer low_qual.fastq", "[qualtrim]") {
     parser.open(infile);
 
     SECTION("Cutoff 20, len 30") {
-        qcpp::WindowedQualTrim  wqt("qt", qcpp::SangerEncoding, 20, 30);
+        qcpp::WindowedQualTrim  wqt("qt", 20, 30);
         REQUIRE_NOTHROW(parser.parse_read(r1));
         REQUIRE_NOTHROW(parser.parse_read(r2));
 
@@ -34,7 +34,7 @@ TEST_CASE("WindowedQualTrimmer low_qual.fastq", "[qualtrim]") {
     }
 
     SECTION("Cutoff 20, len 1") {
-        qcpp::WindowedQualTrim  wqt("qt", qcpp::SangerEncoding, 20, 1);
+        qcpp::WindowedQualTrim  wqt("qt", 20, 1);
         REQUIRE_NOTHROW(parser.parse_read(r1));
         REQUIRE_NOTHROW(parser.parse_read(r2));
 
@@ -46,7 +46,7 @@ TEST_CASE("WindowedQualTrimmer low_qual.fastq", "[qualtrim]") {
     }
 
     SECTION("Cutoff 20, len 1, paired mode") {
-        qcpp::WindowedQualTrim  wqt("qt", qcpp::SangerEncoding, 20, 1);
+        qcpp::WindowedQualTrim  wqt("qt", 20, 1);
         qcpp::ReadPair rp;
         REQUIRE_NOTHROW(parser.parse_read_pair(rp));
 

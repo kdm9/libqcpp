@@ -23,14 +23,10 @@ class WindowedQualTrim: public ReadProcessor
     // This class implements a similar algorithm to Nik Joshi's sickle tool
 public:
     WindowedQualTrim                (const std::string &name,
-                                     const QualityEncoding &encoding,
                                      int8_t             min_quality,
-                                     size_t             min_length,
-                                     size_t             window_size);
-    WindowedQualTrim                (const std::string &name,
-                                     const QualityEncoding &encoding,
-                                     int8_t             min_quality,
-                                     size_t             min_length);
+                                     size_t             min_length=1,
+    /* guess window from read len */ size_t             window_size=0,
+                                     const QualityEncoding &encoding=SangerEncoding);
 
     void
     process_read                    (Read              &the_read);

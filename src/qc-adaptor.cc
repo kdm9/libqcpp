@@ -19,14 +19,12 @@ namespace qcpp
 
 AdaptorTrimPE::
 AdaptorTrimPE(const std::string &name,
-              const QualityEncoding &encoding,
-              int min_overlap) : 
-    ReadProcessor(name, encoding),
-    _num_pairs_trimmed(0),
-    _num_pairs_joined(0),
-    _min_overlap(min_overlap)
-{
-}
+              int min_overlap,
+              const QualityEncoding &encoding)
+    : ReadProcessor(name, encoding)
+    , _num_pairs_trimmed(0)
+    , _num_pairs_joined(0)
+    , _min_overlap(min_overlap) { }
 
 void
 AdaptorTrimPE::

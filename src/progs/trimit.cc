@@ -135,12 +135,12 @@ main (int argc, char *argv[])
         stream.append_processor<PerBaseQuality>("before qc");
     }
     if (!single_end) {
-        stream.append_processor<AdaptorTrimPE>("trim or merge reads", SangerEncoding, 10);
+        const int min_overlap = 10;
+        stream.append_processor<AdaptorTrimPE>("trim or merge reads", min_overlap);
     }
-    stream.append_processor<WindowedQualTrim>("QC", SangerEncoding, qual_threshold, 1);
+    stream.append_processor<WindowedQualTrim>("QC", qual_threshold);
     if (truncate_length > 0) {
-        stream.append_processor<ReadTruncator>("Fix Length", SangerEncoding,
-                                               truncate_length);
+        stream.append_processor<ReadTruncator>("Fix Length", truncate_length);
     }
     if (filter_length > 0) {
         stream.append_processor<ReadLenFilter>("Length Filter", filter_length);

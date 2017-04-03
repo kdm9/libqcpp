@@ -47,7 +47,7 @@ class ReadLenFilter: public ReadProcessor
 {
 public:
     ReadLenFilter                   (const std::string &name,
-                                     size_t             threshold = 1,
+                                     size_t             threshold=1,
                                      const QualityEncoding &encoding=SangerEncoding);
 
     void
@@ -73,8 +73,8 @@ class ReadTruncator: public ReadProcessor
 {
 public:
     ReadTruncator                   (const std::string &name,
-                                     const QualityEncoding &encoding=SangerEncoding,
-                                     size_t             threshold=64);
+                                     size_t             threshold=64,
+                                     const QualityEncoding &encoding=SangerEncoding);
 
     void
     process_read                    (Read              &the_read);

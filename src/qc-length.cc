@@ -205,8 +205,8 @@ yaml_report()
 
 
 ReadTruncator::
-ReadTruncator(const std::string  &name, const QualityEncoding &encoding,
-              size_t threshold)
+ReadTruncator(const std::string  &name, size_t threshold,
+              const QualityEncoding &encoding)
     : ReadProcessor(name, encoding)
 {
     _num_r1_dropped = 0;

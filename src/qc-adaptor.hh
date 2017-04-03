@@ -20,8 +20,8 @@ class AdaptorTrimPE: public ReadProcessor
 {
 public:
     AdaptorTrimPE                   (const std::string &name,
-                                     const QualityEncoding &encoding=SangerEncoding,
-                                     int                min_overlap=10);
+                                     int                min_overlap=10,
+                                     const QualityEncoding &encoding=SangerEncoding);
 
 
     void

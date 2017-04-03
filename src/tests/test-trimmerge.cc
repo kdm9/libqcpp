@@ -16,8 +16,9 @@
 
 TEST_CASE("AdaptorTrimPE correctness", "[AdaptorTrimPE]") {
     qcpp::ReadParser    parser;
-    qcpp::ReadPair      rp; TestConfig         *config = TestConfig::get_config();
-    qcpp::AdaptorTrimPE at("tm", qcpp::SangerEncoding, 4);
+    qcpp::ReadPair      rp;
+    TestConfig         *config = TestConfig::get_config();
+    qcpp::AdaptorTrimPE at("tm", 4);
 
     SECTION("tm-trim") {
         std::string         infile = config->get_data_file("tm-trim.fastq");

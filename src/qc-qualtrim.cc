@@ -15,22 +15,14 @@ namespace qcpp
 
 
 WindowedQualTrim::
-WindowedQualTrim(const std::string &name, const QualityEncoding &encoding,
-                 int8_t min_quality, size_t min_length, size_t window_size)
+WindowedQualTrim(const std::string &name, int8_t min_quality, size_t min_length,
+                 size_t window_size, const QualityEncoding &encoding)
     : ReadProcessor(name, encoding)
     , _min_quality(min_quality)
     , _min_length(min_length)
     , _window_size(window_size)
     , _num_reads_trimmed(0)
     , _num_reads_dropped(0)
-{
-}
-
-
-WindowedQualTrim::
-WindowedQualTrim(const std::string &name, const QualityEncoding &encoding,
-                 int8_t min_quality, size_t min_length)
-    : WindowedQualTrim(name, encoding, min_quality, min_length, 0)
 {
 }
 
