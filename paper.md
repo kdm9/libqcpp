@@ -14,10 +14,12 @@ authors:
 affiliations:
   - name: >
       ARC Centre of Excellence in Plant Energy Biology,
-      The Australian National University, Canberra, Australia
+      The Australian National University, Canberra, ACT 2602, Australia
     index: 1
-date: 10 March 2017
+date: 03 April 2017
 bibliography: paper.bib
+geometry:
+    - margin=1in
 ---
 
 # Summary
@@ -25,11 +27,11 @@ bibliography: paper.bib
 Libqcpp implements a variety of algorithms for Next-generation Sequencing (NGS)
 data quality control. These algorithms include:
 
-- Sliding-window quality score trimming, using an algorithm based on that of
-  Sickle [@joshi11_sickle].
+- Sliding-window quality score trimming, using an algorithm based on Sickle
+  [@joshi11_sickle].
 - A combined adaptor removal and read merging algorithm for paired end reads
   that uses global pairwise alignment of reads. This algorithm is similar to
-  that of AdapterRemoval [@lindgreen12_adapterremoval].
+  AdapterRemoval [@lindgreen12_adapterremoval].
 - Cycle-wise summarisation of base quality scores, similar to FastQC
   [@andrews12_fastqc]
 
@@ -43,6 +45,7 @@ line interface to these features for those not building their own applications.
 
 Libqcpp uses the SeqAn library for sequence parsing and alignment
 [@doring08_seqan], libyaml-cpp for YAML report generation, and Catch for unit
-testing.
+testing. Documentation on API and command line usage is included, and available
+at https://qcpp.readthedocs.io/.
 
 # References
