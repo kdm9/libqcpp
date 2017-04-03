@@ -135,7 +135,7 @@ main (int argc, char *argv[])
         stream.append_processor<PerBaseQuality>("before qc");
     }
     if (!single_end) {
-        stream.append_processor<AdaptorTrimPE>("trim or merge reads", 10);
+        stream.append_processor<AdaptorTrimPE>("trim or merge reads", SangerEncoding, 10);
     }
     stream.append_processor<WindowedQualTrim>("QC", SangerEncoding, qual_threshold, 1);
     if (truncate_length > 0) {
