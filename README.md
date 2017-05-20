@@ -39,9 +39,7 @@ On Debian-like systems:
 License
 -------
 
-Library code is licensed under the Mozilla Public Licence, version 2.0.
-`trimit` and other executables bundled with `libqcpp` are licensed under the
-GNU General Public License, version 3 or higher.
+All libqcpp code is licensed under the Mozilla Public Licence, version 2.0.
 
 Catch.hpp, seqan and libssw are licensed under their respective licenses, see
 their LICENSE files for more information.
