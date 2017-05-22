@@ -11,11 +11,18 @@ This example is from the `1001 genomes project
 <http://www.cell.com/cell/abstract/S0092-8674%2816%2930667-5>`_. We will
 operate on a small set of reads extracted from one sample (SRR1945463).
 
+This tutorial only requires trimit and wget. Trimit can be obtained from github
+and then installed (from source of pre-build binaries) according to the
+`installation instructions on github
+<https://github.com/kdmurray91/libqcpp#installation>`_. wget should already be
+installed on any modern GNU/Linux operating system (``sudo apt-get install
+wget`` on Debian or Ubuntu).
+
 First, we need to download and extract the prepared data.
 
 .. code-block:: shell
 
-    wget -O - https://github.com/kdmurray91/libqcpp/raw/master/docs/tutorial-data.tar.gz | tar xzv
+    wget -qO - https://github.com/kdmurray91/libqcpp/raw/master/docs/tutorial-data.tar.gz | tar xzv
 
 The following files should have been created:
 
@@ -107,3 +114,16 @@ following commands.
         --defline-qual '+' \
         reads.sra > reads.fastq
 
+
+    trimit reads.fastq > reads_qc.fastq
+
+    # ALTERNATIVELY, one can pipe the reads directly into trimit:
+    fastq-dump \
+        --split-spot \
+        --skip-technical \
+        --stdout \
+        --readids \
+        --defline-seq '@$sn/$ri' \
+        --defline-qual '+' \
+        reads.sra \
+      | trimit - > reads_qc.fastq
